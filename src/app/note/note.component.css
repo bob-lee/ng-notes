@@ -1,0 +1,8 @@
+.notes:hover {
+  background-color:  silver;
+  cursor: pointer;
+  margin-left: 1px;
+}
+.notes hr {
+  margin: 0.2em 0;
+}

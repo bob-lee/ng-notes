@@ -1,0 +1,38 @@
+<!--{{note | json}}{{form.controls.name.valid}}, {{form.controls.text.valid}}{{form.controls.name.errors|json}}, {{theForm.controls.text.errors|json}}-->
+<!--<pre>{{noteForm.valid}}, {{noteForm.controls.name.valid}}, {{noteForm.controls.text.valid}}</pre>
+<pre>{{noteForm.errors|json}}, {{noteForm.controls.name.errors|json}}, {{noteForm.controls.text.errors|json}} </pre>
+md-button
+pull-right
+id="myFileInput"
+-->
+
+<form [formGroup]="noteForm" novalidate>
+  <div class="buttons">
+    <button class="btn btn-lg btn-primary" (click)="remove($event)" [hidden]="noteService.todo === todoEnum.Add">Remove</button>
+    <button class="btn btn-lg btn-default" (click)="cancel($event)" type="button">Cancel</button>
+    <button class="btn btn-lg btn-primary" (click)="save($event)" type="button">Save</button>
+  </div>
+
+  <div>
+    <md-input-container>
+      <input mdInput placeholder="Name" formControlName="name" required blFocusMe>
+      <div class="text-danger" [hidden]="!submitted || noteForm.controls.name.valid || !noteForm.controls.name.errors.required">Entry is mandatory</div>
+    </md-input-container>
+  </div>
+
+  <div>
+    <md-input-container>
+      <textarea mdInput placeholder="Note" formControlName="text" rows="4" required>
+      </textarea>
+      <div class="text-danger" [hidden]="!submitted || noteForm.controls.text.valid || !noteForm.controls.text.errors.required">Entry is mandatory</div>
+    </md-input-container>
+  </div>
+
+  <div class="">
+    <input class="btn" type="file" accept="image/*;capture=camera" (change)="fileSelected()" #fileInput>
+    <button class="" type="button" (click)="removeFile($event)" [hidden]="toHideButton"><i class="material-icons">delete</i></button>
+  </div>
+
+  <img id="myimg" [hidden]="toHideImg">
+
+</form>
