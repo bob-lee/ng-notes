@@ -63,11 +63,13 @@ export class NoteService {
     return this.afAuth.auth.signOut();
   }
 
-  save(note: any, files, editToRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
+  save(note: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
+    console.log(`save ${Todo[this._todo]}, imageFailedToLoad=${imageFailedToLoad}, toRemoveExistingImage=${toRemoveExistingImage}`);
+    console.log('note', note);
     note.updatedAt = firebase.database.ServerValue.TIMESTAMP;
 
     if (this._todo === Todo.Add) { // add
-      console.log('save add', note);
+
       if (files && files.length > 0) {
         const file = files.item(0);
         if (file) {
@@ -75,12 +77,12 @@ export class NoteService {
 
           return this.storage.child(`images/${file.name}`).put(file)
             .then((snapshot) => {
-              console.log('Add uploaded file:', snapshot.downloadURL);
+              console.log('uploaded file:', snapshot.downloadURL);
               note.imageURL = snapshot.downloadURL;
               return this.notes.push(note);
             })
             .catch(error => {
-              console.error('Add failed to upload', error);
+              console.error('failed to upload', error);
             });
         }
       }
@@ -88,44 +90,88 @@ export class NoteService {
       return this.notes.push(note);
 
     } else if (this._todo === Todo.Edit) { // edit
-      console.log('save edit', note);
-      /* 5 edit cases for image:
 
-          previous      current				action          description
-      ----+-------------+-------------+---------------+---------------------------
-      1a.	no image      no image			x               null imageURL, no file
-      1b.               new image			add             null imageURL, new file
-      2a.	image         same          x               imageURL, no file
-      2b.               no image			remove          imageURL, toRemove, no file
-      2c.               new image			remove and add  imageURL, (toRemove), new file
-      ----+-------------+-------------+---------------+---------------------------
-      */
+      return this.saveEdit(note, files, imageFailedToLoad, toRemoveExistingImage);
 
-      if (note.imageURL) { // existing image
-        const ref = this.storage.storage.refFromURL(note.imageURL);
-        console.log('ref to existing image', ref);
+    } else if (this._todo === Todo.Remove) { // remove
 
-        if (!editToRemoveExistingImage && (!files || files.length === 0)) {
-          console.log('case 2a.');
-          //return this.notes.update(note.$key, note);
-        } else if (editToRemoveExistingImage && (!files || files.length === 0)) {
-          console.log('case 2b.');
+      if (note.imageURL && !imageFailedToLoad) {
+        return this.storage.storage.refFromURL(note.imageURL).delete()
+          .then(() => this.notes.remove(note))
+          .catch((error) => console.error('failed to delete image', error));
+      }
+      return this.notes.remove(note);
+    }
+  }
 
+  /* 5 edit cases for image:
+
+      previous      current				action          description
+  ----+-------------+-------------+---------------+---------------------------
+  1a.	no image      no image			x               null imageURL, no file
+  1b.               new image			add             null imageURL, new file
+  2a.	image         same          x               imageURL, no file
+  2b.               no image			remove          imageURL, toRemove, no file
+  2c.               new image			remove and add  imageURL, (toRemove), new file
+  ----+-------------+-------------+---------------+---------------------------
+  */
+  private saveEdit(note: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
+
+    if (note.imageURL) { // existing image
+      const ref = this.storage.storage.refFromURL(note.imageURL);
+      console.log('ref to existing image', ref);
+
+      if (!toRemoveExistingImage && (!files || files.length === 0)) {
+        console.log('case 2a.');
+
+        if (imageFailedToLoad) {
+          note.imageURL = null;
+        }
+
+      } else if (toRemoveExistingImage && (!files || files.length === 0)) {
+        console.log('case 2b.');
+
+        /*
+        if (imageFailedToLoad) {
+          note.imageURL = null;
+          return this.notes.update(note.$key, note);
+        } else {
           return ref.delete()
             .then(() => {
               console.log('deleted existing image');
-              this.note.imageURL = null;
+              note.imageURL = null;
               return this.notes.update(note.$key, note);
             })
             .catch((error) => console.error('failed to delete image', error));
-        } else if (/*editToRemoveExistingImage && */files && files.length > 0) {
-          console.log('case 2c.');
+        }
+        */
 
+        return ref.delete() // Promise.then.catch.then, pro: DRY, con: one more http call
+          .then(() => {
+            console.log('deleted existing');
+          })
+          .catch((error) => {
+            console.error('failed to delete image', error);
+          })
+          .then(() => {
+            console.log('finally');
+            note.imageURL = null;
+            return this.notes.update(note.$key, note);
+          });
+
+      } else if (/*toRemoveExistingImage && */files && files.length > 0) {
+        console.log('case 2c.');
+        const file = files.item(0);
+
+        /*
+        if (imageFailedToLoad) {
+          this.note.imageURL = null;
+          return this.notes.update(note.$key, note);
+        } else {
           return ref.delete()
             .then(() => {
-              const file = files.item(0);
               if (file) {
-                console.log('selected file', file);
+                console.log('deleted existing, new file to add', file);
 
                 return this.storage.child(`images/${file.name}`).put(file)
                   .then((snapshot) => {
@@ -141,42 +187,58 @@ export class NoteService {
             })
             .catch((error) => console.error('failed to delete image', error));
         }
-      } else { // no existing image
-        if (!files || files.length === 0) {
-          console.log('case 1a.');
-          //return this.notes.update(note.$key, note);
-        } else if (files && files.length > 0) {
-          console.log('case 1b.');
+        */
 
-          const file = files.item(0);
-          if (file) {
-            console.log('selected file', file);
+        return ref.delete()
+          .then(() => {
+            console.log('deleted existing');
+          })
+          .catch((error) => {
+            console.error('failed to delete image', error);
+            note.imageURL = null;
+          })
+          .then(() => {
+            console.log('finally');
+            if (file) {
+              return this.storage.child(`images/${file.name}`).put(file)
+                .then((snapshot) => {
+                  console.log('uploaded file:', snapshot.downloadURL);
+                  note.imageURL = snapshot.downloadURL;
+                  return this.notes.update(note.$key, note);
+                })
+                .catch(error => { // throw away any changes on note
+                  console.error('failed to upload', error);
+                });
+            }
+            return this.notes.update(note.$key, note);
+          });
 
-            return this.storage.child(`images/${file.name}`).put(file)
-              .then((snapshot) => {
-                console.log('uploaded file:', snapshot.downloadURL);
-                note.imageURL = snapshot.downloadURL;
-                return this.notes.update(note.$key, note);
-              })
-              .catch(error => {
-                console.error('failed to upload', error);
-              });
-          }
+      }
+    } else { // no existing image
+
+      if (!files || files.length === 0) {
+        console.log('case 1a.');
+      } else if (files && files.length > 0) {
+        console.log('case 1b.');
+
+        const file = files.item(0);
+        if (file) {
+          console.log('selected file', file);
+
+          return this.storage.child(`images/${file.name}`).put(file)
+            .then((snapshot) => {
+              console.log('uploaded file:', snapshot.downloadURL);
+              note.imageURL = snapshot.downloadURL;
+              return this.notes.update(note.$key, note);
+            })
+            .catch(error => {
+              console.error('failed to upload', error);
+            });
         }
-
       }
-
-      return this.notes.update(note.$key, note);
-
-    } else if (this._todo === Todo.Remove) { // remove
-      console.log('save remove', note);
-      if (note.imageURL) {
-        return this.storage.storage.refFromURL(note.imageURL).delete()
-          .then(() => this.notes.remove(note))
-          .catch((error) => console.error('Remove failed to delete image', error));
-      }
-      return this.notes.remove(note);
     }
+
+    return this.notes.update(note.$key, note);
   }
 
   search(term: string) { // search group by name

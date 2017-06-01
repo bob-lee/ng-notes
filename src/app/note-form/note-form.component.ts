@@ -19,6 +19,7 @@ export class NoteFormComponent implements OnInit {
   submitted: boolean;
   imgToRemove: boolean;
   _fileChanged: boolean; // selected or removed
+  imageFailedToLoad: boolean = false; // to indicate the case where the given image url failed to load
   /* 
   note that it does not subscribe to value changes of this form.
   on button click, form value is checked and then manually taken to model.
@@ -27,7 +28,7 @@ export class NoteFormComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private noteService: NoteService,
+    public noteService: NoteService,
     private windowRef: WindowRef) { }
 
   ngOnInit() {
@@ -55,7 +56,13 @@ export class NoteFormComponent implements OnInit {
       this.note = this.noteService.getNote(idToEdit);
       if (this.note.imageURL) {
         console.log('imageURL', this.note.imageURL);
-        (<HTMLImageElement>document.querySelector("#myimg")).src = this.note.imageURL;
+        const img = <HTMLImageElement>document.querySelector("#myimg");
+        img.addEventListener('load', () => console.log('load event'));
+        img.addEventListener('error', () => {
+          console.log('error event');
+          this.imageFailedToLoad = true;
+        });
+        img.src = this.note.imageURL;
       }
     }
 
@@ -121,7 +128,7 @@ export class NoteFormComponent implements OnInit {
   }
 
   get toHideImg(): boolean {
-    const hideIt = this.imgToRemove || !this.note.imageURL || (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
+    const hideIt = this.imgToRemove || this.imageFailedToLoad || !this.note.imageURL || (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
     return hideIt as boolean;
   }
 
@@ -129,7 +136,7 @@ export class NoteFormComponent implements OnInit {
     if (this.noteService.todo === Todo.Add) return true; // add, changed of course
     const orig = this.note;
     const form = this.noteForm.value;
-    const changed = form.name !== orig.name || form.text !== orig.text || this._fileChanged;
+    const changed = form.name !== orig.name || form.text !== orig.text || this._fileChanged || this.imageFailedToLoad;
     return changed;
   }
 
@@ -137,10 +144,10 @@ export class NoteFormComponent implements OnInit {
     this.router.navigate(['group', this.noteService.groupName]);
   }
 
-  private saveNote(editToRemoveExistingImage?: boolean) { // assumes this.note has form value
+  private saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
     let inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
-    this.noteService.save(this.note, inputEl.files, editToRemoveExistingImage)
+    this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage)
       .then(() => {
         console.log('saved');
         this.goBack();
