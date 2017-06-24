@@ -6,15 +6,12 @@ import { Note, Todo } from '../Note';
 import { NoteService } from '../service/note.service';
 import { WindowRef } from '../service/window-ref.service';
 
-
-
 /* 
 
 0! note can have optional one image file
 0. try service worker to process image (e.g. downgrading if too big)
-0. make add/edit pages work on refresh
 
-0. see how onmousedown / onmouseup / click events work on desktop and mobile
+0! see how onmousedown / onmouseup / click events work on desktop and mobile: long press/touch to edit note
 
 0. test
 0! if another image selected, delete any existing image

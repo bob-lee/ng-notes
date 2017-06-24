@@ -52,8 +52,28 @@ export class NoteFormComponent implements OnInit {
         updatedAt: '',
         imageURL: ''
       };
+
+      this.initDone(addOrEdit);
     } else { // edit
-      this.note = this.noteService.getNote(idToEdit);
+      
+      this.noteService.getNotePromise(idToEdit).then((response) => {
+        this.note = response;
+        if (this.note.imageURL) {
+          console.log('imageURL', this.note.imageURL);
+          const img = <HTMLImageElement>document.querySelector("#myimg");
+          img.addEventListener('load', () => console.log('load event'));
+          img.addEventListener('error', () => {
+            console.log('error event');
+            this.imageFailedToLoad = true;
+          });
+          img.src = this.note.imageURL;
+        }
+
+        this.initDone(addOrEdit);
+      })
+      
+      /*
+      this.note = this.noteService.getNote(idToEdit); // can I make this call blocking? // 21Jun17 make getNote call non-blocking, let it return promise..
       if (this.note.imageURL) {
         console.log('imageURL', this.note.imageURL);
         const img = <HTMLImageElement>document.querySelector("#myimg");
@@ -64,14 +84,11 @@ export class NoteFormComponent implements OnInit {
         });
         img.src = this.note.imageURL;
       }
+
+      this.initDone(addOrEdit);
+      */
     }
 
-    this.noteService.todo = addOrEdit ? Todo.Add : Todo.Edit;
-
-    // apply model to view
-    this.noteForm.patchValue(this.note);
-
-    this.submitted = false;
   }
 
   cancel(e) {
@@ -123,12 +140,12 @@ export class NoteFormComponent implements OnInit {
   }
 
   get toHideButton(): boolean {
-    const hideIt = this.inputEl.nativeElement.files.length === 0 && !this.note.imageURL/* && this.note.imageURL !== 'remove'*/;
+    const hideIt = this.inputEl.nativeElement.files.length === 0 && this.note && !this.note.imageURL/* && this.note.imageURL !== 'remove'*/;
     return hideIt as boolean;
   }
 
   get toHideImg(): boolean {
-    const hideIt = this.imgToRemove || this.imageFailedToLoad || !this.note.imageURL || (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
+    const hideIt = this.imgToRemove || this.imageFailedToLoad || !this.note || !this.note.imageURL || (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
     return hideIt as boolean;
   }
 
@@ -144,6 +161,15 @@ export class NoteFormComponent implements OnInit {
     this.router.navigate(['group', this.noteService.groupName]);
   }
 
+  private initDone(addOrEdit: boolean) {
+    this.noteService.todo = addOrEdit ? Todo.Add : Todo.Edit;
+
+    // apply model to view
+    this.noteForm.patchValue(this.note);
+
+    this.submitted = false;
+  }
+
   private saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
     let inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
@@ -154,4 +180,5 @@ export class NoteFormComponent implements OnInit {
       })
       .catch((error) => console.log('saveNote error', error));
   }
+
 }

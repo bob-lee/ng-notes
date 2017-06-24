@@ -38,7 +38,7 @@ export class NoteComponent implements OnInit {
   }
 
   private edit(note, e) {
-    console.log('edit', new Date(note.updatedAt), e);
+    console.log('edit', new Date(note.updatedAt));
 
     this.noteService.note = note;
     this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key]);

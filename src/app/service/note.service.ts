@@ -30,6 +30,8 @@ export class NoteService {
     private afAuth: AngularFireAuth,
     private db: AngularFireDatabase,
     private windowRef: WindowRef) {
+    console.log('\'note.service\'');
+
     this.user = afAuth.authState;
     afAuth.auth.onAuthStateChanged(user => {
       if (user) {
@@ -46,8 +48,27 @@ export class NoteService {
     if (this.note) {
       return this.note;
     } else { // page refresh
-      return null; // make this work
+      console.log('getNote on refresh', this.note);
+      this.db.list(`notes/${this.groupName}/${id}`).subscribe(item => {
+        console.log('query single item from list', item);
+      });
+      return null; // make this work // use getNotePromise()
     }
+  }
+
+  getNotePromise(id: string): Promise<Note> {
+    console.log(`getNotePromise(${id})`);
+    return new Promise((resolve, reject) => {
+      if (this.note) {
+        resolve(this.note);
+      } else { // page refresh
+        // to query object by key from database, use AngularFireDatabase.object: https://github.com/angular/angularfire2/blob/master/src/database/database.ts
+        this.db.object(`notes/${this.groupName}/${id}`).subscribe(item => {
+          console.log('query single item from list', item);
+          resolve(item);
+        });
+      }
+    });
   }
 
   login() {
