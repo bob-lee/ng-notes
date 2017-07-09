@@ -1,8 +1,21 @@
+/*
 .notes:hover {
-  background-color:  silver;
+  background-color: silver;
   cursor: pointer;
   margin-left: 1px;
 }
+*/
 .notes hr {
   margin: 0.2em 0;
+}
+
+.notes a {
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+}
+
+.notes a:active {
+  top: 1px;
+  background: #eee;
 }

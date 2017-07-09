@@ -6,8 +6,8 @@
 </form>
 
 <button  (click)="add()" [hidden]="!inside || noteService.todo > 0" class="btn btn-lg btn-primary add">Add note</button>
-<button  (click)="logInOrOut()" class="btn btn-lg btn-primary add">Log {{noteService.loggedIn ? 'Out' : 'In'}}</button>
+<button  (click)="logInOrOut()" [hidden]="noteService.todo > 0" class="btn btn-lg btn-primary add">Log {{noteService.loggedIn ? 'Out' : 'In'}}</button>
 
 <router-outlet></router-outlet>
 
-<pre>noteService.todo:{{todoEnum[noteService.todo]}}, noteService.note: {{noteService.note | json}}</pre>
+<!--<pre>todo:{{todoEnum[noteService.todo]}}, note: {{noteService.note | json}}</pre>-->

@@ -17,3 +17,7 @@ img {
   width: auto;
   height: auto;
 }
+
+md-input-container.textarea {
+  width: 90%;
+}

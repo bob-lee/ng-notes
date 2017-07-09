@@ -13,10 +13,15 @@ import { WindowRef } from '../service/window-ref.service';
 0! make add/edit pages work on refresh: NoteService.getNotePromise()
 
 0! see how onmousedown / onmouseup / click events work on desktop and mobile: long press/touch to edit note
+0! on device, touch and scroll up / down on list doesn't work
 
 0. test
 0! if another image selected, delete any existing image
-0. if img src failed to get, hide it
+0! if img src failed to get, hide it
+
+0. PWA(progressive web app)
+0. try React version!
+
 */
 
 @Component({
@@ -50,13 +55,9 @@ export class OurNotesComponent implements OnInit {
         console.log('group hasn\'t changed');
         this.init();
       } else {
-        this.noteService.search(group)
-          .subscribe(notes => {
-            this.init();
-          },
-          error => console.error('searchGroup', error),
-          () => console.log(`searchGroup Completed!`)
-          );
+        this.noteService.search(group).subscribe(
+          notes => this.init(),
+          error => console.error('searchGroup', error));
       }
     } else { // route has no group name
       if (this.windowRef.nativeWindow.localStorage) {

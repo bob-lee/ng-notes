@@ -65,6 +65,8 @@ export class NoteService {
         // to query object by key from database, use AngularFireDatabase.object: https://github.com/angular/angularfire2/blob/master/src/database/database.ts
         this.db.object(`notes/${this.groupName}/${id}`).subscribe(item => {
           console.log('query single item from list', item);
+          //this._note = item;
+          //this.note = item;
           resolve(item);
         });
       }
