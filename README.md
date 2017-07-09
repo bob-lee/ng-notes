@@ -7,7 +7,7 @@ This web app allows to maintain notes by group. Each note can have optional imag
 * [Firebase](https://firebase.google.com/): cloud infrastructure
 * [Node.js](https://nodejs.org): JavaScript runtime environment
 
-Visit [the deployed web app](https://ng-notes-abb75.firebaseapp.com/group/Lee%20family/notes) and play with it! You can create your own group and add note to it.
+Visit [the deployed web app](https://ng-notes-abb75.firebaseapp.com/group/Lee%20family/notes) and play with it! You would need to log in first using your gmail account.
 
 For development, clone the repo and run `yarn` to install dependencies, then `ng serve`. Navigate to `http://localhost:4200/`.
 
