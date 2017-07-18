@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { trigger, animate, style, group, animateChild, query, stagger, transition } from '@angular/animations';
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../service/note.service';
@@ -38,15 +39,26 @@ import { NoteService } from '../service/note.service';
 @Component({
   selector: 'note',
   template: `
-  <div *ngFor="let note of (noteService.notes | async)" class="notes">
-    {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
-    <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" ontouchstart>
-      {{note.text}}
-    </a>
-    <hr>
-  </div>  
+  <div [@listAnimation]="''">
+    <div *ngFor="let note of (noteService.notes | async)" class="notes">
+      {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
+      <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" ontouchstart>
+        {{note.text}}
+      </a>
+      <hr>
+    </div>  
+  </div>
   `,
-  styleUrls: ['./note.component.css']
+  styleUrls: ['./note.component.css'],
+  animations: [
+    trigger('listAnimation', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('1s ease-out', style({ opacity: 1 }))
+      ])
+
+    ])
+  ]
 })
 export class NoteComponent implements OnInit {
   longpress = false;

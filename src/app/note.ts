@@ -11,3 +11,8 @@ export enum Todo {
   Edit,
   Remove
 }
+
+export enum LoginWith {
+  Facebook = 0, 
+  Google,
+}

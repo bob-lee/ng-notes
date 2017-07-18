@@ -1,13 +1,23 @@
 import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
+import { LoginComponent } from './login/login.component';
 import { OurNotesComponent } from './our-notes/our-notes.component';
 import { NoteComponent } from './note/note.component';
 import { NoteFormComponent } from './note-form/note-form.component';
+import { NoteService } from './service/note.service';
 
 export const AppRoutes: Routes = [
-  { path: '', redirectTo: '/group', pathMatch: 'full' },
-  { path: 'group', component: OurNotesComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', 
+    component: LoginComponent, 
+    data: { animation: { value: 'login' } } 
+  },
+  { path: 'group', 
+    component: OurNotesComponent, 
+    canActivate: [NoteService],
+    data: { animation: { value: 'group' } } 
+  },
   {
     path: 'group/:name', component: OurNotesComponent,
     children: [

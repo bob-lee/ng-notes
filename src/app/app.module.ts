@@ -13,6 +13,7 @@ import { AngularFireAuthModule } from 'angularfire2/auth';
 import { environment } from '../environments/environment';
 
 import { AppComponent } from './app.component';
+import { LoginComponent } from './login/login.component';
 import { OurNotesComponent } from './our-notes/our-notes.component';
 import { NoteComponent } from './note/note.component';
 import { NoteFormComponent } from './note-form/note-form.component';
@@ -26,6 +27,7 @@ import { AppRoutes } from './app.routes';
 @NgModule({
   declarations: [
     AppComponent,
+    LoginComponent,
     OurNotesComponent,
     NoteComponent,
     NoteFormComponent,

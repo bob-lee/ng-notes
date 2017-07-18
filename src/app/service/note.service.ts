@@ -1,16 +1,19 @@
 import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+
 import { FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { Observable } from 'rxjs/Observable';
 import * as firebase from 'firebase/app';
 
-import { Note, Todo } from '../Note';
+import { Note, Todo, LoginWith } from '../Note';
 import { WindowRef } from './window-ref.service';
 
 @Injectable()
-export class NoteService {
+export class NoteService implements CanActivate {
   user: Observable<firebase.User>;
+  userName: string;
   notes: FirebaseListObservable<Note[]>;
   groupName: string;
 
@@ -29,6 +32,7 @@ export class NoteService {
   constructor(app: FirebaseApp,
     private afAuth: AngularFireAuth,
     private db: AngularFireDatabase,
+    private router: Router,
     private windowRef: WindowRef) {
     console.log('\'note.service\'');
 
@@ -36,12 +40,25 @@ export class NoteService {
     afAuth.auth.onAuthStateChanged(user => {
       if (user) {
         console.log('logged in', user);
+        this.userName = user.displayName;
       } else {
         console.log('logged out');
+        this.userName = '';
+        this.router.navigate(['/login']);
       }
     });
 
     this.storage = app.storage().ref();
+  }
+
+  canActivate(): Observable<boolean> {
+    return this.user.map(auth => {
+      if (auth) {
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
 
   getNote(id: string): any {
@@ -73,15 +90,18 @@ export class NoteService {
     });
   }
 
-  login() {
+  login(loginWith: LoginWith) {
+    return loginWith === LoginWith.Facebook ? this.loginFb() : this.loginGoogle();
+  }
+
+  loginFb() {
+    return this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
+  }
+
+  loginGoogle() {
     return this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-    // .then(() => console.log('logged in', this.user, this.afAuth.auth.currentUser));
   }
-
-  logInOrOut() {
-    return this.loggedIn ? this.logout() : this.login();
-  }
-
+  
   logout() {
     return this.afAuth.auth.signOut();
   }

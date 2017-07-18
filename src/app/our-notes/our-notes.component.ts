@@ -30,6 +30,7 @@ import { WindowRef } from '../service/window-ref.service';
   styleUrls: ['./our-notes.component.css']
 })
 export class OurNotesComponent implements OnInit {
+  title: string = 'Our notes';
   myForm: FormGroup;
   inside: boolean = false;
   todoEnum = Todo;
@@ -47,7 +48,7 @@ export class OurNotesComponent implements OnInit {
 
     // inspect route
     const group = this.route.snapshot.params['name'];
-    console.log('\'OurNotesComponent\'', group, this.route.snapshot);
+    console.log(`'OurNotesComponent' '${group}'`/*, this.route.snapshot*/);
     if (group) { // route has group name
       this.myForm.controls['groupName'].setValue(group);
 
@@ -85,10 +86,8 @@ export class OurNotesComponent implements OnInit {
   }
 
   logInOrOut() {
-    this.noteService.logInOrOut()
-     .then(() => {
-       console.log('logInOrOut', this.noteService.loggedIn);
-     })
+    this.router.navigate(['/']);
+    this.noteService.logout();
   }
 
   searchOrExit() {
@@ -99,7 +98,7 @@ export class OurNotesComponent implements OnInit {
       }
 
       this.inside = false;
-      this.router.navigate(['']);
+      this.router.navigate(['group']);
     } else { // search
       if (this.myForm.controls['groupName'].value) {
         this.inside = true;

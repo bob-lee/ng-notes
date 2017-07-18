@@ -1,8 +1,7 @@
 <div class="container-fluid">
-  <h1>
-    {{title}}
-  </h1>
 
-  <router-outlet></router-outlet>
+  <div [@routerAnimation]="prepRouteState(outlet)">
+    <router-outlet #outlet="outlet"></router-outlet>
+  </div>
 
 </div>

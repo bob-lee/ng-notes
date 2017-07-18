@@ -1,12 +1,22 @@
+<h2>
+  {{title}} <small>- {{noteService.userName}}</small>
+</h2>
+
 <form [formGroup]="myForm" (submit)="searchOrExit()">
+  <div class="input-group">
+    <input type="text" class="form-control" placeholder="Group name" formControlName="groupName" aria-describedby="basic-addon2">
+    <span (click)="searchOrExit()" class="input-group-addon" id="basic-addon2">{{inside ? 'Exit' : 'Search'}}</span>
+  </div>
+  <!-- 
   <md-input-container>
     <input mdInput placeholder="Group name" formControlName="groupName">
-  </md-input-container>
-  <button class=""><i class="material-icons">{{inside ? 'expand_less' : 'search'}}</i></button>
+  </md-input-container> 
+  <button class=""><i class="material-icons">{{inside ? 'expand_less' : 'search'}}</i></button> 
+  -->
 </form>
 
-<button  (click)="add()" [hidden]="!inside || noteService.todo > 0" class="btn btn-lg btn-primary add">Add note</button>
-<button  (click)="logInOrOut()" [hidden]="noteService.todo > 0" class="btn btn-lg btn-primary add">Log {{noteService.loggedIn ? 'Out' : 'In'}}</button>
+<button (click)="add()" [hidden]="!inside || noteService.todo > 0" class="btn btn-lg btn-primary add">Add note</button>
+<button (click)="logInOrOut()" [hidden]="noteService.todo > 0" class="btn btn-lg btn-primary add">Log {{noteService.loggedIn ? 'Out' : 'In'}}</button>
 
 <router-outlet></router-outlet>
 

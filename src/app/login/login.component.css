@@ -1,0 +1,27 @@
+div.form-container {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+#fb {
+    background:#3B5998 url('/assets/images/facebook.svg') no-repeat 0.4em 0.1em;
+    background-size: 47px;
+    color:#fff;
+    border: none;
+}
+
+#google {
+    border: 1px solid #95989A;
+    background: #fff  url('/assets/images/google.svg') no-repeat 1em;
+    background-size: 25px;
+}
+
+button {
+  width: 100%;
+  padding: 1.2em;
+  font-family: sans-serif;
+  font-size: 1.3em;
+  line-height: 1;
+  margin-top: 15px;
+  /*margin-left: 0.5em;*/
+}
