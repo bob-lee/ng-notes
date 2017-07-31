@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { trigger, animate, style, group, animateChild, query, stagger, transition } from '@angular/animations';
+import { trigger, animate, animation, style, group, animateChild, query, stagger, transition, keyframes, useAnimation } from '@angular/animations';
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../service/note.service';
+import { listAnimation } from '../app.animation';
 /* 
-(click)="edit(note, $event)" onclick=""
 
   <div *ngFor="let note of (noteService.notes | async)" class="notes">
     {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
@@ -25,24 +25,17 @@ import { NoteService } from '../service/note.service';
   </li>
   </ol>  
 
-    (click)="click($event)" 
-    (mousedown)="start($event, note)" 
-    (scroll)="start($event, note)" 
-    (touchstart)="start($event, note)" 
-    (mouseout)="cancel($event)" 
-    (touchend)="cancel($event)" 
-    (touchleave)="cancel($event)" 
-    (touchcancel)="cancel($event)" 
-    {{note.text}}
-
+    {{ (noteService.notes | async).length }}
+    [@listAnimation]="''"
 */
+
 @Component({
   selector: 'note',
   template: `
-  <div [@listAnimation]="''">
-    <div *ngFor="let note of (noteService.notes | async)" class="notes">
+  <div [@listChild]="noteService.countNotes" class="list">
+    <div *ngFor="let note of (noteService.notes | async)" class="item" ontouchstart>
       {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
-      <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" ontouchstart>
+      <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" >
         {{note.text}}
       </a>
       <hr>
@@ -51,26 +44,47 @@ import { NoteService } from '../service/note.service';
   `,
   styleUrls: ['./note.component.css'],
   animations: [
-    trigger('listAnimation', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('1s ease-out', style({ opacity: 1 }))
+    trigger('listChild', [
+      transition('* => *', [
+        useAnimation(listAnimation)
       ])
-
     ])
+
+    /*trigger('listAnimation', [
+      transition('void => *', [
+        style({ height: '*' }),
+        animate(1000, style({ height: 0 }))
+      ]),
+      transition('* => void', [
+        animate(1000, keyframes([
+          style({ opacity: 0, transform: 'translateX(-100%)', offset: 0 }),
+          style({ backgroundColor: '#bee0ff', opacity: 1, transform: 'translateX(15px)', offset: 0.3 }),
+          style({ opacity: 1, transform: 'translateX(0)', offset: 1.0 })
+        ]))
+      ])
+    ])*/
   ]
 })
 export class NoteComponent implements OnInit {
-  longpress = false;
-  presstimer = null;
-  longtarget = null;
 
   constructor(private router: Router,
+    private route: ActivatedRoute,
     public noteService: NoteService) { }
 
   ngOnInit() {
-    console.log('\'NoteComponent\'');
     this.noteService.todo = Todo.List;
+
+    // inspect route
+    const group = this.route.snapshot.params['name'];
+    console.log(`'NoteComponent' '${group}'`);
+    if (group) { // route has group name
+
+      if (group === this.noteService.groupName) {
+        console.log('group hasn\'t changed');
+      } else {
+        this.noteService.search(group);
+      }
+    }
   }
 
   private edit(note, e) {
@@ -80,41 +94,4 @@ export class NoteComponent implements OnInit {
     this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key]);
   }
 
-  // long press/touch, https://stackoverflow.com/a/27413909/588521
-  start(e, note) {
-    console.log(`start ${e.type}`);
-    if (e.type === 'scroll') return;
-    if (e.type === "click" && e.button !== 0) return;
-    this.longpress = false;
-    //this.classList.add("longpress");
-    this.presstimer = setTimeout(() => {
-      //alert("long click");
-      this.edit(note, e);
-      this.longpress = true;
-    }, 750);
-
-    return false;
-  }
-
-  click(e) {
-    console.log(`click ${e.type}`);
-
-    if (this.presstimer !== null) {
-      clearTimeout(this.presstimer);
-      this.presstimer = null;
-    }
-    //this.classList.remove("longpress");
-    if (this.longpress) return false;
-    // alert("press");
-  }
-
-  cancel(e) {
-    console.log(`cancel ${e.type}`);
-
-    if (this.presstimer !== null) {
-      clearTimeout(this.presstimer);
-      this.presstimer = null;
-    }
-    //this.classList.remove("longpress");
-  }
 }

@@ -4,16 +4,34 @@ div.form-container {
 }
 
 #fb {
-    background:#3B5998 url('/assets/images/facebook.svg') no-repeat 0.4em 0.1em;
+    background:hsla(221, 44%, 41%, 1) url('/assets/images/facebook.svg') no-repeat 0.4em 0.1em;
     background-size: 47px;
     color:#fff;
     border: none;
 }
+#fb:hover {
+  background-color: hsla(221, 44%, 41%, 0.8);
+}
+#fb:focus {
+  background-color: hsla(221, 44%, 41%, 0.6);
+}
+#fb:active {
+  background-color: hsla(221, 44%, 41%, 0.4);
+}
 
 #google {
     border: 1px solid #95989A;
-    background: #fff  url('/assets/images/google.svg') no-repeat 1em;
+    background: hsla(0, 0%, 100%, 1)  url('/assets/images/google.svg') no-repeat 1em;
     background-size: 25px;
+}
+#google:hover {
+  background-color: hsla(0, 0%, 90%, 1);
+}
+#google:focus {
+  background-color: hsla(0, 0%, 80%, 1);
+}
+#google:active {
+  background-color: hsla(0, 0%, 70%, 1);
 }
 
 button {

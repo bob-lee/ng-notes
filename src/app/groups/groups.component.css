@@ -2,6 +2,9 @@
   padding-bottom: 4em;
   counter-reset: count;
 }
+.item-link {
+  line-height: 3;
+}
 
 .item::before {
   counter-increment: count;

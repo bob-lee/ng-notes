@@ -39,7 +39,7 @@ export class NoteFormComponent implements OnInit {
     this._fileChanged = false;
 
     // inspect route
-    const addOrEdit = this.route.snapshot.url.length === 1;
+    const addOrEdit = this.route.snapshot.url.length === 2; // ':name/add' or ':name/edit/:id'
     const idToEdit = this.route.snapshot.params['id'];
     console.log('\'NoteFormComponent\'', addOrEdit ? 'adding' : 'editing', idToEdit, this.route.snapshot);
 
@@ -47,6 +47,7 @@ export class NoteFormComponent implements OnInit {
       const previousName = this.windowRef.nativeWindow.localStorage.getItem('name');
 
       this.note = {
+        group: '',
         name: previousName ? previousName : '',
         text: '',
         updatedAt: '',
@@ -71,22 +72,6 @@ export class NoteFormComponent implements OnInit {
 
         this.initDone(addOrEdit);
       })
-      
-      /*
-      this.note = this.noteService.getNote(idToEdit); // can I make this call blocking? // 21Jun17 make getNote call non-blocking, let it return promise..
-      if (this.note.imageURL) {
-        console.log('imageURL', this.note.imageURL);
-        const img = <HTMLImageElement>document.querySelector("#myimg");
-        img.addEventListener('load', () => console.log('load event'));
-        img.addEventListener('error', () => {
-          console.log('error event');
-          this.imageFailedToLoad = true;
-        });
-        img.src = this.note.imageURL;
-      }
-
-      this.initDone(addOrEdit);
-      */
     }
 
   }

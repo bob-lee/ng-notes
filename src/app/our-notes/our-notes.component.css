@@ -1,3 +1,9 @@
+.my-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 button.add {
   margin-bottom: 1em;
 }
@@ -7,3 +13,111 @@ button.add {
 .input-group span {
   cursor: pointer;
 }
+
+.input-group-addon:hover {
+  background-color: #ddd;
+}
+.input-group-addon:focus {
+  background-color: #ccc;
+}
+.input-group-addon:active {
+  background-color: #bbb;
+}
+
+/* footer */
+.bl-footer {
+  z-index:100;
+  height: 4em;
+  opacity: 0.7;
+  background: linear-gradient(#222, #444);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.bl-footer input {
+  color:#000;
+}
+.bl-icon svg {
+  fill:#fff;
+}
+
+.bl-icon {
+  font-size: 2.5em;
+  cursor: pointer;
+}
+
+.bl-icon-count {
+  position: relative;
+}
+
+.bl-icon-count::before {
+  position: absolute;
+  top: 32%;
+  left: 37%;
+  content: attr(data-count);
+  height: 2em;
+  width: 2em;
+  font-size: small;
+  border-radius: 1em;
+  background: red;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.bl-icon-title {
+  position: relative;
+}
+
+.bl-icon-title::after {
+  position: absolute;
+  top: 78%; 
+  left: -48%;
+  width:200%;
+  content: attr(data-title);
+  font-size: x-small;
+  color: white;
+  text-align:center;
+}
+
+.bl-icon-unselected > span,
+.bl-icon-unselected.bl-icon-count::before {
+  opacity: 0.5;
+}
+
+.bl-icon-selected > span,
+.bl-icon-selected.bl-icon-count::before {
+  opacity: 1;
+}
+
+.fab {
+  z-index:101;
+  width: 2em;
+  height: 2em;
+  position: fixed;
+  right: 0.2em;
+  bottom: 1.5em;
+  border-radius: 50%;
+  background-color: #F44336;
+  color: white;
+  font-size: 18pt;
+  outline: none;
+  border: 0;
+  padding: 0; /* suspect bootstrap padding */
+
+  transition:0.3s cubic-bezier(0.35, 0, 0.25, 1);
+}
+
+.fab:hover {
+  transform:scale(1.1);
+  background-color: #E53935;
+}
+
+.fab:active {
+  background-color: #B71C1C;
+}
+
