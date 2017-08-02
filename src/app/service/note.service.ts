@@ -23,9 +23,9 @@ export class NoteService implements CanActivate {
 
   private _groupName: string;
   get groupName(): string { return this._groupName; }
-  set groupName(name: string) { 
-    this._groupName = name; 
-    this.announceGroupName.next(name); 
+  set groupName(name: string) {
+    this._groupName = name;
+    this.announceGroupName.next(name);
   }
 
   countNotes: number = 0;
@@ -55,7 +55,7 @@ export class NoteService implements CanActivate {
     afAuth.auth.onAuthStateChanged(user => {
       if (user) {
         console.log('logged in', user);
-        this.userName = user.displayName;
+        this.userName = user.displayName || 'Anonymous';
       } else {
         console.log('logged out');
         this.userName = '';
@@ -82,15 +82,34 @@ export class NoteService implements CanActivate {
     });
   }
 
-  getNotePromise(id: string): Promise<Note> {
-    console.log(`getNotePromise(${id})`);
+  getGroupNotes(group: string): void {
+    console.log(`getGroupNotes(${group})`);
+    if (!this.groupName) this.groupName = group; // 01Aug17 set group name
+    this.notes = this.db.list(`notes`, {
+      query: {
+        orderByChild: 'group',
+        equalTo: group
+      }
+    });
+    this.notes.subscribe(
+      notes => {
+        this.countNotes = notes.length;
+        console.log('countNotes', this.countNotes);
+      }
+    );
+  }
+
+  getNotePromise(id: string, group: string): Promise<Note> {
+    console.log(`getNotePromise(${id}, ${group})`);
     return new Promise((resolve, reject) => {
       if (this.note) {
         resolve(this.note);
       } else { // page refresh
+        this.getGroupNotes(group);
+
         // to query object by key from database, use AngularFireDatabase.object: https://github.com/angular/angularfire2/blob/master/src/database/database.ts
         this.db.object(`notes/${id}`).subscribe(item => {
-          console.log('query single item from list', item);
+          console.log('found', item);
           resolve(item);
         });
       }
@@ -98,9 +117,15 @@ export class NoteService implements CanActivate {
   }
 
   login(loginWith: LoginWith) {
-    return loginWith === LoginWith.Facebook ? this.loginFb() : this.loginGoogle();
+    return loginWith === LoginWith.Facebook ? this.loginFb() : 
+      loginWith === LoginWith.Google ? this.loginGoogle():
+      this.loginAnonymous();
   }
 
+  loginAnonymous() {
+    return this.afAuth.auth.signInAnonymously();
+  }
+  
   loginFb() {
     return this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
   }
@@ -278,21 +303,14 @@ export class NoteService implements CanActivate {
     return this.dbRef.update(updates);
   }
 
-  search(term: string) { // search by group name
-    if (term) { // enter group
-      this.groupName = term;
-      this.notes = this.db.list(`notes`, {
-        query: {
-          orderByChild: 'group',
-          equalTo: term
-        }
-      });
-      this.notes.subscribe(
-        notes => { this.countNotes = notes.length; console.log('countNotes', this.countNotes); }
-      );
+
+  search(group: string) { // search by group name
+    if (group) { // enter group
+      this.groupName = group;
+      this.getGroupNotes(group);
 
       if (this.windowRef.nativeWindow.localStorage) { // remember group
-        this.windowRef.nativeWindow.localStorage.setItem('group', term);
+        this.windowRef.nativeWindow.localStorage.setItem('group', group);
       }
 
       return this.notes;

@@ -30,7 +30,6 @@ import { listAnimation } from '../app.animation';
 */
 
 @Component({
-  selector: 'note',
   template: `
   <div [@listChild]="noteService.countNotes" class="list">
     <div *ngFor="let note of (noteService.notes | async)" class="item" ontouchstart>
@@ -82,8 +81,8 @@ export class NoteComponent implements OnInit {
       if (group === this.noteService.groupName) {
         console.log('group hasn\'t changed');
       } else {
-        this.noteService.search(group);
       }
+      this.noteService.search(group);
     }
   }
 

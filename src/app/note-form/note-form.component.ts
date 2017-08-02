@@ -40,6 +40,7 @@ export class NoteFormComponent implements OnInit {
 
     // inspect route
     const addOrEdit = this.route.snapshot.url.length === 2; // ':name/add' or ':name/edit/:id'
+    const group = this.route.snapshot.params['name'];
     const idToEdit = this.route.snapshot.params['id'];
     console.log('\'NoteFormComponent\'', addOrEdit ? 'adding' : 'editing', idToEdit, this.route.snapshot);
 
@@ -47,17 +48,21 @@ export class NoteFormComponent implements OnInit {
       const previousName = this.windowRef.nativeWindow.localStorage.getItem('name');
 
       this.note = {
-        group: '',
+        group: group,
         name: previousName ? previousName : '',
         text: '',
         updatedAt: '',
         imageURL: ''
       };
 
+      if (!this.noteService.groupName) { // page refresh
+        this.noteService.getGroupNotes(group);
+      }
+
       this.initDone(addOrEdit);
     } else { // edit
       
-      this.noteService.getNotePromise(idToEdit).then((response) => {
+      this.noteService.getNotePromise(idToEdit, group).then((response) => {
         this.note = response;
         if (this.note.imageURL) {
           console.log('imageURL', this.note.imageURL);

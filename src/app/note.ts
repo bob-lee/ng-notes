@@ -54,4 +54,5 @@ export enum Todo {
 export enum LoginWith {
   Facebook = 0, 
   Google,
+  Anonymous
 }

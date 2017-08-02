@@ -4,10 +4,10 @@ div.form-container {
 }
 
 #fb {
-    background:hsla(221, 44%, 41%, 1) url('/assets/images/facebook.svg') no-repeat 0.4em 0.1em;
-    background-size: 47px;
-    color:#fff;
-    border: none;
+  background:hsla(221, 44%, 41%, 1) url('/assets/images/facebook.svg') no-repeat 0.4em 0.1em;
+  background-size: 47px;
+  color:#fff;
+  border: none;
 }
 #fb:hover {
   background-color: hsla(221, 44%, 41%, 0.8);
@@ -20,18 +20,24 @@ div.form-container {
 }
 
 #google {
-    border: 1px solid #95989A;
-    background: hsla(0, 0%, 100%, 1)  url('/assets/images/google.svg') no-repeat 1em;
-    background-size: 25px;
+  border: 1px solid #95989A;
+  background: hsla(0, 0%, 100%, 1) url('/assets/images/google.svg') no-repeat 1em;
+  background-size: 25px;
 }
-#google:hover {
+#google:hover, #anon:hover {
   background-color: hsla(0, 0%, 90%, 1);
 }
-#google:focus {
+#google:focus, #anon:focus {
   background-color: hsla(0, 0%, 80%, 1);
 }
-#google:active {
+#google:active, #anon:active {
   background-color: hsla(0, 0%, 70%, 1);
+}
+
+#anon {
+  border: 1px solid #95989A;
+  background: hsla(0, 0%, 100%, 1) url('//www.gstatic.com/mobilesdk/160409_mobilesdk/images/auth_service_anonymous.svg') no-repeat 1em;
+  background-size: 25px;
 }
 
 button {

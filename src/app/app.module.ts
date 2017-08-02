@@ -4,7 +4,6 @@ import 'web-animations-js';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { RouterModule, Routes } from '@angular/router';
 import { MdButtonModule, MdCheckboxModule, MdRadioModule, MdInputModule } from '@angular/material';
 import 'hammerjs';
 import { AngularFireModule } from 'angularfire2';
@@ -14,6 +13,8 @@ import { AngularFireAuthModule } from 'angularfire2/auth';
 import { environment } from '../environments/environment';
 
 import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+
 import { LoginComponent } from './login/login.component';
 import { GroupsComponent } from './groups/groups.component';
 import { OurNotesComponent } from './our-notes/our-notes.component';
@@ -23,8 +24,6 @@ import { NoteFormComponent } from './note-form/note-form.component';
 import { NoteService } from './service/note.service';
 import { WindowRef } from './service/window-ref.service';
 import { FocusMeDirective } from './focus-me.directive';
-//import { RecentFirstPipe } from './recent-first.pipe';
-import { AppRoutes } from './app.routes';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
@@ -47,7 +46,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     ReactiveFormsModule,
     HttpModule,
     MdButtonModule, MdCheckboxModule, MdRadioModule, MdInputModule,
-    RouterModule.forRoot(AppRoutes),
+    AppRoutingModule,
     BsDropdownModule.forRoot()
   ],
   providers: [

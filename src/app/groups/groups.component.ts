@@ -7,10 +7,8 @@ import { NoteService } from '../service/note.service';
 import { listAnimation } from '../app.animation';
 
 @Component({
-  selector: 'app-groups',
-  //templateUrl: './groups.component.html',
   template: `
-  <div class="list">
+  <div [@listChild]="noteService.countGroups" class="list">
     <div *ngFor="let group of (noteService.groups | async)" class="item" ontouchstart>
       <a [routerLink]="['/group', group.$key]" class="item-link">
         {{group.$key}}
@@ -19,7 +17,14 @@ import { listAnimation } from '../app.animation';
     </div>
   </div>
   `,
-  styleUrls: ['./groups.component.css']
+  styleUrls: ['./groups.component.css'],
+  animations: [
+    trigger('listChild', [
+      transition('* => *', [
+        useAnimation(listAnimation)
+      ])
+    ])
+  ]
 })
 export class GroupsComponent implements OnInit {
 

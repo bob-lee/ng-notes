@@ -7,7 +7,7 @@ This web app allows to maintain notes by group. Each note can have optional imag
 * [Firebase](https://firebase.google.com/): cloud infrastructure
 * [Node.js](https://nodejs.org): JavaScript runtime environment
 
-Visit [the live web app](https://ng-notes-abb75.firebaseapp.com/) and play with it! You would need to log in first using your Facebook or gmail account.
+Visit [the live web app](https://ng-notes-abb75.firebaseapp.com/) and play with it! You would need to log in first as anonymous or using your Facebook, gmail account.
 
 For development, clone the repo and run `yarn` to install dependencies, then `ng serve`.
 

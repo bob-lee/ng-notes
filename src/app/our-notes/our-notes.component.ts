@@ -6,7 +6,7 @@ import { trigger, animate, animation, style, group, animateChild, query, stagger
 import { Note, Todo } from '../Note';
 import { NoteService } from '../service/note.service';
 import { WindowRef } from '../service/window-ref.service';
-import { itemAnimation, listAnimation } from '../app.animation';
+import { expandAnimation, itemAnimation, listAnimation } from '../app.animation';
 
 /* 
 
@@ -44,8 +44,14 @@ import { itemAnimation, listAnimation } from '../app.animation';
   selector: 'app-our-notes',
   templateUrl: './our-notes.component.html',
   styleUrls: ['./our-notes.component.css'],
-  /*animations: [
-    trigger('pageAnimation', [
+  animations: [
+    trigger('expand',[
+      transition('* => *', [
+        useAnimation(expandAnimation)
+      ])
+    ]),
+
+    /*trigger('pageAnimation', [
       // for staggering animation at initial load
       transition(':enter', [ 
         useAnimation(itemAnimation)
@@ -56,8 +62,8 @@ import { itemAnimation, listAnimation } from '../app.animation';
         //query(':enter', [useAnimation(itemAnimation)], { optional: true })
         useAnimation(listAnimation)
       ])
-    ])
-  ]*/
+    ])*/
+  ]
 
 })
 export class OurNotesComponent implements OnInit {
@@ -70,7 +76,7 @@ export class OurNotesComponent implements OnInit {
 
   //get atHome(): boolean { return this.noteService.groupName ? false : true; }
   //get atGroup(): boolean { return !this.atHome; }
-  get title(): string { return this.inside ? 'Our notes' : 'Groups'; }
+  get title(): string { return this.inside ? this.noteService.groupName : 'Groups'; }
 
   constructor(private formBuilder: FormBuilder,
     private router: Router,
