@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { trigger, animate, animation, style, group, animateChild, query, stagger, transition, keyframes, useAnimation } from '@angular/animations';
 
-import { Note, Todo } from '../Note';
-import { NoteService } from '../service/note.service';
+import { Note, Todo } from './Note';
+import { NoteService } from './note.service';
 import { WindowRef } from '../service/window-ref.service';
 import { expandAnimation, itemAnimation, listAnimation } from '../app.animation';
 
@@ -74,8 +74,6 @@ export class OurNotesComponent implements OnInit {
   // @HostBinding('@pageAnimation') 
   // get count (): number { return this.noteService.countNotes; } 
 
-  //get atHome(): boolean { return this.noteService.groupName ? false : true; }
-  //get atGroup(): boolean { return !this.atHome; }
   get title(): string { return this.inside ? this.noteService.groupName : 'Groups'; }
 
   constructor(private formBuilder: FormBuilder,
@@ -93,47 +91,15 @@ export class OurNotesComponent implements OnInit {
       groupName => {
         console.log(`OurNotesComponent announcedGroupName '${groupName}'`);
         this.myForm.controls['groupName'].setValue(groupName);
-        this.inside = groupName ? true : false;
+        // this.inside = groupName ? true : false;
+        setTimeout(_ => this.inside = groupName ? true : false);
       });
 
     // inspect route // 31Jul17 route should be always '/group'
     console.log(`'OurNotesComponent'`);
-    /*
-    const group = this.route.snapshot.params['name'];
-    console.log(`'OurNotesComponent' '${group}'`);
-    if (group) { // route has group name
-      this.myForm.controls['groupName'].setValue(group);
-
-      if (group === this.noteService.groupName) {
-        console.log('group hasn\'t changed');
-        this.init();
-      } else {
-        this.noteService.search(group).subscribe(
-          notes => this.init(),
-          error => console.error('searchGroup', error));
-      }
-    } else { // route has no group name
-      if (this.windowRef.nativeWindow.localStorage) {
-        const previousGroup = this.windowRef.nativeWindow.localStorage.getItem('group');
-        if (previousGroup) { // has rememered group name
-          console.log('remembered group', previousGroup);
-          this.router.navigate(['group', previousGroup]); // redirect to remembered group
-          return;
-        }
-      }
-
-      // exit
-      this.noteService.search('');
-      this.inside = false;
-    }
-    */
   }
 
   add() {
-    // if (this.editing()) {
-    //   console.log('editing');
-    //   return;
-    // }
     console.log('add');
     this.router.navigate(['group', this.myForm.controls['groupName'].value, 'add']);
   }
@@ -158,16 +124,5 @@ export class OurNotesComponent implements OnInit {
     //this.inside = false;
     this.router.navigate(['group']);
   }
-/*
-  private editing() {
-    console.log('editing()', this.route.snapshot);
-    return this.route.snapshot.url.length === 4 || // editing
-      (this.route.snapshot.firstChild && this.route.snapshot.firstChild.url[0].path === 'add'); // adding
-  }
 
-  private init(notes?) {
-    this.inside = true;
-    console.log('init');
-  }
-*/
 }

@@ -3,8 +3,8 @@ import { FormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@a
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 
 import { Note, Todo } from '../Note';
-import { NoteService } from '../service/note.service';
-import { WindowRef } from '../service/window-ref.service';
+import { NoteService } from '../note.service';
+import { WindowRef } from '../../service/window-ref.service';
 
 @Component({
   selector: 'note-form',

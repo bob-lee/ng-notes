@@ -4,8 +4,6 @@ import 'web-animations-js';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { MdButtonModule, MdCheckboxModule, MdRadioModule, MdInputModule } from '@angular/material';
-import 'hammerjs';
 import { AngularFireModule } from 'angularfire2';
 import 'firebase/storage'; // only import firebase storage, https://github.com/angular/angularfire2/issues/946
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -14,28 +12,15 @@ import { environment } from '../environments/environment';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-
+import { OurNotesModule } from './our-notes/our-notes.module';
 import { LoginComponent } from './login/login.component';
-import { GroupsComponent } from './groups/groups.component';
-import { OurNotesComponent } from './our-notes/our-notes.component';
-import { NoteComponent } from './note/note.component';
-import { NoteFormComponent } from './note-form/note-form.component';
 
-import { NoteService } from './service/note.service';
 import { WindowRef } from './service/window-ref.service';
-import { FocusMeDirective } from './focus-me.directive';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    OurNotesComponent,
-    NoteComponent,
-    NoteFormComponent,
-    FocusMeDirective,
-    GroupsComponent,
-    //RecentFirstPipe
   ],
   imports: [
     BrowserModule,
@@ -45,12 +30,10 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     AngularFireAuthModule,
     ReactiveFormsModule,
     HttpModule,
-    MdButtonModule, MdCheckboxModule, MdRadioModule, MdInputModule,
+    OurNotesModule,
     AppRoutingModule,
-    BsDropdownModule.forRoot()
   ],
   providers: [
-    NoteService,
     WindowRef
   ],
   bootstrap: [AppComponent]

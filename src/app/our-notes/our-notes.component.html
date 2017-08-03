@@ -3,6 +3,7 @@
     {{title}}
   </h2>
 
+
   <div class="btn-group" dropdown>
     <button dropdownToggle type="button" class="btn btn-default dropdown-toggle">
       {{noteService.userName}} <span class="caret"></span>
@@ -18,7 +19,12 @@
 
 <router-outlet></router-outlet>
 
-<!--<pre>todo:{{todoEnum[noteService.todo]}}, note: {{noteService.note | json}}</pre>-->
+<!--
+  <pre>todo:{{todoEnum[noteService.todo]}}, note: {{noteService.note | json}}</pre>
+ {{noteService.countGroups}}/{{noteService.countNotes}}
+     data-count="{{noteService.countNotes}}"
+    [ngClass]="{'bl-icon-selected': inside}"
+-->
 <button class="fab" (click)="add()" [hidden]="!inside || noteService.todo > 0">+</button>
 
 <footer class="bl-footer navbar-fixed-bottom">
@@ -42,8 +48,7 @@
   </div>
   <div>
     <form [formGroup]="myForm" (submit)="search()">
-      <input type="text" maxlength="20" placeholder="Enter group name..." 
-        [attr.disabled]="inside ? '' : null" formControlName="groupName"
+      <input type="text" maxlength="30" placeholder="Enter group name..." [attr.disabled]="inside ? '' : null" formControlName="groupName"
       />
     </form>
   </div>

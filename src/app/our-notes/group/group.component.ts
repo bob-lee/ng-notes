@@ -3,30 +3,9 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { trigger, animate, animation, style, group, animateChild, query, stagger, transition, keyframes, useAnimation } from '@angular/animations';
 
 import { Note, Todo } from '../Note';
-import { NoteService } from '../service/note.service';
-import { listAnimation } from '../app.animation';
+import { NoteService } from '../note.service';
+import { listAnimation } from '../../app.animation';
 /* 
-
-  <div *ngFor="let note of (noteService.notes | async)" class="notes">
-    {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
-    <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" routerLinkActive="active">
-      {{note.text}}
-    </a>
-    <hr>
-  </div>  
-
-  <ol>
-  <li *ngFor="let note of (noteService.notes | async)" class="notes">
-    {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
-    <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" routerLinkActive="active">
-      {{note.text}}
-    </a>
-    <hr>
-  </li>
-  </ol>  
-
-    {{ (noteService.notes | async).length }}
-    [@listAnimation]="''"
 */
 
 @Component({
@@ -35,13 +14,15 @@ import { listAnimation } from '../app.animation';
     <div *ngFor="let note of (noteService.notes | async)" class="item" ontouchstart>
       {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
       <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" >
-        {{note.text}}
+        <markdown>
+          {{note.text}}
+        </markdown>
       </a>
       <hr>
     </div>  
   </div>
   `,
-  styleUrls: ['./note.component.css'],
+  styleUrls: ['./group.component.css'],
   animations: [
     trigger('listChild', [
       transition('* => *', [
@@ -64,7 +45,7 @@ import { listAnimation } from '../app.animation';
     ])*/
   ]
 })
-export class NoteComponent implements OnInit {
+export class GroupComponent implements OnInit {
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -75,7 +56,7 @@ export class NoteComponent implements OnInit {
 
     // inspect route
     const group = this.route.snapshot.params['name'];
-    console.log(`'NoteComponent' '${group}'`);
+    console.log(`'GroupComponent' '${group}'`);
     if (group) { // route has group name
 
       if (group === this.noteService.groupName) {

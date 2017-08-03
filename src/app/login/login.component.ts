@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { NoteService } from '../service/note.service';
-import { LoginWith } from '../Note';
+import { NoteService } from '../our-notes/note.service';
+import { LoginWith } from '../our-notes/Note';
 
 @Component({
   selector: 'app-login',

@@ -3,8 +3,8 @@ import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { trigger, animate, animation, style, group, animateChild, query, stagger, transition, keyframes, useAnimation } from '@angular/animations';
 
 import { Note, Todo } from '../Note';
-import { NoteService } from '../service/note.service';
-import { listAnimation } from '../app.animation';
+import { NoteService } from '../note.service';
+import { listAnimation } from '../../app.animation';
 
 @Component({
   template: `

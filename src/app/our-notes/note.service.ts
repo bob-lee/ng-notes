@@ -5,11 +5,12 @@ import { FirebaseApp } from 'angularfire2';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
 import { Subject } from 'rxjs/Subject';
 import * as firebase from 'firebase/app';
 
-import { Note, Todo, LoginWith } from '../Note';
-import { WindowRef } from './window-ref.service';
+import { Note, Todo, LoginWith } from './Note';
+import { WindowRef } from '../service/window-ref.service';
 
 @Injectable()
 export class NoteService implements CanActivate {
