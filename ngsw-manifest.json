@@ -1,0 +1,23 @@
+{
+  "routing": {
+    "index": "/index.html",
+    "routes": {
+      "/": {
+        "match": "exact"
+      },
+      "/login": {
+        "match": "exact"
+      },
+      "/group": {
+        "match": "prefix"
+      }
+    }
+  },
+  "external": {
+    "urls": [
+      {
+        "url": "https://fonts.googleapis.com/icon?family=Material+Icons"
+      }
+    ]
+  }
+}

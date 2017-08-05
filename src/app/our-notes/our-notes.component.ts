@@ -41,11 +41,10 @@ import { expandAnimation, itemAnimation, listAnimation } from '../app.animation'
 */
 
 @Component({
-  selector: 'app-our-notes',
   templateUrl: './our-notes.component.html',
   styleUrls: ['./our-notes.component.css'],
   animations: [
-    trigger('expand',[
+    trigger('expand', [
       transition('* => *', [
         useAnimation(expandAnimation)
       ])
@@ -87,6 +86,8 @@ export class OurNotesComponent implements OnInit {
       groupName: ['', Validators.required]
     });
 
+    this.noteService.initAfterLogin();
+
     this.noteService.announcedGroupName.subscribe(
       groupName => {
         console.log(`OurNotesComponent announcedGroupName '${groupName}'`);
@@ -104,6 +105,16 @@ export class OurNotesComponent implements OnInit {
     this.router.navigate(['group', this.myForm.controls['groupName'].value, 'add']);
   }
 
+  exit() {
+    //this.myForm.controls['groupName'].setValue('');
+    if (this.windowRef.nativeWindow.localStorage) { // clear group to let, after navigate, ngOnInit find no remembered group and exit
+      this.windowRef.nativeWindow.localStorage.setItem('group', '');
+    }
+
+    //this.inside = false;
+    this.router.navigate(['group']);
+  }
+
   logInOrOut() {
     this.router.navigate(['/']);
     this.noteService.logout();
@@ -113,16 +124,6 @@ export class OurNotesComponent implements OnInit {
     const group = this.myForm.controls['groupName'].value;
     console.log(`search(${group})`);
     this.router.navigate(['group', group]);
-  }
-
-  exit() {
-    //this.myForm.controls['groupName'].setValue('');
-    if (this.windowRef.nativeWindow.localStorage) { // clear group to let, after navigate, ngOnInit find no remembered group and exit
-      this.windowRef.nativeWindow.localStorage.setItem('group', '');
-    }
-
-    //this.inside = false;
-    this.router.navigate(['group']);
   }
 
 }

@@ -35,7 +35,7 @@ export class GroupsComponent implements OnInit {
     console.log(`'GroupsComponent'`);
     this.noteService.todo = Todo.List;
 
-    this.noteService.search('');
+    this.noteService.exit();
   }
 
 }

@@ -6,14 +6,15 @@ import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
 import { listAnimation } from '../../app.animation';
 /* 
-*/
 
+[routerLink]="['/group', noteService.groupName, 'edit', note.$key]"
+*/
 @Component({
   template: `
   <div [@listChild]="noteService.countNotes" class="list">
-    <div *ngFor="let note of (noteService.notes | async)" class="item" ontouchstart>
+    <div *ngFor="let note of (noteService.notes | async); let i = index" class="item" ontouchstart tabindex="0">
       {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} <br/>
-      <a [routerLink]="['/group', noteService.groupName, 'edit', note.$key]" >
+      <a (click)="edit(note, i, $event)">
         <markdown>
           {{note.text}}
         </markdown>
@@ -46,6 +47,7 @@ import { listAnimation } from '../../app.animation';
   ]
 })
 export class GroupComponent implements OnInit {
+  noteIndex: number; // only for edit
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -56,22 +58,44 @@ export class GroupComponent implements OnInit {
 
     // inspect route
     const group = this.route.snapshot.params['name'];
-    console.log(`'GroupComponent' '${group}'`);
+    const idxToFocus = this.route.snapshot.queryParams['i'];
+    console.log(`'GroupComponent' '${group}' ${idxToFocus}`);
     if (group) { // route has group name
+      this.noteIndex = idxToFocus;
 
       if (group === this.noteService.groupName) {
         console.log('group hasn\'t changed');
       } else {
       }
-      this.noteService.search(group);
+      this.noteService.search(group).subscribe(
+        notes => {
+          console.log(`GroupComponent gets ${notes.length} note(s)`);
+          if (idxToFocus) {
+            setTimeout(_ => {
+              var elements = document.querySelectorAll('div.item');
+              var len = elements.length;
+              console.log(`GroupComponent rendered ${len} note(s)`);
+              if (len > 0 && idxToFocus >= 0 && idxToFocus < len) {
+                const el = elements[idxToFocus] as HTMLElement;
+                //el.scrollIntoView();
+
+                el.focus();
+                //window.scroll(0, 500);
+              }
+            }, 0);
+          }
+        }
+      );
+
     }
   }
 
-  private edit(note, e) {
-    console.log('edit', new Date(note.updatedAt));
+  private edit(note, index, event) {
+    console.log(`edit ${note.$key} ${index} screenY=${event.screenY} clientY=${event.clientY}`);
 
     this.noteService.note = note;
-    this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key]);
+    this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key],
+      { queryParams: { i: index } });
   }
 
 }

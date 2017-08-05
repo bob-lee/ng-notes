@@ -7,13 +7,13 @@ import { NoteService } from '../note.service';
 import { WindowRef } from '../../service/window-ref.service';
 
 @Component({
-  selector: 'note-form',
   templateUrl: './note-form.component.html',
   styleUrls: ['./note-form.component.css']
 })
 export class NoteFormComponent implements OnInit {
   @ViewChild('fileInput') inputEl: ElementRef;
   note: Note;
+  noteIndex: number; // only for edit
   todoEnum = Todo;
   noteForm: FormGroup;
   submitted: boolean;
@@ -42,7 +42,8 @@ export class NoteFormComponent implements OnInit {
     const addOrEdit = this.route.snapshot.url.length === 2; // ':name/add' or ':name/edit/:id'
     const group = this.route.snapshot.params['name'];
     const idToEdit = this.route.snapshot.params['id'];
-    console.log('\'NoteFormComponent\'', addOrEdit ? 'adding' : 'editing', idToEdit, this.route.snapshot);
+    const idxToEdit = this.route.snapshot.queryParams['i'];
+    console.log('\'NoteFormComponent\'', addOrEdit ? 'adding' : 'editing', idToEdit, idxToEdit, this.route.snapshot);
 
     if (addOrEdit) { // add
       const previousName = this.windowRef.nativeWindow.localStorage.getItem('name');
@@ -61,6 +62,7 @@ export class NoteFormComponent implements OnInit {
 
       this.initDone(addOrEdit);
     } else { // edit
+      this.noteIndex = idxToEdit;
       
       this.noteService.getNotePromise(idToEdit, group).then((response) => {
         this.note = response;
@@ -86,14 +88,36 @@ export class NoteFormComponent implements OnInit {
     this.noteForm.patchValue(this.note); // restore original
     this.noteService.todo = Todo.List;
 
-    console.log('cancel');
+    console.log('cancel', this.noteIndex);
     this.goBack();
+  }
+
+  private changed() { // compare form value and this.note
+    if (this.noteService.todo === Todo.Add) return true; // add, changed of course
+    const orig = this.note;
+    const form = this.noteForm.value;
+    const changed = form.name !== orig.name || form.text !== orig.text || this._fileChanged || this.imageFailedToLoad;
+    return changed;
   }
 
   fileSelected() {
     //this.imgToRemove = false;
     this._fileChanged = true;
     console.log(`fileSelected ${this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
+  }
+
+  private goBack() {
+    this.router.navigate(['group', this.noteService.groupName],
+      { queryParams: { i: this.noteIndex } });
+  }
+
+  private initDone(addOrEdit: boolean) {
+    this.noteService.todo = addOrEdit ? Todo.Add : Todo.Edit;
+
+    // apply model to view
+    this.noteForm.patchValue(this.note);
+
+    this.submitted = false;
   }
 
   remove(e) {
@@ -129,37 +153,6 @@ export class NoteFormComponent implements OnInit {
     }
   }
 
-  get toHideButton(): boolean {
-    const hideIt = this.inputEl.nativeElement.files.length === 0 && this.note && !this.note.imageURL/* && this.note.imageURL !== 'remove'*/;
-    return hideIt as boolean;
-  }
-
-  get toHideImg(): boolean {
-    const hideIt = this.imgToRemove || this.imageFailedToLoad || !this.note || !this.note.imageURL || (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
-    return hideIt as boolean;
-  }
-
-  private changed() { // compare form value and this.note
-    if (this.noteService.todo === Todo.Add) return true; // add, changed of course
-    const orig = this.note;
-    const form = this.noteForm.value;
-    const changed = form.name !== orig.name || form.text !== orig.text || this._fileChanged || this.imageFailedToLoad;
-    return changed;
-  }
-
-  private goBack() {
-    this.router.navigate(['group', this.noteService.groupName]);
-  }
-
-  private initDone(addOrEdit: boolean) {
-    this.noteService.todo = addOrEdit ? Todo.Add : Todo.Edit;
-
-    // apply model to view
-    this.noteForm.patchValue(this.note);
-
-    this.submitted = false;
-  }
-
   private saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
     let inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
@@ -171,4 +164,13 @@ export class NoteFormComponent implements OnInit {
       .catch((error) => console.log('saveNote error', error));
   }
 
+  get toHideButton(): boolean {
+    const hideIt = this.inputEl.nativeElement.files.length === 0 && this.note && !this.note.imageURL/* && this.note.imageURL !== 'remove'*/;
+    return hideIt as boolean;
+  }
+
+  get toHideImg(): boolean {
+    const hideIt = this.imgToRemove || this.imageFailedToLoad || !this.note || !this.note.imageURL || (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
+    return hideIt as boolean;
+  }
 }

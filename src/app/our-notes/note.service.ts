@@ -29,7 +29,10 @@ export class NoteService implements CanActivate {
     this.announceGroupName.next(name);
   }
 
-  countNotes: number = 0;
+  private _countNotes: number = 0;
+  get countNotes(): number { return this._countNotes; }
+  set countNotes(count: number) { this._countNotes = count; }
+
   countGroups: number = 0;
 
   private storage: firebase.storage.Reference;
@@ -50,7 +53,7 @@ export class NoteService implements CanActivate {
     private db: AngularFireDatabase,
     private router: Router,
     private windowRef: WindowRef) {
-    console.log(`'note.service'`);
+    console.warn(`'note.service'`); // watch when / how often the service is instantiated
 
     this.user = afAuth.authState;
     afAuth.auth.onAuthStateChanged(user => {
@@ -67,10 +70,6 @@ export class NoteService implements CanActivate {
     this.storage = app.storage().ref();
     this.dbRef = this.db.database.ref();
 
-    this.groups = this.db.list('groups');
-    this.groups.subscribe(
-      groups => { this.countGroups = groups.length; console.log('countGroups', this.countGroups); }
-    );
   }
 
   canActivate(): Observable<boolean> {
@@ -81,6 +80,12 @@ export class NoteService implements CanActivate {
         return false;
       }
     });
+  }
+
+  exit(): void {
+    this.notes = null; // empty group
+    this.countNotes = 0;
+    this.groupName = '';
   }
 
   getGroupNotes(group: string): void {
@@ -117,16 +122,23 @@ export class NoteService implements CanActivate {
     });
   }
 
+  initAfterLogin() { // to be called after login by component
+    this.groups = this.db.list('groups');
+    this.groups.subscribe(
+      groups => { this.countGroups = groups.length; console.log('countGroups', this.countGroups); }
+    );
+  }
+
   login(loginWith: LoginWith) {
-    return loginWith === LoginWith.Facebook ? this.loginFb() : 
-      loginWith === LoginWith.Google ? this.loginGoogle():
-      this.loginAnonymous();
+    return loginWith === LoginWith.Facebook ? this.loginFb() :
+      loginWith === LoginWith.Google ? this.loginGoogle() :
+        this.loginAnonymous();
   }
 
   loginAnonymous() {
     return this.afAuth.auth.signInAnonymously();
   }
-  
+
   loginFb() {
     return this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
   }
@@ -304,23 +316,15 @@ export class NoteService implements CanActivate {
     return this.dbRef.update(updates);
   }
 
+  search(group: string): FirebaseListObservable<Note[]> { // search by group name
+    this.groupName = group;
+    this.getGroupNotes(group);
 
-  search(group: string) { // search by group name
-    if (group) { // enter group
-      this.groupName = group;
-      this.getGroupNotes(group);
-
-      if (this.windowRef.nativeWindow.localStorage) { // remember group
-        this.windowRef.nativeWindow.localStorage.setItem('group', group);
-      }
-
-      return this.notes;
-
-    } else { // exit group
-      this.notes = null; // empty group
-      this.countNotes = 0;
-      this.groupName = '';
+    if (this.windowRef.nativeWindow.localStorage) { // remember group
+      this.windowRef.nativeWindow.localStorage.setItem('group', group);
     }
+
+    return this.notes;
   }
 
 }

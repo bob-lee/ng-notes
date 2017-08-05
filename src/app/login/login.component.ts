@@ -4,7 +4,6 @@ import { NoteService } from '../our-notes/note.service';
 import { LoginWith } from '../our-notes/Note';
 
 @Component({
-  selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -26,18 +25,6 @@ export class LoginComponent implements OnInit {
     })
     .catch((err) => {
       console.log(`login with ${LoginWith[loginWith]} fail ${err}`);
-      this.error = err;
-    });
-  }
-
-  loginFb() {
-    this.noteService.loginFb()
-    .then(() => {
-      console.log('loginFb success');
-      this.router.navigate(['group']);
-    })
-    .catch((err) => {
-      console.log('loginFb fail', err);
       this.error = err;
     });
   }
