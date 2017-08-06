@@ -46,6 +46,7 @@ export class NoteFormComponent implements OnInit {
     console.log('\'NoteFormComponent\'', addOrEdit ? 'adding' : 'editing', idToEdit, idxToEdit, this.route.snapshot);
 
     if (addOrEdit) { // add
+      this.noteIndex = -1;
       const previousName = this.windowRef.nativeWindow.localStorage.getItem('name');
 
       this.note = {
@@ -63,7 +64,7 @@ export class NoteFormComponent implements OnInit {
       this.initDone(addOrEdit);
     } else { // edit
       this.noteIndex = idxToEdit;
-      
+
       this.noteService.getNotePromise(idToEdit, group).then((response) => {
         this.note = response;
         if (this.note.imageURL) {
@@ -89,7 +90,7 @@ export class NoteFormComponent implements OnInit {
     this.noteService.todo = Todo.List;
 
     console.log('cancel', this.noteIndex);
-    this.goBack();
+    this.goBack(true);
   }
 
   private changed() { // compare form value and this.note
@@ -106,9 +107,11 @@ export class NoteFormComponent implements OnInit {
     console.log(`fileSelected ${this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
   }
 
-  private goBack() {
+  private goBack(cancelling = false) {
+    const params = cancelling && this.noteIndex === -1 ? null : { i: this.noteIndex };
+
     this.router.navigate(['group', this.noteService.groupName],
-      { queryParams: { i: this.noteIndex } });
+      { queryParams: params });
   }
 
   private initDone(addOrEdit: boolean) {
