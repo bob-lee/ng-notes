@@ -47,7 +47,6 @@ import { listAnimation } from '../../app.animation';
   ]
 })
 export class GroupComponent implements OnInit {
-  noteIndex: number; // only for edit
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -61,26 +60,29 @@ export class GroupComponent implements OnInit {
     const idxToFocus = this.route.snapshot.queryParams['i'];
     console.log(`'GroupComponent' '${group}' ${idxToFocus}`);
     if (group) { // route has group name
-      this.noteIndex = idxToFocus;
 
       if (group === this.noteService.groupName) {
         console.log('group hasn\'t changed');
-      } else {
       }
+      
       this.noteService.search(group).subscribe(
         notes => {
           console.log(`GroupComponent gets ${notes.length} note(s)`);
           if (idxToFocus) {
             setTimeout(_ => {
-              var elements = document.querySelectorAll('div.item');
-              var len = elements.length;
+              const elements = document.querySelectorAll('div.item');
+              const len = elements.length;
               console.log(`GroupComponent rendered ${len} note(s)`);
-              if (len > 0 && idxToFocus >= 0 && idxToFocus < len) {
-                const el = elements[idxToFocus] as HTMLElement;
-                //el.scrollIntoView();
+              if (len > 0) {
+                const i = (idxToFocus == -1 || idxToFocus == len) ? (len - 1) : // focus last one
+                  (idxToFocus >= 0 && idxToFocus < len) ? idxToFocus : // focus specified one
+                  -1; // do nothing
 
-                el.focus();
-                //window.scroll(0, 500);
+                console.log(`GroupComponent to focus [${i}]`);
+                if (i > -1) {
+                  const el = elements[i] as HTMLElement;
+                  el.focus();
+                }
               }
             }, 0);
           }
