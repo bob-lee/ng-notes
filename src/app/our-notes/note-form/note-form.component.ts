@@ -8,13 +8,15 @@ import { WindowRef } from '../../service/window-ref.service';
 
 @Component({
   templateUrl: './note-form.component.html',
-  styleUrls: ['./note-form.component.css']
+  styleUrls: ['./note-form.component.css'],
+  host: { '(window:keydown)': 'hotkeys($event)' }
 })
 export class NoteFormComponent implements OnInit {
   @ViewChild('fileInput') inputEl: ElementRef;
   note: Note;
   noteIndex: number; // only for edit
   todoEnum = Todo;
+  private _todo: Todo; // add, edit, remove, or cancel when null
   noteForm: FormGroup;
   submitted: boolean;
   imgToRemove: boolean;
@@ -40,6 +42,7 @@ export class NoteFormComponent implements OnInit {
 
     // inspect route
     const addOrEdit = this.route.snapshot.url.length === 2; // ':name/add' or ':name/edit/:id'
+    this._todo = addOrEdit ? Todo.Add : Todo.Edit;
     const group = this.route.snapshot.params['name'];
     const idToEdit = this.route.snapshot.params['id'];
     const idxToEdit = this.route.snapshot.queryParams['i'];
@@ -90,7 +93,8 @@ export class NoteFormComponent implements OnInit {
     this.noteService.todo = Todo.List;
 
     console.log('cancel', this.noteIndex);
-    this.goBack(true);
+    this._todo = null;
+    this.goBack();
   }
 
   private changed() { // compare form value and this.note
@@ -107,11 +111,22 @@ export class NoteFormComponent implements OnInit {
     console.log(`fileSelected ${this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
   }
 
-  private goBack(cancelling = false) {
-    const params = cancelling && this.noteIndex === -1 ? null : { i: this.noteIndex };
+  private goBack() {
+    const params = this._todo === null && this.noteIndex === -1 ? null : 
+      { i: this.noteIndex, to: this._todo };
 
     this.router.navigate(['group', this.noteService.groupName],
       { queryParams: params });
+  }
+
+  hotkeys(event) {
+    if (event.keyCode == 67 && event.altKey) { // alt-c
+      console.log('alt-c to cancel');
+      this.cancel(event);
+    } else if (event.keyCode == 83 && event.altKey) { // alt-s
+      console.log('alt-s to save');
+      this.save(event);
+    }
   }
 
   private initDone(addOrEdit: boolean) {
@@ -122,13 +137,14 @@ export class NoteFormComponent implements OnInit {
 
     this.submitted = false;
   }
-
+/*
   remove(e) {
     e.stopPropagation();
     this.noteService.todo = Todo.Remove;
+    this._todo = Todo.Remove;
     this.saveNote();
   }
-
+*/
   removeFile(e) {
     this.inputEl.nativeElement.value = ''; // remove any selected file
     this.imgToRemove = true; // hide any downloaded image

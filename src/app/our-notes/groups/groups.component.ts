@@ -5,7 +5,9 @@ import { trigger, animate, animation, style, group, animateChild, query, stagger
 import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
 import { listAnimation } from '../../app.animation';
+/*
 
+*/
 @Component({
   template: `
   <div [@listChild]="noteService.countGroups" class="list">

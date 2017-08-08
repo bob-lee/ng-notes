@@ -1,6 +1,7 @@
 import { animate, animateChild, animation, group, query, stagger, style, transition, trigger, useAnimation } from '@angular/animations';
 
-export const period_default_opacity = '1.6s ease';
+export const PERIOD_1 = '1.6s ease';
+export const PERIOD_2 = '.6s ease';
 
 /*export const listAnimation = animation([
   query(':enter', [
@@ -16,16 +17,16 @@ export const period_default_opacity = '1.6s ease';
 ], { params: { time: '0.6s ease' }});*/
 export const listAnimation = animation([
   query(':enter', [
-    style({ opacity: 0 })
+    style({ transform: 'scale(0)', opacity: 0 })
   ], { optional: true }),
-  // query(':leave', [
-  //   style({ opacity: 1 }),
-  //   animate('{{ time }}', style({ opacity: 0 }))
-  // ], { optional: true }),
+  query(':leave', [
+    style({ opacity: 1 }),
+    animate('{{ time }}', style({ opacity: 0 }))
+  ], { optional: true }),
   query(':enter', [
-    animate('{{ time }}', style({ opacity: 1 }))
+    animate('{{ time }}', style({ transform: 'scale(1.5)', opacity: 1 }))
   ], { optional: true })
-], { params: { time: period_default_opacity }});
+], { params: { time: PERIOD_1 }});
 
 export const itemAnimation = animation([
   query('.item', style({ opacity: 0, height: 0 }), { optional: true }),
@@ -34,9 +35,9 @@ export const itemAnimation = animation([
       animate('{{ time }}', style({ opacity: 1, height: '*'})),
     ])
   ], { optional: true })
-], { params: { time: '.6s ease' }});
+], { params: { time: PERIOD_2 }});
 
 export const expandAnimation = animation([
   style({ overflow: 'hidden', opacity: 0/*, height: 0*/ }),
   animate('{{ time }}', style({ opacity: 1/*, height: '*'*/ }))
-], { params: { time: period_default_opacity }});
+], { params: { time: PERIOD_1 }});

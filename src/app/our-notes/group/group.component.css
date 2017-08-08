@@ -26,3 +26,29 @@
   background: #ddd;
 }
 
+.fab {
+  z-index:101;
+  width: 2em;
+  height: 2em;
+  position: fixed;
+  right: 0.2em;
+  bottom: 1.5em;
+  border-radius: 50%;
+  background-color: #F44336;
+  color: white;
+  font-size: 18pt;
+  outline: none;
+  border: 0;
+  padding: 0; /* suspect bootstrap padding */
+
+  transition:0.3s cubic-bezier(0.35, 0, 0.25, 1);
+}
+
+.fab:hover {
+  transform:scale(1.1);
+  background-color: #E53935;
+}
+
+.fab:active {
+  background-color: #B71C1C;
+}

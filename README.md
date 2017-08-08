@@ -1,6 +1,8 @@
 # Our Notes
 
-This web app allows to maintain notes by group. Each note can have optional image taken from your chosen source - camera, storage or cloud. The project was built and deployed using following technologies:
+This SPA(single-page app) allows to maintain notes by group. Each note can have an optional image taken from your chosen source - camera, storage or cloud. This app supports PWA(progressive web app) using `@angular/service-worker` so especially on Android phone, you will enjoy native app-like look and feel, offline capability, better performance. 
+
+The project was built and deployed using following technologies:
 * [Angular](https://angular.io/): frontend framework
 * [Angular CLI](https://github.com/angular/angular-cli): CLI for Angular application
 * [Angular Firebase](https://github.com/angular/angularfire2): Angular library for Firebase
