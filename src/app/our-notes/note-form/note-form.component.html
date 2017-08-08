@@ -1,7 +1,8 @@
-
+<!-- 
+    <button class="btn btn-lg btn-primary" (click)="remove($event)" [hidden]="noteService.todo === todoEnum.Add">Remove</button>
+-->
 <form [formGroup]="noteForm" novalidate>
   <div class="buttons" ontouchstart>
-    <button class="btn btn-lg btn-primary" (click)="remove($event)" [hidden]="noteService.todo === todoEnum.Add">Remove</button>
     <button class="btn btn-lg btn-default" (click)="cancel($event)" type="button">Cancel</button>
     <button class="btn btn-lg btn-primary" (click)="save($event)" type="button">Save</button>
   </div>

@@ -1,3 +1,7 @@
+form {
+  padding-bottom: 4.5em;
+}
+
 div.buttons {
   display: flex;
   align-items: center;
