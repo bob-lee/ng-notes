@@ -10,19 +10,18 @@ import { itemAnimation, listAnimation } from '../../app.animation';
 [@enlarge]="hoverArray[i]"
 [@listChild]="noteService.countNotes"
 [routerLink]="['/group', noteService.groupName, 'edit', note.$key]"
+
 */
 @Component({
   template: `
   <div [@listChild]="noteService.countNotes" class="list">
     <div *ngFor="let note of (noteService.notes | async); let i = index" 
-      [@enlarge]="hoverArray[i]" class="item" ontouchstart [attr.tabindex]="i">
+      [@enlarge]="hoverArray[i]" class="item" [attr.tabindex]="i">
       {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} 
       <span (click)="remove(note)" style="cursor:pointer" class="glyphicon glyphicon-trash" aria-hidden="true"></span> 
       <br/>
       <a (click)="edit(note, i, $event)">
-        <markdown>
-          {{note.text}}
-        </markdown>
+        <markdown [data]="note.text"></markdown>
       </a>
       <hr>
     </div>  
@@ -111,9 +110,9 @@ export class GroupComponent implements OnInit {
           for (let i = 0, len = notes.length; i < len; i++) {
             this.hoverArray[i] = idxToFocus == -1 && i === (len - 1) ? "added" :
               idxToFocus == i && to == 2 ? "edited" :
-              "loaded";
+                "loaded";
           }
-          
+
           if (idxToFocus) {
             setTimeout(_ => {
               const elements = document.querySelectorAll('div.item');
@@ -127,13 +126,20 @@ export class GroupComponent implements OnInit {
                 console.log(`GroupComponent to focus [${i}]`);
                 if (i > -1) {
                   const el = elements[i] as HTMLElement;
-                  el.scrollIntoView(); // ios chrome seems to need this
+                  
+                  // //window.scrollTo(0, 0);
+                  // el.scrollIntoView(true/*{block:"end",inline:"end"}*/); // ios chrome seems to need this // this has an unwanted side effect on desktop: first note partly hidden in a long page
+                  // if (i == 0) {
+                  //   console.log(`GroupComponent scroll to top`);
+                  //   el.scrollTop = 0;
+                  // } else {
+                  // }
                   el.focus();
                 }
               }
             }, 0);
           }
-          
+
         }
       );
 
@@ -152,7 +158,7 @@ export class GroupComponent implements OnInit {
     this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key],
       { queryParams: { i: index } });
   }
-  
+
   remove(note) {
     this.noteService.todo = Todo.Remove;
     this.noteService.save(note, null, false);

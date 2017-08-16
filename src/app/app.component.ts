@@ -8,7 +8,7 @@ import { trigger, animate, style, group, animateChild, query, stagger, transitio
   animations: [
     trigger('routerAnimation', [
 
-      transition('login => *, * => login', [
+      transition('login <=> group', [
         /*query(':enter, :leave',
           style({ position: 'absolute', top: 0, left: 0, right: 0 })),
         query(':enter', [
@@ -27,7 +27,7 @@ import { trigger, animate, style, group, animateChild, query, stagger, transitio
             animate('800ms cubic-bezier(.35,0,.25,1)', style({ opacity:0, transform: 'translateX(-100%)' }))
           ])
         ])*/
-        
+
         query(':enter, :leave',
           style({ position: 'absolute', top: 0, left: 0, right: 0 })),
         query(':enter', [
@@ -35,18 +35,16 @@ import { trigger, animate, style, group, animateChild, query, stagger, transitio
         ]),
 
         query(':leave', [
-          animate('800ms cubic-bezier(.35,0,.25,1)', style({ opacity: 0, transform: 'translateX(-100%)' }))
+          animate('700ms cubic-bezier(.35,0,.25,1)', style({ opacity: 0, transform: 'translateX(-100%)' }))
         ]),
 
-        group([
-          query(':enter', [
-            animate('800ms cubic-bezier(.35,0,.25,1)', style('*')),
-            // group([
-            //   animateChild(),
-            //   query('@expand', [animateChild()])
-            // ])
+        query(':enter', [
+          group([
+            animate('700ms cubic-bezier(.35,0,.25,1)', style('*')),
+            animateChild()
           ])
         ])
+
       ])
 
     ])

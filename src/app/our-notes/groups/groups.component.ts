@@ -6,12 +6,12 @@ import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
 import { listAnimation } from '../../app.animation';
 /*
-
+ontouchstart => #ontouchstart
 */
 @Component({
   template: `
   <div [@listChild]="noteService.countGroups" class="list">
-    <div *ngFor="let group of (noteService.groups | async)" class="item" ontouchstart>
+    <div *ngFor="let group of (noteService.groups | async)" class="item" >
       <a [routerLink]="['/group', group.$key]" class="item-link">
         {{group.$key}}
       </a>

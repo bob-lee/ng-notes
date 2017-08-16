@@ -1,7 +1,7 @@
 import { animate, animateChild, animation, group, query, stagger, style, transition, trigger, useAnimation } from '@angular/animations';
 
-export const PERIOD_1 = '1.6s ease';
-export const PERIOD_2 = '.6s ease';
+export const PERIOD_1 = '500ms ease';
+export const PERIOD_2 = '500ms ease';
 
 /*export const listAnimation = animation([
   query(':enter', [

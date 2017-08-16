@@ -85,7 +85,12 @@ export class NoteFormComponent implements OnInit {
       })
     }
 
+    // passive listener
+    this.ontouchstart.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
+    this.ontouchstart2.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
   }
+  @ViewChild('ontouchstart') ontouchstart:ElementRef;
+  @ViewChild('ontouchstart2') ontouchstart2:ElementRef;
 
   cancel(e) {
     e.stopPropagation();

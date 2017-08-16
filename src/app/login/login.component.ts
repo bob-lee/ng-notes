@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { NoteService } from '../our-notes/note.service';
 import { LoginWith } from '../our-notes/Note';
@@ -11,10 +11,15 @@ export class LoginComponent implements OnInit {
   error: any;
   LoginWithEnum = LoginWith;
 
+  @ViewChild('ontouchstart') ontouchstart:ElementRef;
+
   constructor(private router: Router,
     public noteService: NoteService) { }
 
   ngOnInit() {
+    
+    // passive listener
+    this.ontouchstart.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
   }
 
   login(loginWith: LoginWith) {

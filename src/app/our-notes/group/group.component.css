@@ -2,12 +2,13 @@
   padding-bottom: 4em;
   counter-reset: count;
 }
-
+.item {
+  padding: 0.2em;
+}
 .item::before {
   counter-increment: count;
   content: counter(count)".";
 }
-
 .item hr {
   margin: 0.2em 0;
 }
