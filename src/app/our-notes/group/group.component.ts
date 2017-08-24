@@ -23,6 +23,9 @@ import { itemAnimation, listAnimation } from '../../app.animation';
       <a (click)="edit(note, i, $event)">
         <markdown [data]="note.text"></markdown>
       </a>
+      <span class="item-image" *ngIf="note.thumbURL">
+        <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
+      </span>
       <hr>
     </div>  
   </div>

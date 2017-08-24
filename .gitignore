@@ -6,7 +6,6 @@
 /out-tsc
 
 # dependencies
-/node_modules
 **/node_modules/*
 
 # IDEs and editors
@@ -41,3 +40,6 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Bob private
+/functions/service-account-credentials.json

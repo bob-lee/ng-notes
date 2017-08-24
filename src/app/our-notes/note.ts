@@ -42,6 +42,7 @@ export interface Note {
   text: string;
   updatedAt: any; // for sorting
   imageURL: string;
+  thumbURL: string;
 }
 
 export enum Todo {
