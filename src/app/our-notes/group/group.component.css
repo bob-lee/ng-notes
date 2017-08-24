@@ -4,6 +4,7 @@
 }
 .item {
   padding: 0.2em;
+  position: relative;
 }
 .item::before {
   counter-increment: count;
@@ -16,7 +17,6 @@
 .item a {
   cursor: pointer;
   text-decoration: none;
-  position: relative;
 }
 
 .item:focus, .item:hover {
@@ -25,6 +25,13 @@
 .item a:active {
   top: 1px;
   background: #ddd;
+}
+
+.item-image {
+  position: absolute;
+  opacity: 0.6;
+  top: 0;
+  right: 0;
 }
 
 .fab {

@@ -57,7 +57,8 @@ export class NoteFormComponent implements OnInit {
         name: previousName ? previousName : '',
         text: '',
         updatedAt: '',
-        imageURL: ''
+        imageURL: '',
+        thumbURL: null
       };
 
       if (!this.noteService.groupName) { // page refresh

@@ -168,6 +168,7 @@ export class NoteService implements CanActivate {
             .then((snapshot) => {
               console.log('uploaded file:', snapshot.downloadURL);
               note.imageURL = snapshot.downloadURL;
+              //this.testThumb(file.name);
               return this.notes.push(note);
             })
             .catch(error => {
@@ -188,10 +189,21 @@ export class NoteService implements CanActivate {
       if (note.imageURL && !imageFailedToLoad) {
         return this.storage.storage.refFromURL(note.imageURL).delete()
           .then(() => this.notes.remove(note))
-          .catch((error) => console.error('failed to delete image', error));
+          .catch((error) => console.error('failed to delete image', error)); // what if image deleted up there?
       }
       return this.notes.remove(note);
     }
+  }
+
+  thumbURL: string;
+  private testThumb(filename: string) {
+    setTimeout(_ => {
+      this.storage.child(`images/thumb_${filename}`).getDownloadURL()
+        .then(url => {
+          this.thumbURL = url;
+          console.log('thumb URL: ', url);
+        });
+    }, 10000);
   }
 
   /* 5 edit cases for image:
@@ -216,6 +228,7 @@ export class NoteService implements CanActivate {
 
         if (imageFailedToLoad) {
           note.imageURL = null;
+          note.thumbURL = null;
         }
 
       } else if (toRemoveExistingImage && (!files || files.length === 0)) {
@@ -246,6 +259,7 @@ export class NoteService implements CanActivate {
           .then(() => {
             console.log('finally');
             note.imageURL = null;
+            note.thumbURL = null;
             return this.notes.update(note.$key, note);
           });
 
@@ -260,6 +274,7 @@ export class NoteService implements CanActivate {
           .catch((error) => {
             console.error('failed to delete image', error);
             note.imageURL = null;
+            note.thumbURL = null;
           })
           .then(() => {
             console.log('finally');
