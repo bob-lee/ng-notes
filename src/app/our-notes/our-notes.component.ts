@@ -98,14 +98,7 @@ export class OurNotesComponent implements OnInit {
 
     // inspect route // 31Jul17 route should be always '/group'
     console.log(`'OurNotesComponent'`);
-    // passive listener
-    this.ontouchstart.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
-    this.ontouchstart2.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
-    this.ontouchstart3.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
   }
-  @ViewChild('ontouchstart') ontouchstart:ElementRef;
-  @ViewChild('ontouchstart2') ontouchstart2:ElementRef;
-  @ViewChild('ontouchstart3') ontouchstart3:ElementRef;
 
   add() {
     console.log('add');

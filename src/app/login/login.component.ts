@@ -11,15 +11,10 @@ export class LoginComponent implements OnInit {
   error: any;
   LoginWithEnum = LoginWith;
 
-  @ViewChild('ontouchstart') ontouchstart:ElementRef;
-
   constructor(private router: Router,
     public noteService: NoteService) { }
 
   ngOnInit() {
-    
-    // passive listener
-    this.ontouchstart.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
   }
 
   login(loginWith: LoginWith) {

@@ -14,6 +14,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { OurNotesModule } from './our-notes/our-notes.module';
 import { LoginComponent } from './login/login.component';
+import { TouchStartModule } from './touchstart.module';
 
 import { WindowRef } from './service/window-ref.service';
 
@@ -32,6 +33,7 @@ import { WindowRef } from './service/window-ref.service';
     HttpModule,
     OurNotesModule,
     AppRoutingModule,
+    TouchStartModule,
   ],
   providers: [
     WindowRef

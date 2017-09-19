@@ -13,6 +13,7 @@ import { NoteFormComponent } from './note-form/note-form.component';
 
 import { NoteService } from './note.service';
 import { FocusMeDirective } from '../focus-me.directive';
+import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
 
@@ -23,14 +24,15 @@ import { OurNotesRoutingModule } from './our-notes-routing.module';
     MdButtonModule, MdCheckboxModule, MdRadioModule, MdInputModule,
     BsDropdownModule.forRoot(),
     MarkdownModule.forRoot(),
-    OurNotesRoutingModule
+    OurNotesRoutingModule,
+    TouchStartModule,
   ],
   declarations: [
     OurNotesComponent,
     GroupsComponent,
     GroupComponent,
     NoteFormComponent,
-    FocusMeDirective
+    FocusMeDirective,
   ],
   providers: [ NoteService ]
 })

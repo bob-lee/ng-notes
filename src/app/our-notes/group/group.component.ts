@@ -14,7 +14,7 @@ import { itemAnimation, listAnimation } from '../../app.animation';
 */
 @Component({
   template: `
-  <div [@listChild]="noteService.countNotes" class="list">
+  <div [@listChild]="noteService.countNotes" class="list" touchStart>
     <div *ngFor="let note of (noteService.notes | async); let i = index" 
       [@enlarge]="hoverArray[i]" class="item" [attr.tabindex]="i">
       {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} 
@@ -88,6 +88,7 @@ import { itemAnimation, listAnimation } from '../../app.animation';
 export class GroupComponent implements OnInit {
   trackFbObjects = (idx, obj) => obj.$key; // do I need this?
   hoverArray = [];
+  isTouchDevice: boolean;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -95,12 +96,13 @@ export class GroupComponent implements OnInit {
 
   ngOnInit() {
     this.noteService.todo = Todo.List;
+    this.isTouchDevice = window.matchMedia("(pointer:coarse)").matches;
 
     // inspect route
     const group = this.route.snapshot.params['name'];
     const idxToFocus = this.route.snapshot.queryParams['i'];
     const to = this.route.snapshot.queryParams['to'];
-    console.log(`'GroupComponent' '${group}' ${idxToFocus} ${to}`);
+    console.log(`'GroupComponent' '${group}' ${idxToFocus} ${to} ${this.isTouchDevice}`);
     if (group) { // route has group name
 
       if (group === this.noteService.groupName) {
@@ -130,14 +132,15 @@ export class GroupComponent implements OnInit {
                 if (i > -1) {
                   const el = elements[i] as HTMLElement;
                   
-                  // //window.scrollTo(0, 0);
-                  // el.scrollIntoView(true/*{block:"end",inline:"end"}*/); // ios chrome seems to need this // this has an unwanted side effect on desktop: first note partly hidden in a long page
-                  // if (i == 0) {
-                  //   console.log(`GroupComponent scroll to top`);
-                  //   el.scrollTop = 0;
-                  // } else {
-                  // }
                   el.focus();
+
+                  if (this.isTouchDevice) {
+                    /* on ios chrome, just calling focus() doesn't seem to scroll.
+
+                    */
+                    el.scrollIntoView();
+                  } 
+                    
                 }
               }
             }, 0);

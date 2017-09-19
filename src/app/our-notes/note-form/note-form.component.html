@@ -2,7 +2,7 @@
     <button class="btn btn-lg btn-primary" (click)="remove($event)" [hidden]="noteService.todo === todoEnum.Add">Remove</button>
 -->
 <form [formGroup]="noteForm" novalidate>
-  <div class="buttons" #ontouchstart>
+  <div class="buttons" touchStart>
     <button class="btn btn-lg btn-default" (click)="cancel($event)" type="button">Cancel</button>
     <button class="btn btn-lg btn-primary" (click)="save($event)" type="button">Save</button>
   </div>
@@ -22,7 +22,7 @@
     </md-input-container>
   </div>
 
-  <div class="" #ontouchstart2>
+  <div class="" touchStart>
     <input class="btn" type="file" accept="image/*;capture=camera" (change)="fileSelected()" #fileInput>
     <button class="" type="button" (click)="removeFile($event)" [hidden]="toHideButton"><i class="material-icons">delete</i></button>
   </div>

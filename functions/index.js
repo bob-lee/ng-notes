@@ -45,7 +45,7 @@ exports.makeThumb = functions.database.ref(DATABASE_TRIGGER_PATH).onWrite(event 
   const toDelete = !!previous; // be cautious when deleting a thumb file as it can be used in elsewhere
 
   //console.log(`makeThumb(${event.params.pushId}, ${current}, ${event.data.ref.parent.child('text').val})`);
-  console.log(`makeThumb(${event.params.pushId}, ${previousFile} => ${currentFile}, ${toMake}, ${toDelete})`);
+  //console.log(`makeThumb(${event.params.pushId}, ${previousFile} => ${currentFile}, ${toMake}, ${toDelete})`);
 
   if (!toMake) {
     return;
@@ -79,6 +79,11 @@ exports.makeThumb = functions.database.ref(DATABASE_TRIGGER_PATH).onWrite(event 
   //   console.log('Already a Thumbnail.');
   //   return;
   // }
+  // Exit if the image is already a thumbnail.
+  // if (fileName.startsWith(THUMB_PREFIX)) {
+  //   console.log('Already a Thumbnail.');
+  //   return;
+  // }
 
   // // Exit if this is a move or deletion event.
   // if (event.data.resourceState === 'not_exists') {
@@ -98,15 +103,15 @@ exports.makeThumb = functions.database.ref(DATABASE_TRIGGER_PATH).onWrite(event 
     // Download file from bucket.
     return file.download({ destination: tempLocalFile });
   }).then(() => {
-    console.log('The file has been downloaded to', tempLocalFile);
+    //console.log('The file has been downloaded to', tempLocalFile);
     // Generate a thumbnail using ImageMagick.
     return spawn('convert', [tempLocalFile, '-thumbnail', `${THUMB_MAX_WIDTH}x${THUMB_MAX_HEIGHT}>`, tempLocalThumbFile]);
   }).then(() => {
-    console.log('Thumbnail created at', tempLocalThumbFile);
+    //console.log('Thumbnail created at', tempLocalThumbFile);
     // Uploading the Thumbnail.
     return bucket.upload(tempLocalThumbFile, { destination: thumbFilePath });
   }).then(() => {
-    console.log('Thumbnail uploaded to Storage at', thumbFilePath);
+    //console.log('Thumbnail uploaded to Storage at', thumbFilePath);
     // Once the image has been uploaded delete the local files to free up disk space.
     fs.unlinkSync(tempLocalFile);
     fs.unlinkSync(tempLocalThumbFile);
@@ -133,6 +138,119 @@ exports.makeThumb = functions.database.ref(DATABASE_TRIGGER_PATH).onWrite(event 
 
 });
 
+// test for joanne-lee
+const CONVERT_PREFIX = 'of_'; // image2 file would have this prefix, e.g. 'of_Sarah.jpeg.png', to delete after conversion
+
+exports.recordUrl = functions.storage.object().onChange(event => {
+  // File and directory paths.
+  const filePath = event.data.name; // 'illustration/Sarah.jpeg'
+  const fileDir = path.dirname(filePath); // 'illustration'
+  const fileName = path.basename(filePath); // e.g. 'Sarah.jpeg' or 'of_Sarah.jpeg.png'
+  //const folder = filePath.split('/').slice(0).join();
+  const fileExt = fileName.split('.').splice(-1).join().toLowerCase();
+  const toConvert = fileName.startsWith(CONVERT_PREFIX);
+  const isThumb = fileName.startsWith(THUMB_PREFIX);
+
+  //console.log(`filePath: ${filePath}, ${fileDir}, ${folder}`);
+
+  // Exit if this is triggered on a file that is not an image.
+  if (!event.data.contentType.startsWith('image/')) {
+    //console.log('This is not an image.');
+    return;
+  }
+
+  // Exit if this is a move or deletion event.
+  if (event.data.resourceState === 'not_exists') {
+    //console.log('This is a deletion event.');
+    return;
+  }
+
+  if (isThumb) {
+    //console.log('This is thumb.');
+    return;
+  }
+
+  // Cloud Storage files.
+  const bucket = gcs.bucket(event.data.bucket);
+  const file = bucket.file(filePath);
+
+  // Get the Signed URLs for the thumbnail and original image.
+  const config = {
+    action: 'read',
+    expires: '03-01-2500'
+  };
+
+  if (!toConvert) { // image 1 uploaded, record its url and return
+    return file.getSignedUrl(config, function (err, url) {
+      admin.database().ref(fileDir).push({ fileName: fileName, url: url })
+        .then(_ => console.log(`recorded url of '${fileName}' ok`));
+    });
+  }
+
+  // image 2 uploaded, convert to thumb, record its url in database.thumbUrl
+
+  const originalName = fileName.split('.').slice(0, -1).join('.').replace(CONVERT_PREFIX, ''); // get 'Sarah.jpeg' from 'of_Sarah.jpeg.png'
+
+  const thumbFilePath = path.normalize(path.join(fileDir, `${THUMB_PREFIX}${fileName}`));
+  const tempLocalFile = path.join(os.tmpdir(), filePath);
+  const tempLocalDir = path.dirname(tempLocalFile);
+  const tempLocalThumbFile = path.join(os.tmpdir(), thumbFilePath);
+
+  const thumbFile = bucket.file(thumbFilePath);
+
+  // Create the temp directory where the storage file will be downloaded.
+  return mkdirp(tempLocalDir).then(() => {
+    // Download file from bucket.
+    return file.download({ destination: tempLocalFile });
+  }).then(() => {
+    //console.log('The file has been downloaded to', tempLocalFile);
+    // Generate a thumbnail using ImageMagick.
+    return spawn('convert', [tempLocalFile, '-thumbnail', `${THUMB_MAX_WIDTH}x${THUMB_MAX_HEIGHT}>`, tempLocalThumbFile]);
+  }).then(() => {
+    //console.log('Thumbnail created at', tempLocalThumbFile);
+    // Uploading the Thumbnail.
+    return bucket.upload(tempLocalThumbFile, { destination: thumbFilePath });
+  }).then(() => {
+    //console.log('Thumbnail uploaded to Storage at', thumbFilePath);
+    // Once the image has been uploaded delete the local files to free up disk space.
+    fs.unlinkSync(tempLocalFile);
+    fs.unlinkSync(tempLocalThumbFile);
+
+    // Get the Signed URLs for the thumbnail and original image.
+    return Promise.all([
+      thumbFile.getSignedUrl(config),
+    ]);
+  }).then(results => {
+    const originalResult = results[0];
+    const fileUrl = originalResult[0];
+    console.log(`got signed URL of thumb, looking for '${originalName}' in database`);
+
+    // Add the URLs to the Database
+    let key;
+    return admin.database().ref(fileDir)
+      .orderByChild('fileName')
+      .equalTo(originalName)
+      .once('value')
+      .then(snap => {
+        snap.forEach(i => {
+          //console.log(`found key(${i.key})`);
+          if (i.key) {
+            key = i.key;
+          }
+        });
+
+        if (key && fileUrl) {
+          return admin.database().ref(`/${fileDir}/${key}`).update({ 'thumbUrl': fileUrl });
+        } else {
+          return Promise.reject(`couldn't find '${originalName}' in database`);
+        }
+      });
+
+  }).then(_ => file.delete())
+    .then(_ => console.log(`removed file '${fileName}' ok`))
+    .catch(error => console.error('image2', error));
+
+});
 /**
  * When an image is uploaded in the Storage bucket We generate a thumbnail automatically using
  * ImageMagick.
