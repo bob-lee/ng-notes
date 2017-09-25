@@ -6,6 +6,10 @@
   line-height: 3;
 }
 
+.item {
+  cursor: pointer;
+}
+
 .item::before {
   counter-increment: count;
   content: counter(count)".";
@@ -16,7 +20,6 @@
 }
 
 .item a {
-  cursor: pointer;
   text-decoration: none;
   position: relative;
 }
