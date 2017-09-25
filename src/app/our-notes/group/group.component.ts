@@ -13,24 +13,7 @@ import { itemAnimation, listAnimation } from '../../app.animation';
 
 */
 @Component({
-  template: `
-  <div [@listChild]="noteService.countNotes" class="list" touchStart>
-    <div *ngFor="let note of (noteService.notes | async); let i = index" 
-      [@enlarge]="hoverArray[i]" class="item" [attr.tabindex]="i">
-      {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy h.mma' | lowercase}} 
-      <span (click)="remove(note)" style="cursor:pointer" class="glyphicon glyphicon-trash" aria-hidden="true"></span> 
-      <br/>
-      <a (click)="edit(note, i, $event)">
-        <markdown [data]="note.text"></markdown>
-      </a>
-      <span class="item-image" *ngIf="note.thumbURL">
-        <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
-      </span>
-      <hr>
-    </div>  
-  </div>
-  <button class="fab" (click)="add()">+</button>
-  `,
+  templateUrl: './group.component.html',
   styleUrls: ['./group.component.css'],
   animations: [
     trigger('listChild', [

@@ -3,6 +3,7 @@
   counter-reset: count;
 }
 .item {
+  display: block;
   padding: 0.2em;
   position: relative;
 }
