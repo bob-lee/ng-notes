@@ -4,7 +4,7 @@ import { animate, animation, animateChild, group, keyframes, query, stagger, sta
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
-import { itemAnimation, listAnimation } from '../../app.animation';
+import { listChild } from '../../app.animation';
 /* 
 ; trackBy: trackFbObjects
 [@enlarge]="hoverArray[i]"
@@ -16,22 +16,7 @@ import { itemAnimation, listAnimation } from '../../app.animation';
   templateUrl: './group.component.html',
   styleUrls: ['./group.component.css'],
   animations: [
-    trigger('listChild', [
-      transition('* => *', [
-        //useAnimation(listAnimation)
-        query(':enter', [
-          style({ transform: 'scale(0)', opacity: 0 })
-        ], { optional: true }),
-        query(':leave', [
-          style({ opacity: 1, height: '5em' }),
-          animate('1s ease-out', style({ opacity: 0, height: 0 }))
-        ], { optional: true }),
-        query(':enter', [
-          animate('500ms ease-out', style({ transform: 'scale(1)', opacity: 1 }))
-        ], { optional: true })
-
-      ])
-    ]),
+    listChild,
 
     trigger('enlarge', [
       state('void', style({ transform: 'scale(0)', opacity: 0.0, 'z-index': 1 })),
@@ -52,26 +37,13 @@ import { itemAnimation, listAnimation } from '../../app.animation';
         )
       ]),
     ])
-
-    /*trigger('listAnimation', [
-      transition('void => *', [
-        style({ height: '*' }),
-        animate(1000, style({ height: 0 }))
-      ]),
-      transition('* => void', [
-        animate(1000, keyframes([
-          style({ opacity: 0, transform: 'translateX(-100%)', offset: 0 }),
-          style({ backgroundColor: '#bee0ff', opacity: 1, transform: 'translateX(15px)', offset: 0.3 }),
-          style({ opacity: 1, transform: 'translateX(0)', offset: 1.0 })
-        ]))
-      ])
-    ])*/
   ]
 })
 export class GroupComponent implements OnInit {
   trackFbObjects = (idx, obj) => obj.$key; // do I need this?
   hoverArray = [];
   isTouchDevice: boolean;
+  count = 0;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -85,7 +57,7 @@ export class GroupComponent implements OnInit {
     const group = this.route.snapshot.params['name'];
     const idxToFocus = this.route.snapshot.queryParams['i'];
     const to = this.route.snapshot.queryParams['to'];
-    console.log(`'GroupComponent' '${group}' ${idxToFocus} ${to} ${this.isTouchDevice}`);
+    console.warn(`'GroupComponent' '${group}' ${idxToFocus} ${to} ${this.isTouchDevice}`);
     if (group) { // route has group name
 
       if (group === this.noteService.groupName) {
@@ -94,7 +66,9 @@ export class GroupComponent implements OnInit {
 
       this.noteService.search(group).subscribe(
         notes => {
-          console.log(`GroupComponent gets ${notes.length} note(s)`);
+          console.log(`GroupComponent gets ${notes.length} note(s) ${this.count}`);
+          if (this.count++ > 0) return;
+
           for (let i = 0, len = notes.length; i < len; i++) {
             this.hoverArray[i] = idxToFocus == -1 && i === (len - 1) ? "added" :
               idxToFocus == i && to == 2 ? "edited" :

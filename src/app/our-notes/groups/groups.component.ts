@@ -4,13 +4,14 @@ import { trigger, animate, animation, style, group, animateChild, query, stagger
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
-import { listAnimation } from '../../app.animation';
+import { listAnimation, listChild } from '../../app.animation';
 /*
 [routerLink]="['/group', group.$key]"
+[@listChild]="noteService.countGroups"
 */
 @Component({
   template: `
-  <div [@listChild]="noteService.countGroups" class="list" touchStart>
+  <div class="list" touchStart>
     <div *ngFor="let group of (noteService.groups | async)" class="item" (click)="goto(group)" >
       <a class="item-link">
         {{group.$key}}
@@ -21,11 +22,7 @@ import { listAnimation } from '../../app.animation';
   `,
   styleUrls: ['./groups.component.css'],
   animations: [
-    trigger('listChild', [
-      transition('* => *', [
-        useAnimation(listAnimation)
-      ])
-    ])
+    //listChild,
   ]
 })
 export class GroupsComponent implements OnInit {

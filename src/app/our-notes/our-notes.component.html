@@ -16,8 +16,9 @@
   </div>
 </div>
 
-<router-outlet></router-outlet>
-
+<div [@routerTransition]="getState(o)">
+  <router-outlet #o="outlet"></router-outlet>
+</div>
 <!--
   <pre>todo:{{todoEnum[noteService.todo]}}, note: {{noteService.note | json}}</pre>
  {{noteService.countGroups}}/{{noteService.countNotes}}

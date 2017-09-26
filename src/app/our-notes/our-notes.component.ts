@@ -6,7 +6,7 @@ import { trigger, animate, animation, style, group, animateChild, query, stagger
 import { Note, Todo } from './Note';
 import { NoteService } from './note.service';
 import { WindowRef } from '../service/window-ref.service';
-import { expandAnimation, itemAnimation, listAnimation } from '../app.animation';
+import { routerTransition, expandAnimation, itemAnimation, listAnimation } from '../app.animation';
 
 /* 
 
@@ -44,6 +44,7 @@ import { expandAnimation, itemAnimation, listAnimation } from '../app.animation'
   templateUrl: './our-notes.component.html',
   styleUrls: ['./our-notes.component.css'],
   animations: [
+    routerTransition,
     trigger('expand', [
       transition('* => *', [
         useAnimation(expandAnimation)
@@ -126,4 +127,7 @@ export class OurNotesComponent implements OnInit {
     this.router.navigate(['group', group]);
   }
 
+  getState(outlet) {
+    return outlet.activatedRouteData.state;
+  }
 }

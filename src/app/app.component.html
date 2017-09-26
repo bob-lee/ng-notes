@@ -1,7 +1,7 @@
 <div class="container-fluid">
 
-  <div [@routerAnimation]="prepRouteState(outlet)">
-    <router-outlet #outlet="outlet"></router-outlet>
+  <div [@routerTransition]="getState(o)">
+    <router-outlet #o="outlet"></router-outlet>
   </div>
 
 </div>

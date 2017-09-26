@@ -137,14 +137,7 @@ export class NoteFormComponent implements OnInit {
 
     this.submitted = false;
   }
-/*
-  remove(e) {
-    e.stopPropagation();
-    this.noteService.todo = Todo.Remove;
-    this._todo = Todo.Remove;
-    this.saveNote();
-  }
-*/
+
   removeFile(e) {
     this.inputEl.nativeElement.value = ''; // remove any selected file
     this.imgToRemove = true; // hide any downloaded image
