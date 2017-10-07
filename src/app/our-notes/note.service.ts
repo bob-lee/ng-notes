@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 
 import { FirebaseApp } from 'angularfire2';
-import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/first';
 import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
 import * as firebase from 'firebase/app';
 
 import { Note, Todo, LoginWith } from './Note';
@@ -16,8 +18,11 @@ import { WindowRef } from '../service/window-ref.service';
 export class NoteService implements CanActivate {
   user: Observable<firebase.User>;
   userName: string;
-  notes: FirebaseListObservable<Note[]>;
-  groups: FirebaseListObservable<any[]>; // 29Jul17
+  notes: Observable<Note[]>;
+  groups: Observable<any[]>;
+  objRef: AngularFireObject<Note>;
+  listRef: AngularFireList<Note>;
+  subscription: Subscription = null;
 
   private announceGroupName = new Subject<string>();
   announcedGroupName = this.announceGroupName.asObservable();
@@ -90,43 +95,56 @@ export class NoteService implements CanActivate {
 
   getGroupNotes(group: string): void {
     console.log(`getGroupNotes(${group})`);
-    if (!this.groupName) this.groupName = group; // 01Aug17 set group name
-    this.notes = this.db.list(`notes`, {
-      query: {
-        orderByChild: 'group',
-        equalTo: group
-      }
+    if (!this.groupName) this.groupName = group;
+    if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
+
+    this.listRef = this.db.list<Note>(`notes`, ref =>
+      ref.orderByChild('group').equalTo(group));
+
+    this.notes = this.listRef.snapshotChanges()
+      .map(action => {
+        //console.log('action', action.length);
+        const arr = [];
+        action.forEach(e => {
+          const $key = e.key;
+          arr.push({ $key, ...e.payload.val() });
+        });
+        return arr;
+      });
+
+    this.subscription = this.notes.subscribe(notes => {
+      this.countNotes = notes.length;
+      console.log('countNotes', this.countNotes/*, notes*/);
     });
-    this.notes.subscribe(
-      notes => {
-        this.countNotes = notes.length;
-        console.log('countNotes', this.countNotes);
-      }
-    );
+
   }
 
   getNotePromise(id: string, group: string): Promise<Note> {
     console.log(`getNotePromise(${id}, ${group})`);
     return new Promise((resolve, reject) => {
-      if (this.note) {
-        resolve(this.note);
-      } else { // page refresh
-        this.getGroupNotes(group);
-
-        // to query object by key from database, use AngularFireDatabase.object: https://github.com/angular/angularfire2/blob/master/src/database/database.ts
-        this.db.object(`notes/${id}`).subscribe(item => {
-          console.log('found', item);
-          resolve(item);
-        });
-      }
+      this.objRef = this.db.object<Note>(`notes/${id}`);
+      this.objRef.valueChanges().first().subscribe(item => {
+        console.log('found', item);
+        resolve(item);
+      });
     });
   }
 
-  initAfterLogin() { // to be called after login by component
-    this.groups = this.db.list('groups');
-    this.groups.subscribe(
-      groups => { this.countGroups = groups.length; console.log('countGroups', this.countGroups); }
-    );
+  initAfterLogin() { // called by OurNotesComponent when logged in
+    this.groups = this.db.list('groups').snapshotChanges()
+      .map(action => {
+        //console.log('action', action.length);
+        const arr = [];
+        action.forEach(e => {
+          const $key = e.key;
+          arr.push({ $key });
+        });
+        return arr;
+      });
+    this.subscription = this.groups.subscribe(groups => {
+      this.countGroups = groups.length;
+      console.log('countGroups', this.countGroups);
+    });
   }
 
   login(loginWith: LoginWith) {
@@ -148,12 +166,14 @@ export class NoteService implements CanActivate {
   }
 
   logout() {
+    if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
+
     return this.afAuth.auth.signOut();
   }
 
   save(note: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
     console.log(`save ${Todo[this._todo]}, imageFailedToLoad=${imageFailedToLoad}, toRemoveExistingImage=${toRemoveExistingImage}`);
-    note.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+    if (this._todo !== Todo.Remove) note.updatedAt = firebase.database.ServerValue.TIMESTAMP;
     note.group = this._groupName;
     console.log('note', note);
 
@@ -169,7 +189,7 @@ export class NoteService implements CanActivate {
               console.log('uploaded file:', snapshot.downloadURL);
               note.imageURL = snapshot.downloadURL;
               //this.testThumb(file.name);
-              return this.notes.push(note);
+              return this.listRef.push(note);
             })
             .catch(error => {
               console.error('failed to upload', error);
@@ -177,7 +197,6 @@ export class NoteService implements CanActivate {
         }
       }
 
-      //return this.notes.push(note);
       return this.saveNote(note);
 
     } else if (this._todo === Todo.Edit) { // edit
@@ -188,10 +207,11 @@ export class NoteService implements CanActivate {
 
       if (note.imageURL && !imageFailedToLoad) {
         return this.storage.storage.refFromURL(note.imageURL).delete()
-          .then(() => this.notes.remove(note))
+          .then(() => this.listRef.remove(note.$key))
           .catch((error) => console.error('failed to delete image', error)); // what if image deleted up there?
       }
-      return this.notes.remove(note);
+
+      return this.listRef.remove(note.$key);
     }
   }
 
@@ -218,6 +238,7 @@ export class NoteService implements CanActivate {
   ----+-------------+-------------+---------------+---------------------------
   */
   private saveEdit(note: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
+    console.log('note', note);
 
     if (note.imageURL) { // existing image
       const ref = this.storage.storage.refFromURL(note.imageURL);
@@ -234,21 +255,6 @@ export class NoteService implements CanActivate {
       } else if (toRemoveExistingImage && (!files || files.length === 0)) {
         console.log('case 2b.');
 
-        /*
-        if (imageFailedToLoad) {
-          note.imageURL = null;
-          return this.notes.update(note.$key, note);
-        } else {
-          return ref.delete()
-            .then(() => {
-              console.log('deleted existing image');
-              note.imageURL = null;
-              return this.notes.update(note.$key, note);
-            })
-            .catch((error) => console.error('failed to delete image', error));
-        }
-        */
-
         return ref.delete() // Promise.then.catch.then, pro: DRY, con: one more http call
           .then(() => {
             console.log('deleted existing');
@@ -260,7 +266,7 @@ export class NoteService implements CanActivate {
             console.log('finally');
             note.imageURL = null;
             note.thumbURL = null;
-            return this.notes.update(note.$key, note);
+            return this.update(note);
           });
 
       } else if (/*toRemoveExistingImage && */files && files.length > 0) {
@@ -283,13 +289,13 @@ export class NoteService implements CanActivate {
                 .then((snapshot) => {
                   console.log('uploaded file:', snapshot.downloadURL);
                   note.imageURL = snapshot.downloadURL;
-                  return this.notes.update(note.$key, note);
+                  return this.update(note);
                 })
                 .catch(error => { // throw away any changes on note
                   console.error('failed to upload', error);
                 });
             }
-            return this.notes.update(note.$key, note);
+            return this.update(note);
           });
 
       }
@@ -308,7 +314,7 @@ export class NoteService implements CanActivate {
             .then((snapshot) => {
               console.log('uploaded file:', snapshot.downloadURL);
               note.imageURL = snapshot.downloadURL;
-              return this.notes.update(note.$key, note);
+              return this.update(note);
             })
             .catch(error => {
               console.error('failed to upload', error);
@@ -317,10 +323,10 @@ export class NoteService implements CanActivate {
       }
     }
 
-    return this.notes.update(note.$key, note);
+    return this.update(note);
   }
 
-  private saveNote(note: Note): firebase.Promise<any> {
+  private saveNote(note: Note): Promise<any> {
     console.log('saveNote', note);
 
     var newNoteKey = this.dbRef.child('notes').push().key;
@@ -331,7 +337,7 @@ export class NoteService implements CanActivate {
     return this.dbRef.update(updates);
   }
 
-  search(group: string): FirebaseListObservable<Note[]> { // search by group name
+  search(group: string): Observable<Note[]> { // search by group name
     this.groupName = group;
     this.getGroupNotes(group);
 
@@ -340,6 +346,14 @@ export class NoteService implements CanActivate {
     }
 
     return this.notes;
+  }
+
+  private update(note) {
+    if (!this.objRef) return;
+
+    return this.objRef.update(note).then(_ => {
+      this.objRef = null;
+    });
   }
 
 }

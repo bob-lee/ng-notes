@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { animate, animation, animateChild, group, keyframes, query, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
+import 'rxjs/add/operator/first';
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
@@ -64,7 +65,7 @@ export class GroupComponent implements OnInit {
         console.log('group hasn\'t changed');
       }
 
-      this.noteService.search(group).subscribe(
+      this.noteService.search(group).first().subscribe(
         notes => {
           console.log(`GroupComponent gets ${notes.length} note(s) ${this.count}`);
           if (this.count++ > 0) return;
