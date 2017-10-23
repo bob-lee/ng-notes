@@ -1,7 +1,35 @@
 .list {
+  height: 100%;
+  overflow: auto;
+
   padding-bottom: 4em;
   counter-reset: count;
 }
+/* You can use either this combination,
+  z-index: 995;
+.overlay1 {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+     
+  background-color: rgba(0, 0, 0, .5);
+}
+.overlay1 .container1 {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+
+  box-sizing: border-box;
+  padding: 0 20px 20px;
+  color: #fff;
+}
+.show-overlay .overlay {
+  right: 0;
+}
+*/
+
 .item {
   display: block;
   padding: 0.2em;
@@ -53,12 +81,10 @@
   
   transition:0.3s cubic-bezier(0.35, 0, 0.25, 1);
 }
-
 .fab:hover {
   transform:scale(1.1);
   background-color: #E53935;
 }
-
 .fab:active {
   background-color: #B71C1C;
 }

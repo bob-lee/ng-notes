@@ -102,10 +102,10 @@ export class OurNotesComponent implements OnInit {
     console.log(`'OurNotesComponent'`);
   }
 
-  add() {
-    console.log('add');
-    this.router.navigate(['group', this.myForm.controls['groupName'].value, 'add']);
-  }
+  // add() {
+  //   console.log('add');
+  //   this.router.navigate(['group', this.myForm.controls['groupName'].value, 'add']);
+  // }
 
   exit() {
     //this.myForm.controls['groupName'].setValue('');
@@ -126,7 +126,7 @@ export class OurNotesComponent implements OnInit {
   search() {
     const group = this.myForm.controls['groupName'].value;
     console.log(`search(${group})`);
-    this.router.navigate(['group', group]);
+    this.router.navigate(['group', group], { queryParams: { db: 2 } }); // create / search a group in firestore
   }
 
   getState(outlet) {

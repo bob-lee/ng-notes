@@ -4,6 +4,8 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { AngularFireModule } from 'angularfire2';
+import { AngularFirestoreModule } from 'angularfire2/firestore';
+
 import 'firebase/storage'; // only import firebase storage, https://github.com/angular/angularfire2/issues/946
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
@@ -25,7 +27,8 @@ import { WindowRef } from './service/window-ref.service';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    AngularFireModule.initializeApp(environment.firebase, 'ng-notes'),
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
     AngularFireDatabaseModule,
     AngularFireAuthModule,
     ReactiveFormsModule,

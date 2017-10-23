@@ -1,10 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { animate, animation, animateChild, group, keyframes, query, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
 import 'rxjs/add/operator/first';
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
+import { ModalService } from '../modal.service';
 import { listChild } from '../../app.animation';
 /* 
 ; trackBy: trackFbObjects
@@ -18,45 +19,48 @@ import { listChild } from '../../app.animation';
   styleUrls: ['./group.component.css'],
   animations: [
     listChild,
-
-    trigger('enlarge', [
-      state('void', style({ transform: 'scale(0)', opacity: 0.0, 'z-index': 1 })),
-      state('loaded', style({ transform: 'scale(1)', opacity: 1.0, 'z-index': 1 })),
-      state('edited', style({ transform: 'scale(1)', opacity: 1.0, 'z-index': 1 })),
-      state('added', style({ transform: 'scale(1)', opacity: 1.0, 'z-index': 1 })),
-      transition('* => added', [
-        animate('1000ms ease-out')
-      ]),
-      transition('* => edited', [
-        animate('700ms ease-out'/*,         keyframes([
+    trigger('item', [
+      transition('* => modified', [
+        animate('1000ms ease-out',keyframes([
           style({opacity: 1, offset: 0}),
           style({opacity: 0, offset: 0.25}),
           style({opacity: 1, offset: 0.5}),
           style({opacity: 0, offset: 0.75}),
           style({opacity: 1, offset: 1})
-        ])*/
-        )
-      ]),
-    ])
-  ]
+        ]))
+      ], { delay: 600 }),
+    ]),
+
+  ],
+  encapsulation: ViewEncapsulation.None
 })
 export class GroupComponent implements OnInit {
-  trackFbObjects = (idx, obj) => obj.$key; // do I need this?
+  trackByFn = (idx, obj) => obj.$key; // do I need this?
+
+  @ViewChild('modal')
+  public modal;
+
   hoverArray = [];
   isTouchDevice: boolean;
   count = 0;
+  i;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
-    public noteService: NoteService) { }
+    public noteService: NoteService,
+    private modalService: ModalService) { }
 
-  ngOnInit() {
+  ngOnInit() { // for rtdb, hits here whenever coming back from note-form. for firebase, hits here only once as this component uses note-modal
+    this.modalService.setModal(this.modal);
+
     this.noteService.todo = Todo.List;
     this.isTouchDevice = window.matchMedia("(pointer:coarse)").matches;
 
     // inspect route
     const group = this.route.snapshot.params['name'];
+    const db = this.route.snapshot.queryParams['db'];
     const idxToFocus = this.route.snapshot.queryParams['i'];
+    //this.i = idxToFocus;
     const to = this.route.snapshot.queryParams['to'];
     console.warn(`'GroupComponent' '${group}' ${idxToFocus} ${to} ${this.isTouchDevice}`);
     if (group) { // route has group name
@@ -65,15 +69,17 @@ export class GroupComponent implements OnInit {
         console.log('group hasn\'t changed');
       }
 
-      this.noteService.search(group).first().subscribe(
+      this.noteService.search(group, db).first().subscribe(
         notes => {
           console.log(`GroupComponent gets ${notes.length} note(s) ${this.count}`);
           if (this.count++ > 0) return;
 
           for (let i = 0, len = notes.length; i < len; i++) {
-            this.hoverArray[i] = idxToFocus == -1 && i === (len - 1) ? "added" :
+            const status = idxToFocus == -1 && i === (len - 1) ? "added" :
               idxToFocus == i && to == 2 ? "edited" :
                 "loaded";
+            this.hoverArray[i] = status;
+            if (status !== 'loaded') this.i = i;
           }
 
           if (idxToFocus) {
@@ -89,7 +95,7 @@ export class GroupComponent implements OnInit {
                 console.log(`GroupComponent to focus [${i}]`);
                 if (i > -1) {
                   const el = elements[i] as HTMLElement;
-                  
+
                   el.focus();
 
                   if (this.isTouchDevice) {
@@ -97,8 +103,8 @@ export class GroupComponent implements OnInit {
 
                     */
                     el.scrollIntoView();
-                  } 
-                    
+                  }
+
                 }
               }
             }, 0);
@@ -109,18 +115,27 @@ export class GroupComponent implements OnInit {
 
     }
   }
-
-  add() {
-    console.log('add');
-    this.router.navigate(['group', this.noteService.groupName, 'add']);
+  toggle() {
+    const body = document.querySelector("body");
+    //const body = document.querySelector("div.overlay");
+    body.classList.toggle('show-overlay');
   }
 
-  private edit(note, index, event) {
-    console.log(`edit ${note.$key} ${index} screenY=${event.screenY} clientY=${event.clientY}`);
+  addOrEdit(event, index?: number, note?: any) {
+    console.log(`addOrEdit(x:${event.screenX}, i:${index}, key:${note && note.$key || 'na'})`);
+    if (this.noteService.database == 1) {
+      if (note) { // edit
+        this.noteService.note = note;
+        this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key],
+          { queryParams: { i: index } });
+      } else { // add
+        this.router.navigate(['group', this.noteService.groupName, 'add']/*, { queryParams: { db: database } }*/);
+      }
+    } else {
+      this.noteService.setTheNote(note);
+      this.modal.show(event);
+    }
 
-    this.noteService.note = note;
-    this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key],
-      { queryParams: { i: index } });
   }
 
   remove(note) {
