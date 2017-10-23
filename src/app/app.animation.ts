@@ -18,6 +18,9 @@ export const listAnimation = animation([
 
 export const listChild = trigger('listChild', [
   transition('* => *', [
+    query(':enter', [
+      style({ height: 0, opacity: 0 })
+    ], { optional: true }),
     /*query(':enter', [
       style({ transform: 'scale(0)', opacity: 0 })
     ], { optional: true }),*/
@@ -28,6 +31,9 @@ export const listChild = trigger('listChild', [
     /*query(':enter', [
       animate('1000ms ease-out', style({ transform: 'scale(1)', opacity: 1 }))
     ], { optional: true })*/
+    query(':enter', [
+      animate('1s', style({ height: '*', opacity: 1 }))
+    ], { optional: true })
 
   ])
 ]);

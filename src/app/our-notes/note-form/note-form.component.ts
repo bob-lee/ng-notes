@@ -22,6 +22,7 @@ export class NoteFormComponent implements OnInit {
   imgToRemove: boolean;
   _fileChanged: boolean; // selected or removed
   imageFailedToLoad: boolean = false; // to indicate the case where the given image url failed to load
+  db: number; // 1: rtdb, 2: firestore
   /* 
   note that it does not subscribe to value changes of this form.
   on button click, form value is checked and then manually taken to model.
@@ -46,7 +47,8 @@ export class NoteFormComponent implements OnInit {
     const group = this.route.snapshot.params['name'];
     const idToEdit = this.route.snapshot.params['id'];
     const idxToEdit = this.route.snapshot.queryParams['i'];
-    console.log('\'NoteFormComponent\'', addOrEdit ? 'adding' : 'editing', idToEdit, idxToEdit, this.route.snapshot);
+    //this.db = this.route.snapshot.queryParams['db']; // ${this.db==1 ? 'rtdb' : this.db==2 ? 'firestore' : 'na'}
+    console.log(`'NoteFormComponent' ${addOrEdit ? 'adding' : 'editing'} ${idToEdit} ${idxToEdit}`, this.route.snapshot);
 
     if (addOrEdit) { // add
       this.noteIndex = -1;

@@ -10,9 +10,12 @@ import { OurNotesComponent } from './our-notes.component';
 import { GroupsComponent } from './groups/groups.component';
 import { GroupComponent } from './group/group.component';
 import { NoteFormComponent } from './note-form/note-form.component';
+import { NoteModalComponent } from './note-modal/note-modal.component';
 
 import { NoteService } from './note.service';
+import { ModalService } from './modal.service';
 import { FocusMeDirective } from '../focus-me.directive';
+import { AfterIfDirective } from '../after-if.directive';
 import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
@@ -32,8 +35,13 @@ import { OurNotesRoutingModule } from './our-notes-routing.module';
     GroupsComponent,
     GroupComponent,
     NoteFormComponent,
+    NoteModalComponent,
     FocusMeDirective,
+    AfterIfDirective,
   ],
-  providers: [ NoteService ]
+  providers: [ 
+    NoteService,
+    ModalService,
+  ]
 })
 export class OurNotesModule {}

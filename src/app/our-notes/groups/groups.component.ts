@@ -8,11 +8,23 @@ import { listAnimation, listChild } from '../../app.animation';
 /*
 [routerLink]="['/group', group.$key]"
 [@listChild]="noteService.countGroups"
+  <pre>rtdb has {{noteService.countGroups}} group(s)</pre>
+  <pre>firesotre has {{noteService.countGroupsFs}} group(s)</pre>
 */
 @Component({
   template: `
+  <pre>rtdb has {{noteService.countGroups}} group(s)</pre>
   <div class="list" touchStart>
-    <div *ngFor="let group of (noteService.groups | async)" class="item" (click)="goto(group)" >
+    <div *ngFor="let group of noteService.groups | async" class="item" (click)="goto(group)" >
+      <a class="item-link">
+        {{group.$key}}
+      </a>
+      <hr>
+    </div>
+  </div>
+  <pre>firesotre has {{noteService.countGroupsFs}} group(s)</pre>
+  <div class="list" touchStart>
+    <div *ngFor="let group of noteService.groupsFs | async" class="item" (click)="goto(group,2)" >
       <a class="item-link">
         {{group.$key}}
       </a>
@@ -37,8 +49,8 @@ export class GroupsComponent implements OnInit {
     this.noteService.exit();
   }
 
-  private goto(group) {
-    this.router.navigate(['group', group.$key]);
+  private goto(group, database: number = 1) {
+    this.router.navigate(['group', group.$key], { queryParams: { db: database } });
   }
   
 }

@@ -70,6 +70,7 @@ export class OurNotesComponent implements OnInit {
   myForm: FormGroup;
   inside: boolean = false;
   todoEnum = Todo;
+  subscription;
 
   // @HostBinding('@pageAnimation') 
   // get count (): number { return this.noteService.countNotes; } 
@@ -89,7 +90,7 @@ export class OurNotesComponent implements OnInit {
 
     this.noteService.initAfterLogin();
 
-    this.noteService.announcedGroupName.subscribe(
+    this.subscription = this.noteService.announcedGroupName.subscribe(
       groupName => {
         console.log(`OurNotesComponent announcedGroupName '${groupName}'`);
         this.myForm.controls['groupName'].setValue(groupName);
@@ -101,10 +102,10 @@ export class OurNotesComponent implements OnInit {
     console.log(`'OurNotesComponent'`);
   }
 
-  add() {
-    console.log('add');
-    this.router.navigate(['group', this.myForm.controls['groupName'].value, 'add']);
-  }
+  // add() {
+  //   console.log('add');
+  //   this.router.navigate(['group', this.myForm.controls['groupName'].value, 'add']);
+  // }
 
   exit() {
     //this.myForm.controls['groupName'].setValue('');
@@ -117,14 +118,15 @@ export class OurNotesComponent implements OnInit {
   }
 
   logInOrOut() {
-    this.router.navigate(['/']);
+    this.subscription.unsubscribe();
     this.noteService.logout();
+    this.router.navigate(['/']);
   }
 
   search() {
     const group = this.myForm.controls['groupName'].value;
     console.log(`search(${group})`);
-    this.router.navigate(['group', group]);
+    this.router.navigate(['group', group], { queryParams: { db: 2 } }); // create / search a group in firestore
   }
 
   getState(outlet) {
