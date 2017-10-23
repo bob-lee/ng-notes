@@ -5,12 +5,11 @@ import { animate, group, query, style, transition, trigger } from '@angular/anim
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
-//import { AfterIfDirective } from '../after-if.directive';
 import { WindowRef } from '../../service/window-ref.service';
 
-const zoomFadeIn = { opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)' };
-const zoomFadeInFrom = { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' };
-const easeInFor = (duration) => `${duration}ms cubic-bezier(0.35, 0, 0.25, 1)`;
+export const zoomFadeIn = { opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)' };
+export const zoomFadeInFrom = { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' };
+export function easeInFor (duration) { return `${duration}ms cubic-bezier(0.35, 0, 0.25, 1)`; };
 
 const handlerScroll = e => {
   console.log(e);
@@ -53,13 +52,7 @@ routerLink="/"
 export class NoteModalComponent implements OnInit { // note form modal only for firestore
   title: string;
   @ViewChild('fileInput')
-  /*set fileInput(val: ElementRef) {
-    this.inputEl = val;
-    console.log('fileInput', val);
-  }*/
-
   inputEl: ElementRef;
-  //contentInit: boolean = false;
 
   note: any; // reference to noteService.theNote set in init()
   noteForm: FormGroup;
@@ -142,9 +135,6 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   }
 
   get toHideButton(): boolean {
-    //if (!this.contentInit) return true;
-    //const hideIt = !this.inputEl || this.inputEl.nativeElement.files.length === 0 && this.note && !this.note.imageURL/* && this.note.imageURL !== 'remove'*/;
-    //return hideIt as boolean;
     if (this.noteService.theNoteHasImage) return false; // show button
     if (this.inputEl && this.inputEl.nativeElement.files.length > 0) return false; // show button
     return true; // hide button
@@ -155,9 +145,6 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     if (this.noteService.theNoteHasImage && this.inputEl && this.inputEl.nativeElement.files.length > 0) return true; // hide image
     if (!this.noteService.theNoteHasImage) return true; // hide image
     return false; // show image
-    // if (!this.contentInit) return true;
-    //  const hideIt = this.imgToRemove || this.imageFailedToLoad || !this.note || !this.note.imageURL || (this.inputEl && this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
-    //  return hideIt as boolean;
   }
 
   private changed() { // compare form value with original note in edit case
@@ -177,7 +164,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       })
       .catch((error) => console.log('saveNote error', error));
 
-    this.goBack();;
+    this.goBack();
   }
 
   popup;
@@ -186,7 +173,6 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
 
   loadImage() {
     console.warn('imageURL', this.toHideButton, this.toHideImg);
-    //this.contentInit = true;
 
     this.popup = document.querySelector('#popup');
     console.log(this.body);

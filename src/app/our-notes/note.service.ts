@@ -45,19 +45,23 @@ export class NoteService implements CanActivate, OnDestroy {
   private collection: AngularFirestoreCollection<any>;
   stateChanges: Observable<any[]>;
   lastChanged = { $key: '', $type: '' };
+  toSave = { $key: '', $type: '', index: -1 }; // item to save for add / edit
   theNote: any; // to add or edit
   get theNoteHasImage() { return this.theNote && this.theNote.imageURL; }
 
   subscription: Subscription = null;
 
-  private announceGroupName = new Subject<string>();
-  announcedGroupName = this.announceGroupName.asObservable();
+  private groupName$ = new Subject<string>();
+  announcedGroupName = this.groupName$.asObservable();
+
+  private lastSaved$ = new Subject<any>();
+  announcedLastSaved = this.lastSaved$.asObservable();
 
   private _groupName: string;
   get groupName(): string { return this._groupName; }
   set groupName(name: string) {
     this._groupName = name;
-    this.announceGroupName.next(name);
+    this.groupName$.next(name);
   }
 
   private _countNotes: number = 0;
@@ -75,7 +79,6 @@ export class NoteService implements CanActivate, OnDestroy {
   get note(): Note { return this._note; }
   set note(note: Note) { this._note = note; }
 
-  //get loggedIn(): boolean { return this.afAuth.auth.currentUser ? true : false; }
   get loggedin() { return !!this.userName; }
 
   constructor(app: FirebaseApp,
@@ -106,13 +109,7 @@ export class NoteService implements CanActivate, OnDestroy {
   }
 
   canActivate(): Observable<boolean> {
-    return this.user.map(auth => !!auth/* {
-      if (auth) {
-        return true;
-      } else {
-        return false;
-      }
-    }*/);
+    return this.user.map(auth => !!auth);
   }
 
   ngOnDestroy() {
@@ -175,13 +172,29 @@ export class NoteService implements CanActivate, OnDestroy {
         .map(actions => actions.filter(action => filterFn(action)));
 
       this.stateChanges.subscribe(actions => actions.map(action => {
-        console.log('stateChange', action);
+        //console.log('stateChange', action.payload);
         this.lastChanged = {
           $key: action.payload.doc.id,
           $type: action.type
         };
+
+        this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
         setTimeout(_ => this.lastChanged.$type = '', 2000);
       }));
+    }
+  }
+
+  private announceLastSaved($key, $type, index): void {
+    if ($type === 'removed' || $type !== this.toSave.$type) return;
+    if ($type === 'modified' && $key !== this.toSave.$key) return;
+
+    if ($type === 'added') {
+      this.toSave.$key = $key;
+      this.toSave.index = index;
+    } else {
+      this.lastSaved$.next({ $key, $type, index });
+      this.toSave.$key = '';
+      this.toSave.$type = '';
     }
   }
 
@@ -206,7 +219,7 @@ export class NoteService implements CanActivate, OnDestroy {
     }
   }
 
-  initAfterLogin() { // called by OurNotesComponent when logged in or by itself on page refresh
+  initAfterLogin() { // called by OurNotesComponent when logged in or by this service on page refresh
     this.groups = this.db.list('groups').snapshotChanges()
       .map(actions => {
         this.countGroups = actions.length;
@@ -218,10 +231,10 @@ export class NoteService implements CanActivate, OnDestroy {
       .map(actions => {
         this.countGroupsFs = actions.length;
         console.log('countGroupsFs', this.countGroupsFs);
-        return actions.map(action => ({ $key: action.payload.doc.id/*, ...action.payload.doc.data()*/ }));
+        return actions.map(action => ({ $key: action.payload.doc.id }));
       });
 
-    this.subscription = Observable.merge(this.groups, this.groupsFs).subscribe(data => console.log('group count updated'/*, data*/));
+    this.subscription = Observable.merge(this.groups, this.groupsFs).subscribe(data => console.log('group count updated'));
   }
 
   login(loginWith: LoginWith) {
@@ -249,7 +262,7 @@ export class NoteService implements CanActivate, OnDestroy {
   }
 
   //firestore: public addNote, removeNote, editNote
-  removeNote(note) {
+  removeNote(note): Promise<void> {
     console.log('removeNote', note.$key, this.database);
     if (this.database == 1) {
       return this.listRef.remove(note.$key);
@@ -258,7 +271,7 @@ export class NoteService implements CanActivate, OnDestroy {
     }
   }
 
-  save(noteToSave: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
+  save(noteToSave: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any {
     console.log(`save ${Todo[this._todo]}, imageFailedToLoad=${imageFailedToLoad}, toRemoveExistingImage=${toRemoveExistingImage}`);
 
     const note = noteToSave || this.theNote;
@@ -335,6 +348,7 @@ export class NoteService implements CanActivate, OnDestroy {
   ----+-------------+-------------+---------------+---------------------------
   */
   private saveEdit(note: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
+    this.toSave = { $key: note.$key, $type: 'modified', index: -1 };
 
     const imageURL = note.imageURL;
     if (imageURL) { // existing image
@@ -434,7 +448,12 @@ export class NoteService implements CanActivate, OnDestroy {
 
       return this.dbRef.update(updates);
     } else { // firestore
-      return this.collection.add(note);
+      this.toSave = { $key: '', $type: 'added', index: -1 };
+      return this.collection.add(note).then(ref => {
+        if (this.toSave.$key === ref.id) {
+          this.lastSaved$.next({ $key: ref.id, $type: 'added', index: this.toSave.index });
+        }
+      });
     }
   }
 
@@ -473,7 +492,7 @@ export class NoteService implements CanActivate, OnDestroy {
     }
   }
 
-  private update(note) {
+  private update(note): Promise<void> {
     if (this.database == 1) {
       if (!this.objRef) return;
 
