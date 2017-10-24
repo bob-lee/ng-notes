@@ -177,7 +177,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     this.popup = document.querySelector('#popup');
     console.log(this.body);
     
-    /*this.body*/window.addEventListener('scroll', scroll, false);
+    /*this.body*///window.addEventListener('scroll', scroll, false);
 
     if (this.note && this.note.imageURL) {
       console.log('imageURL', this.note.imageURL);
@@ -219,7 +219,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       //document.removeEventListener('scroll', handlerScroll, true);
       this.body.classList.remove('noScroll');
       this.html.classList.remove('noScroll');
-      window.removeEventListener('scroll', scroll, false);
+      //window.removeEventListener('scroll', scroll, false);
       this.note = null;
       this.imgToRemove = false;
       this.imageFailedToLoad = false;

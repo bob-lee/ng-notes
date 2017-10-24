@@ -49,7 +49,7 @@ export class GroupsComponent implements OnInit {
     this.noteService.exit();
   }
 
-  private goto(group, database: number = 1) {
+  goto(group, database: number = 1) {
     this.router.navigate(['group', group.$key], { queryParams: { db: database } });
   }
   

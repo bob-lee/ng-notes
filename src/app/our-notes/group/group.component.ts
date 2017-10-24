@@ -59,22 +59,18 @@ export class GroupComponent implements OnInit, OnDestroy {
     this.noteService.todo = Todo.List;
     this.isTouchDevice = window.matchMedia("(pointer:coarse)").matches;
 
-    if (this.noteService.database == 2) {
-      this.subscription = this.noteService.announcedLastSaved.subscribe(
-        saved => {
-          try {
-            const savedEl = document.querySelector(`div.item[tabindex="${saved.index}"]`);
-            console.log(`announcedLastSaved`, saved);
-            if (savedEl && savedEl instanceof HTMLElement) {
-              savedEl.focus();
-            }
-          } catch (e) {
-            console.warn(e);
+    this.subscription = this.noteService.announcedLastSaved
+      .subscribe(saved => {
+        try {
+          const savedEl = document.querySelector(`div.item[tabindex="${saved.index}"]`);
+          console.log(`announcedLastSaved`, saved);
+          if (savedEl && savedEl instanceof HTMLElement) {
+            savedEl.focus();
           }
-        });
-  
-      return;
-    }
+        } catch (e) {
+          console.warn(e);
+        }
+      });
 
     // inspect route
     const group = this.route.snapshot.params['name'];
