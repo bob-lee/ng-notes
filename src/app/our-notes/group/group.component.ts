@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { animate, animation, animateChild, group, keyframes, query, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
+import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/first';
 
 import { Note, Todo } from '../Note';
@@ -21,12 +22,12 @@ import { listChild } from '../../app.animation';
     listChild,
     trigger('item', [
       transition('* => modified', [
-        animate('1000ms ease-out',keyframes([
-          style({opacity: 1, offset: 0}),
-          style({opacity: 0, offset: 0.25}),
-          style({opacity: 1, offset: 0.5}),
-          style({opacity: 0, offset: 0.75}),
-          style({opacity: 1, offset: 1})
+        animate('1000ms ease-out', keyframes([
+          style({ opacity: 1, offset: 0 }),
+          style({ opacity: 0, offset: 0.25 }),
+          style({ opacity: 1, offset: 0.5 }),
+          style({ opacity: 0, offset: 0.75 }),
+          style({ opacity: 1, offset: 1 })
         ]))
       ], { delay: 600 }),
     ]),
@@ -34,7 +35,7 @@ import { listChild } from '../../app.animation';
   ],
   encapsulation: ViewEncapsulation.None
 })
-export class GroupComponent implements OnInit {
+export class GroupComponent implements OnInit, OnDestroy {
   trackByFn = (idx, obj) => obj.$key; // do I need this?
 
   @ViewChild('modal')
@@ -44,6 +45,8 @@ export class GroupComponent implements OnInit {
   isTouchDevice: boolean;
   count = 0;
   i;
+  subscription: Subscription = null;
+
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -55,6 +58,19 @@ export class GroupComponent implements OnInit {
 
     this.noteService.todo = Todo.List;
     this.isTouchDevice = window.matchMedia("(pointer:coarse)").matches;
+
+    this.subscription = this.noteService.announcedLastSaved
+      .subscribe(saved => {
+        try {
+          const savedEl = document.querySelector(`div.item[tabindex="${saved.index}"]`);
+          console.log(`announcedLastSaved`, saved);
+          if (savedEl && savedEl instanceof HTMLElement) {
+            savedEl.focus();
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+      });
 
     // inspect route
     const group = this.route.snapshot.params['name'];
@@ -115,6 +131,12 @@ export class GroupComponent implements OnInit {
 
     }
   }
+
+  ngOnDestroy() {
+    console.warn(`'GroupComponent' ngOnDestroy`);
+    if (this.subscription) this.subscription.unsubscribe();
+  }
+
   toggle() {
     const body = document.querySelector("body");
     //const body = document.querySelector("div.overlay");

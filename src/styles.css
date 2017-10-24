@@ -8,6 +8,6 @@ html, body {
   height: 100%;
 }
 
-.noScroll-do-not-use-for-now {
+.noScroll {
   overflow: hidden; /* causes parent to scroll to top on modal popup */
 }
