@@ -17,16 +17,15 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
-  login(loginWith: LoginWith) {
-    this.noteService.login(loginWith)
-    .then(() => {
+  async login(loginWith: LoginWith) {
+    try {
+      await this.noteService.login(loginWith);
       console.log(`login with ${LoginWith[loginWith]} success`);
       this.router.navigate(['group']);
-    })
-    .catch((err) => {
+    } catch (err) {
       console.log(`login with ${LoginWith[loginWith]} fail ${err}`);
       this.error = err;
-    });
+    }
   }
 
 }
