@@ -17,19 +17,6 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
-  /*
-  login(loginWith: LoginWith) {
-    this.noteService.login(loginWith)
-    .then(() => {
-      console.log(`login with ${LoginWith[loginWith]} success`);
-      this.router.navigate(['group']);
-    })
-    .catch((err) => {
-      console.log(`login with ${LoginWith[loginWith]} fail ${err}`);
-      this.error = err;
-    });
-  }
-  */
   async login(loginWith: LoginWith) {
     try {
       await this.noteService.login(loginWith);
