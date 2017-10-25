@@ -10,7 +10,7 @@
     <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
       <li role="menuitem"><a class="dropdown-item">Logged in as <strong>{{noteService.userName}}</strong></a></li>
       <li class="divider dropdown-divider"></li>
-      <li role="menuitem"><a class="dropdown-item" style="cursor:pointer" (click)="logInOrOut()">Log out</a>
+      <li role="menuitem"><a class="dropdown-item" style="cursor:pointer" (click)="logout()">Log out</a>
       </li>
     </ul>
   </div>
@@ -28,7 +28,7 @@
 
 <footer class="bl-footer navbar-fixed-bottom">
   <div class="bl-icon bl-icon-unselected bl-icon-count bl-icon-title" data-title="Home" 
-    [attr.data-count]="noteService.countGroups" touchStart
+    [attr.data-count]="noteService.countGroupsTotal" touchStart
     [ngClass]="{'bl-icon-selected': !inside}" (click)="exit()">
     <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
   </div>

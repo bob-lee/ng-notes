@@ -9,7 +9,7 @@ import { WindowRef } from '../../service/window-ref.service';
 
 export const zoomFadeIn = { opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)' };
 export const zoomFadeInFrom = { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' };
-export function easeInFor (duration) { return `${duration}ms cubic-bezier(0.35, 0, 0.25, 1)`; };
+export function easeInFor(duration) { return `${duration}ms cubic-bezier(0.35, 0, 0.25, 1)`; };
 
 const handlerScroll = e => {
   console.log(e);
@@ -18,7 +18,7 @@ const handlerScroll = e => {
   return false;
 };
 const scroll = function (e) {
-  console.log(e.type,e.target);
+  console.log(e.type, e.target);
   e.preventDefault(); // how to eat up scroll event to prevent parent scrolling on modal popup???
   return false;
 };
@@ -109,12 +109,9 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       this.saveNote(this.imgToRemove);
     } else { // no change, go back without making server call
       this.noteService.todo = Todo.List;
-      this.goBack();
     }
-    // this.noteService.theNote.name = this.noteForm.value.name;
-    // this.noteService.theNote.text = this.noteForm.value.text;
 
-    // this.saveNote();
+    this.goBack();
   }
 
   cancel(e) {
@@ -155,16 +152,22 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     return changed;
   }
 
-  private saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
+  private async saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
     let inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
+    /*
     this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage)
       .then(data => {
         console.log('saved', data);
       })
       .catch((error) => console.log('saveNote error', error));
-
-    this.goBack();
+    */
+    try {
+      const data = await this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage);
+      console.log('saved', data);
+    } catch (error) {
+      console.log('saveNote error', error);
+    }
   }
 
   popup;
@@ -174,9 +177,9 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   loadImage() {
     console.warn('imageURL', this.toHideButton, this.toHideImg);
 
-    this.popup = document.querySelector('#popup');
-    console.log(this.body);
-    
+    // this.popup = document.querySelector('#popup');
+    // console.log(this.body);
+
     /*this.body*///window.addEventListener('scroll', scroll, false);
 
     if (this.note && this.note.imageURL) {

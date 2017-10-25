@@ -45,8 +45,8 @@ export class GroupComponent implements OnInit, OnDestroy {
   isTouchDevice: boolean;
   count = 0;
   i;
-  subscription: Subscription = null;
-
+  subscription: Subscription;
+  subscription2: Subscription;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -72,12 +72,17 @@ export class GroupComponent implements OnInit, OnDestroy {
         }
       });
 
+
     // inspect route
     const group = this.route.snapshot.params['name'];
     const db = this.route.snapshot.queryParams['db'];
     const idxToFocus = this.route.snapshot.queryParams['i'];
     //this.i = idxToFocus;
     const to = this.route.snapshot.queryParams['to'];
+
+    this.subscription2 = (db == 1 ? this.noteService.groups : this.noteService.groupsFs)
+      .subscribe(_ => console.log('subscription2'));
+    
     console.warn(`'GroupComponent' '${group}' ${idxToFocus} ${to} ${this.isTouchDevice}`);
     if (group) { // route has group name
 
@@ -85,10 +90,16 @@ export class GroupComponent implements OnInit, OnDestroy {
         console.log('group hasn\'t changed');
       }
 
+      /* Comparison:
+       *  For rtdb, group and note-form are separate sibling routes whereas
+       *  for firestore, group is a parent and shows / hides note-modal as needed.
+       *  So for firebase, this ngOnInit hits just once while user stays in the group.
+      */
+
       this.noteService.search(group, db).first().subscribe(
         notes => {
-          console.log(`GroupComponent gets ${notes.length} note(s) ${this.count}`);
-          if (this.count++ > 0) return;
+          console.log(`GroupComponent got ${notes.length} note(s) ${this.count}`);
+          if (this.count++ > 0 || db == 2) return;
 
           for (let i = 0, len = notes.length; i < len; i++) {
             const status = idxToFocus == -1 && i === (len - 1) ? "added" :
@@ -135,6 +146,7 @@ export class GroupComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     console.warn(`'GroupComponent' ngOnDestroy`);
     if (this.subscription) this.subscription.unsubscribe();
+    if (this.subscription2) this.subscription2.unsubscribe();
   }
 
   toggle() {

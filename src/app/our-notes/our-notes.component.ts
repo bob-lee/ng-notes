@@ -1,7 +1,8 @@
-import { Component, OnInit, ElementRef, HostBinding, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, HostBinding, Input, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { trigger, animate, animation, style, group, animateChild, query, stagger, transition, keyframes, useAnimation } from '@angular/animations';
+import { Subscription } from 'rxjs/Subscription';
 
 import { Note, Todo } from './Note';
 import { NoteService } from './note.service';
@@ -66,11 +67,11 @@ import { routerTransition, expandAnimation, itemAnimation, listAnimation } from 
   ]
 
 })
-export class OurNotesComponent implements OnInit {
+export class OurNotesComponent implements OnInit, OnDestroy {
   myForm: FormGroup;
   inside: boolean = false;
   todoEnum = Todo;
-  subscription;
+  subscription: Subscription;
 
   // @HostBinding('@pageAnimation') 
   // get count (): number { return this.noteService.countNotes; } 
@@ -88,38 +89,31 @@ export class OurNotesComponent implements OnInit {
       groupName: ['', Validators.required]
     });
 
-    this.noteService.initAfterLogin();
-
     this.subscription = this.noteService.announcedGroupName.subscribe(
       groupName => {
         console.log(`OurNotesComponent announcedGroupName '${groupName}'`);
         this.myForm.controls['groupName'].setValue(groupName);
-        // this.inside = groupName ? true : false;
-        setTimeout(_ => this.inside = groupName ? true : false);
+        setTimeout(_ => this.inside = !!groupName);
       });
 
-    // inspect route // 31Jul17 route should be always '/group'
-    console.log(`'OurNotesComponent'`);
+    console.warn(`'OurNotesComponent'`);
   }
 
-  // add() {
-  //   console.log('add');
-  //   this.router.navigate(['group', this.myForm.controls['groupName'].value, 'add']);
-  // }
+  ngOnDestroy() {
+    console.warn(`'OurNotesComponent' ngOnDestroy`);
+    if (this.subscription) this.subscription.unsubscribe();
+  }
 
   exit() {
-    //this.myForm.controls['groupName'].setValue('');
     if (this.windowRef.nativeWindow.localStorage) { // clear group to let, after navigate, ngOnInit find no remembered group and exit
       this.windowRef.nativeWindow.localStorage.setItem('group', '');
     }
 
-    //this.inside = false;
     this.router.navigate(['group']);
   }
 
-  logInOrOut() {
-    this.subscription.unsubscribe();
-    this.noteService.logout();
+  async logout() {
+    await this.noteService.logout();
     this.router.navigate(['/']);
   }
 

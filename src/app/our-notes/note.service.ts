@@ -34,6 +34,10 @@ export class NoteService implements CanActivate, OnDestroy {
 
   groups: Observable<any[]>;
   groupsFs: Observable<any[]>;
+  groupsTotal: Observable<any[]>;
+  countGroups: number = 0;
+  countGroupsFs: number = 0;
+  countGroupsTotal: number = 0;
 
   notes: Observable<any[]>;
 
@@ -67,9 +71,6 @@ export class NoteService implements CanActivate, OnDestroy {
   private _countNotes: number = 0;
   get countNotes(): number { return this._countNotes; }
   set countNotes(count: number) { this._countNotes = count; }
-
-  countGroups: number = 0;
-  countGroupsFs: number = 0;
 
   private _todo: Todo = Todo.List;
   get todo(): Todo { return this._todo; }
@@ -118,9 +119,9 @@ export class NoteService implements CanActivate, OnDestroy {
   }
 
   exit(): void {
-    this.notes = null; // empty group
+    // clear group-specific
+    this.notes = null;
     this.countNotes = 0;
-    this.countGroupsFs = 0;
     this.groupName = '';
   }
 
@@ -139,7 +140,7 @@ export class NoteService implements CanActivate, OnDestroy {
   getGroupNotes(group: string): void {
     console.log(`getGroupNotes(${group}, ${this.database == 1 ? 'rtdb' : 'firestore'})`);
     if (!this.groupName) this.groupName = group;
-    if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
+    //if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
 
     if (this.database == 1) { // rtdb
       this.listRef = this.db.list<Note>(`notes`, ref =>
@@ -219,10 +220,11 @@ export class NoteService implements CanActivate, OnDestroy {
     }
   }
 
-  initAfterLogin() { // called by OurNotesComponent when logged in or by this service on page refresh
+  initAfterLogin() {
     this.groups = this.db.list('groups').snapshotChanges()
       .map(actions => {
         this.countGroups = actions.length;
+        this.countGroupsTotal = this.countGroups + this.countGroupsFs;
         console.log('countGroups', this.countGroups);
         return actions.map(action => ({ $key: action.key }));
       });
@@ -230,48 +232,47 @@ export class NoteService implements CanActivate, OnDestroy {
     this.groupsFs = this.afs.collection('notes').snapshotChanges()
       .map(actions => {
         this.countGroupsFs = actions.length;
+        this.countGroupsTotal = this.countGroups + this.countGroupsFs;
         console.log('countGroupsFs', this.countGroupsFs);
         return actions.map(action => ({ $key: action.payload.doc.id }));
       });
-
-    this.subscription = Observable.merge(this.groups, this.groupsFs).subscribe(data => console.log('group count updated'));
   }
 
-  login(loginWith: LoginWith) {
-    return loginWith === LoginWith.Facebook ? this.loginFb() :
-      loginWith === LoginWith.Google ? this.loginGoogle() :
-        this.loginAnonymous();
+  async login(loginWith: LoginWith) {
+    if (loginWith === LoginWith.Facebook) await this.loginFb();
+    if (loginWith === LoginWith.Google) await this.loginGoogle()
+    await this.loginAnonymous();
   }
 
-  loginAnonymous() {
-    return this.afAuth.auth.signInAnonymously();
+  async loginAnonymous() {
+    await this.afAuth.auth.signInAnonymously();
   }
 
-  loginFb() {
-    return this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
+  async loginFb() {
+    await this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
   }
 
-  loginGoogle() {
-    return this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  async loginGoogle() {
+    await this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
   }
 
-  logout() {
+  async logout() {
     if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
 
-    return this.afAuth.auth.signOut();
+    await this.afAuth.auth.signOut();
   }
 
   //firestore: public addNote, removeNote, editNote
-  removeNote(note): Promise<void> {
+  async removeNote(note): Promise<void> {
     console.log('removeNote', note.$key, this.database);
     if (this.database == 1) {
-      return this.listRef.remove(note.$key);
+      await this.listRef.remove(note.$key);
     } else {
-      return this.collection.doc(note.$key).delete();
+      await this.collection.doc(note.$key).delete();
     }
   }
 
-  save(noteToSave: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any {
+  async save(noteToSave: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): Promise<any> {
     console.log(`save ${Todo[this._todo]}, imageFailedToLoad=${imageFailedToLoad}, toRemoveExistingImage=${toRemoveExistingImage}`);
 
     const note = noteToSave || this.theNote;
@@ -293,17 +294,13 @@ export class NoteService implements CanActivate, OnDestroy {
         if (file) {
           console.log('file', file);
 
-          return this.storage.child(`images/${file.name}`).put(file)
-            .then((snapshot) => {
-              console.log('uploaded file:', snapshot.downloadURL);
-              note.imageURL = snapshot.downloadURL;
-              //this.testThumb(file.name);
-              //return this.listRef.push(note); // 17Oct17 this wouldn't create a new entry into groups, should call saveNote
-              return this.saveNew(note);
-            })
-            .catch(error => {
-              console.error('failed to upload', error);
-            });
+          try {
+            const snapshot = await this.storage.child(`images/${file.name}`).put(file);
+            console.log('uploaded file:', snapshot.downloadURL);
+            note.imageURL = snapshot.downloadURL;
+          } catch (error) {
+            console.error('failed to upload', error);
+          }
         }
       }
 
@@ -316,9 +313,11 @@ export class NoteService implements CanActivate, OnDestroy {
     } else if (this._todo === Todo.Remove) { // remove
 
       if (note.imageURL && !imageFailedToLoad) {
-        return this.storage.storage.refFromURL(note.imageURL).delete()
-          .then(() => this.removeNote(note))
-          .catch((error) => console.error('failed to delete image', error)); // what if image deleted up there?
+        try {
+          await this.storage.storage.refFromURL(note.imageURL).delete();
+        } catch (error) {
+          console.error('failed to delete image', error); // what if image deleted up there?
+        }
       }
 
       return this.removeNote(note);
@@ -347,7 +346,7 @@ export class NoteService implements CanActivate, OnDestroy {
   2c.               new image			remove and add  imageURL, (toRemove), new file
   ----+-------------+-------------+---------------+---------------------------
   */
-  private saveEdit(note: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): any/*firebase.database.ThenableReference*/ {
+  private async saveEdit(note: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): Promise<any> {
     this.toSave = { $key: note.$key, $type: 'modified', index: -1 };
 
     const imageURL = note.imageURL;
@@ -366,49 +365,24 @@ export class NoteService implements CanActivate, OnDestroy {
       } else if (toRemoveExistingImage && (!files || files.length === 0)) {
         console.log('case 2b.');
 
-        return ref.delete() // Promise.then.catch.then, pro: DRY, con: one more http call
-          .then(() => {
-            console.log('deleted existing');
-          })
-          .catch((error) => {
-            console.error('failed to delete image', error);
-          })
-          .then(() => {
-            console.log('finally');
-            note.imageURL = null;
-            note.thumbURL = null;
-            return this.update(note);
-          });
+        await this.deleteImage(ref);
 
+        console.log('finally');
+        note.imageURL = null;
+        note.thumbURL = null;
       } else if (/*toRemoveExistingImage && */files && files.length > 0) {
         console.log('case 2c.');
         const file = files.item(0);
 
-        return ref.delete()
-          .then(() => {
-            console.log('deleted existing');
-          })
-          .catch((error) => {
-            console.error('failed to delete image', error);
-            note.imageURL = null;
-            note.thumbURL = null;
-          })
-          .then(() => {
-            console.log('finally');
-            if (file) {
-              return this.storage.child(`images/${file.name}`).put(file)
-                .then((snapshot) => {
-                  console.log('uploaded file:', snapshot.downloadURL);
-                  note.imageURL = snapshot.downloadURL;
-                  return this.update(note);
-                })
-                .catch(error => { // throw away any changes on note
-                  console.error('failed to upload', error);
-                });
-            }
-            return this.update(note);
-          });
+        if (!await this.deleteImage(ref)) {
+          note.imageURL = null;
+          note.thumbURL = null;
+        }
 
+        console.log('finally');
+        if (file) {
+          await this.putImage(file, note);
+        }
       }
     } else { // no existing image
 
@@ -420,16 +394,7 @@ export class NoteService implements CanActivate, OnDestroy {
         const file = files.item(0);
         if (file) {
           console.log('selected file', file);
-
-          return this.storage.child(`images/${file.name}`).put(file)
-            .then((snapshot) => {
-              console.log('uploaded file:', snapshot.downloadURL);
-              note.imageURL = snapshot.downloadURL;
-              return this.update(note);
-            })
-            .catch(error => {
-              console.error('failed to upload', error);
-            });
+          await this.putImage(file, note);
         }
       }
     }
@@ -437,7 +402,30 @@ export class NoteService implements CanActivate, OnDestroy {
     return this.update(note);
   }
 
-  private saveNew(note: Note): Promise<any> {
+  private async deleteImage(ref: firebase.storage.Reference): Promise<boolean> {
+    try {
+      await ref.delete();
+      console.log('deleted existing');
+      return true;
+    } catch (error) {
+      console.error('failed to delete image', error);
+      return false;
+    }
+  }
+
+  private async putImage(file: any, note: any): Promise<boolean> {
+    try {
+      const snapshot = await this.storage.child(`images/${file.name}`).put(file);
+      console.log('uploaded file:', snapshot.downloadURL);
+      note.imageURL = snapshot.downloadURL;
+      return true;
+    } catch (error) {
+      console.error('failed to upload', error);
+      return false;
+    }
+  }
+
+  private async saveNew(note: Note): Promise<any> {
     console.log('saveNew', this.database/*, note*/);
 
     if (this.database == 1) { // rtdb
@@ -446,14 +434,14 @@ export class NoteService implements CanActivate, OnDestroy {
       updates[`groups/${note.group}`] = true;
       updates[`notes/${newNoteKey}`] = note;
 
-      return this.dbRef.update(updates);
+      return await this.dbRef.update(updates);
     } else { // firestore
       this.toSave = { $key: '', $type: 'added', index: -1 };
-      return this.collection.add(note).then(ref => {
-        if (this.toSave.$key === ref.id) {
-          this.lastSaved$.next({ $key: ref.id, $type: 'added', index: this.toSave.index });
-        }
-      });
+      const ref = await this.collection.add(note);
+      if (this.toSave.$key === ref.id) {
+        this.lastSaved$.next({ $key: ref.id, $type: 'added', index: this.toSave.index });
+      }
+      return ref;
     }
   }
 
@@ -492,15 +480,14 @@ export class NoteService implements CanActivate, OnDestroy {
     }
   }
 
-  private update(note): Promise<void> {
+  private async update(note): Promise<void> {
     if (this.database == 1) {
-      if (!this.objRef) return;
-
-      return this.objRef.update(note).then(_ => {
+      if (this.objRef) {
+        await this.objRef.update(note);
         this.objRef = null;
-      });
+      }
     } else {
-      return this.collection.doc(note.$key).update(note);
+      await this.collection.doc(note.$key).update(note);
     }
   }
 
