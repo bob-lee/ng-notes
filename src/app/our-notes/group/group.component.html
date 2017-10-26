@@ -23,10 +23,14 @@ addOrEdit($event, i, note)
     <br/>
     <a (click)="addOrEdit($event, i, note)">
       <markdown [data]="note.text"></markdown>
+      <span class="item-image" *ngIf="note.thumbURL">
+        <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
+      </span>
+      <span class="image-span" *ngIf="!note.thumbURL && note.imageURL">
+        <img [src]="note.imageURL" alt="" class="image">
+      </span>
     </a>
-    <span class="item-image" *ngIf="note.thumbURL">
-      <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
-    </span>
+
     <hr>
   </div>
 </div>

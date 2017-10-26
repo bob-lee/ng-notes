@@ -175,7 +175,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   html;
 
   loadImage() {
-    console.warn('imageURL', this.toHideButton, this.toHideImg);
+    //console.warn('imageURL', this.toHideButton, this.toHideImg);
 
     // this.popup = document.querySelector('#popup');
     // console.log(this.body);

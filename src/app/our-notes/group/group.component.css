@@ -63,6 +63,10 @@
   right: 0;
 }
 
+.image-span .image {
+  width: 100%;
+}
+
 .fab {
   z-index:101;
   width: 2em;

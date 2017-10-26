@@ -312,12 +312,8 @@ export class NoteService implements CanActivate, OnDestroy {
 
     } else if (this._todo === Todo.Remove) { // remove
 
-      if (note.imageURL && !imageFailedToLoad) {
-        try {
-          await this.storage.storage.refFromURL(note.imageURL).delete();
-        } catch (error) {
-          console.error('failed to delete image', error); // what if image deleted up there?
-        }
+      if (note.imageURL && !imageFailedToLoad && this.database == 1) { // for firestore, let cloud function 'handleImage' do the job
+        await this.deleteImage(note.imageURL);
       }
 
       return this.removeNote(note);
@@ -351,8 +347,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
     const imageURL = note.imageURL;
     if (imageURL) { // existing image
-      const ref = this.storage.storage.refFromURL(imageURL);
-      console.log('ref to existing image', ref);
+      console.log(`saveEdit(${imageURL}`);
 
       if (!toRemoveExistingImage && (!files || files.length === 0)) {
         console.log('case 2a.');
@@ -365,19 +360,21 @@ export class NoteService implements CanActivate, OnDestroy {
       } else if (toRemoveExistingImage && (!files || files.length === 0)) {
         console.log('case 2b.');
 
-        await this.deleteImage(ref);
+        if (this.database == 1) {
+          await this.deleteImage(imageURL);
+        }
 
         console.log('finally');
         note.imageURL = null;
         note.thumbURL = null;
-      } else if (/*toRemoveExistingImage && */files && files.length > 0) {
+      } else if (files && files.length > 0) {
         console.log('case 2c.');
         const file = files.item(0);
 
-        if (!await this.deleteImage(ref)) {
+        if (this.database == 1 && !await this.deleteImage(imageURL)) {
           note.imageURL = null;
-          note.thumbURL = null;
         }
+        note.thumbURL = null;
 
         console.log('finally');
         if (file) {
@@ -402,8 +399,9 @@ export class NoteService implements CanActivate, OnDestroy {
     return this.update(note);
   }
 
-  private async deleteImage(ref: firebase.storage.Reference): Promise<boolean> {
+  private async deleteImage(downloadURL: string): Promise<boolean> { // for signed URL, refFromURL will fail and return false. Works for downloadURL.
     try {
+      const ref = this.storage.storage.refFromURL(downloadURL);
       await ref.delete();
       console.log('deleted existing');
       return true;
