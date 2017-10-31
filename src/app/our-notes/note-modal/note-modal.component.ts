@@ -201,7 +201,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     if (showing) {
       //var input = document.querySelector('.ddm input[type="checkbox"][id]');
 
-      console.log('addEventListener');
+      //console.log('addEventListener');
       //document.addEventListener('scroll', handlerScroll, true);
 
       this.body.classList.add('noScroll');
@@ -218,7 +218,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       // apply model to view
       this.noteForm.patchValue(this.noteService.theNote);
     } else {
-      console.log('removeEventListener');
+      //console.log('removeEventListener');
       //document.removeEventListener('scroll', handlerScroll, true);
       this.body.classList.remove('noScroll');
       this.html.classList.remove('noScroll');

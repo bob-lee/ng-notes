@@ -17,9 +17,10 @@ const ourNotesRoutes: Routes = [
     children: [
       { path: '', component: GroupsComponent, data: { state: 'groups' } }, // 'group'
       { path: ':name', component: GroupComponent, data: { state: 'group' } }, // 'group/Lee%20family'
-      { path: ':name/add', component: NoteFormComponent, data: { state: 'note' } }, // 'group/Lee%20family/add'
-      { path: ':name/edit/:id', component: NoteFormComponent, data: { state: 'note' } }, // 'group/Lee%20family/edit/58d73eb63af56f27e48d693d'
-      { path: '**', component: GroupsComponent }
+      { path: ':name/:page', component: GroupComponent, data: { state: 'group' } }, // 'group/Lee%20family/1' for firestore
+      { path: ':name/rtdb/add', component: NoteFormComponent, data: { state: 'note' } }, // 'group/Lee%20family/add'
+      { path: ':name/rtdb/edit/:id', component: NoteFormComponent, data: { state: 'note' } }, // 'group/Lee%20family/edit/58d73eb63af56f27e48d693d'
+      { path: '**', component: GroupsComponent } // wilcard route
     ]
   }
 ];

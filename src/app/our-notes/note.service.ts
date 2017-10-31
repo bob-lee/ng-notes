@@ -6,10 +6,14 @@ import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument 
 import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/first';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/observable/combineLatest';
+
 import * as firebase from 'firebase/app';
 
 import { Note, Todo, LoginWith } from './Note';
@@ -20,10 +24,28 @@ export interface FirestoreFunctions {
   removeNote: (note: Note) => any;
   editNote: (note: Note) => any;
 }
+export const PAGE_SIZE: number = 3;
+export type documentSnapshot = firebase.firestore.DocumentSnapshot;
 
 @Injectable()
 export class NoteService implements CanActivate, OnDestroy {
   database: number = 1; // 1: rtds, 2: firestore
+
+  items$: Observable<any[]>;
+  group$: BehaviorSubject<string | null>;
+  page$: BehaviorSubject<boolean | null>;
+  next$: BehaviorSubject<boolean | null>;
+
+  _pagination: boolean | null = null;
+  get pagination(): boolean | null { return this._pagination; }
+  set pagination(v: boolean | null) {
+    const changed = this.pagination !== v;
+    this._pagination = v;
+    if (changed) {
+      this.pagination$.next(v);
+    }
+  }
+  private pagination$ = new Subject<boolean | null>();//new BehaviorSubject<boolean>(false);
 
   user: Observable<firebase.User>;
   userName: string;
@@ -107,6 +129,91 @@ export class NoteService implements CanActivate, OnDestroy {
     this.storage = app.storage().ref();
     this.dbRef = this.db.database.ref();
     this.fsRef = firebase.firestore();
+
+
+    
+    this.group$ = new BehaviorSubject(null);
+    this.page$ = new BehaviorSubject(null);
+    this.next$ = new BehaviorSubject(null);
+
+    this.notes = Observable.combineLatest(
+      this.group$,
+      this.page$,
+      this.next$
+    ).switchMap(([group, page, next]) => {
+      const collection = this.getGroupDoc(group).collection('notes', ref => {
+        let query: firebase.firestore.Query = ref;
+        if (page) { // do paginate
+          if (next === null) { // first page
+            query = query.orderBy('updatedAt', 'desc').limit(PAGE_SIZE);
+          } else if (next) { // next page
+            query = query.orderBy('updatedAt', 'desc').startAfter(this.lastInPage).limit(PAGE_SIZE);
+          } else { // previous page 
+            query = query.orderBy('updatedAt').startAfter(this.firstInPage).limit(PAGE_SIZE);
+          }
+        } else { // query all
+          query = query.orderBy('updatedAt', 'desc');
+        }
+        return query;
+      });
+
+      const filterFn = action => !(action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added');
+
+      this.stateChanges = this.collection.stateChanges()
+        .map(actions => actions.filter(action => filterFn(action)));
+
+      this.fsSubscription.add(
+        this.stateChanges.subscribe(actions => actions.map(action => {
+          //console.log('stateChange', action.payload);
+          this.lastChanged = {
+            $key: action.payload.doc.id,
+            $type: action.type
+          };
+
+          this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
+          setTimeout(_ => this.lastChanged.$type = '', 2000);
+        }))
+      );
+
+      return collection.snapshotChanges()
+        .filter(actions => actions.length > 0)
+        .map(actions => {
+          const array = this.next$.getValue() === false ? actions.reverse() : actions;
+          this.firstInPage = array[0].payload.doc;
+          this.lastInPage = array[actions.length - 1].payload.doc;
+          console.log('firstInPage', this.firstInPage.id);
+          console.log('lastInPage', this.lastInPage.id);
+
+          return array.map(action => {
+            return {
+              $key: action.payload.doc.id,
+              $type: action.type,
+              ...action.payload.doc.data()
+            };
+          })
+        });
+    });
+
+    this.first$ = this.group$.switchMap(group => {
+      this.last$ = this.getGroupDoc(group).collection('notes', ref =>
+        ref.orderBy('updatedAt', 'asc').limit(1))
+        .snapshotChanges()
+        .filter(actions => actions.length > 0)
+        .map(actions => {
+          console.log('last$', actions.length);
+          return actions[0].payload.doc
+        });
+
+      return this.getGroupDoc(group).collection('notes', ref =>
+        ref.orderBy('updatedAt', 'desc').limit(1))
+        .snapshotChanges()
+        .filter(actions => actions.length > 0)
+        .map(actions => {
+          console.log('first$', actions.length);
+          return actions[0].payload.doc
+        })
+    });
+
   }
 
   canActivate(): Observable<boolean> {
@@ -115,17 +222,29 @@ export class NoteService implements CanActivate, OnDestroy {
 
   ngOnDestroy() {
     console.warn(`'note.service' ngOnDestroy()`);
-    if (this.subscription) this.subscription.unsubscribe();
+    if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
   }
 
   exit(): void {
     // clear group-specific
-    this.notes = null;
+    //this.notes = null;
     this.countNotes = 0;
     this.groupName = '';
+    this.groupDoc = null;
+    this.page = 1;
+    if (this.fsSubscription) {
+      this.fsSubscription.unsubscribe();
+      this.fsSubscription = null;
+    }
+    this.pagination = null;
   }
 
+  private groupDoc: AngularFirestoreDocument<any>;
+
   private getGroupDoc(group: string): AngularFirestoreDocument<any> {
+    if (this.groupDoc) {
+      return this.groupDoc;
+    }
     const groupDoc = this.afs.collection(`notes`).doc(group);
     groupDoc.valueChanges().first().subscribe(doc => {
       console.log('doc', doc);
@@ -134,55 +253,157 @@ export class NoteService implements CanActivate, OnDestroy {
       }
     });
 
+    this.groupDoc = groupDoc;
+
     return groupDoc;
   }
 
-  getGroupNotes(group: string): void {
-    console.log(`getGroupNotes(${group}, ${this.database == 1 ? 'rtdb' : 'firestore'})`);
-    if (!this.groupName) this.groupName = group;
+  fsSubscription: Subscription = null;
+
+  getGroupNotes(group: string, database: any = 1, page?: any): Observable<any[]> { // to be called once entering the group
+    this.groupName = group;
+    this.database = database;
+    const pagination = !!(page && page > 0);
+    if (database == 1 || !pagination) this.page = 1;
+
+    console.log(`getGroupNotes(${group}, ${database == 1 ? 'rtdb' : 'firestore'}, ${page})`);
+    //if (!this.groupName) this.groupName = group;
     //if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
 
     if (this.database == 1) { // rtdb
       this.listRef = this.db.list<Note>(`notes`, ref =>
         ref.orderByChild('group').equalTo(group));
-      this.notes = this.listRef.snapshotChanges()
+      return this.notes = this.listRef.snapshotChanges()
         .map(actions => {
           //console.log('action', action.length);
           this.countNotes = actions.length;
           return actions.map(action => ({ $key: action.key, ...action.payload.val() }));
         });
     } else { // firestore
-      this.collection = this.getGroupDoc(group).collection(`notes`);
+      this.next$.next(null);
+      this.page$.next(pagination);
+      this.group$.next(group);
 
-      this.notes = this.collection.snapshotChanges()
-        .map(actions => {
-          this.countNotes = actions.length;
-          return actions.map(action => {
-            const $key = action.payload.doc.id;
-            const $type = action.type;
-            //console.log('snapshotChange', $key, $type);
-            return { $key, $type, ...action.payload.doc.data() };
-          });
-          //return actions.map(action => ({ $key: action.payload.doc.id, $type: action.type, ...action.payload.doc.data() }));
+      if (!this.fsSubscription) {
+        this.fsSubscription = this.first$.subscribe(first => {
+          this.first = first;
+          console.log('first', first.id);
         });
 
-      // firestore stateChanges: emits changes only not a whole array
-      const filterFn = action => !(action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added');
+        this.fsSubscription.add(this.last$.subscribe(last => {
+          this.last = last;
+          console.log('last', last.id);
+        }));
 
-      this.stateChanges = this.collection.stateChanges()
-        .map(actions => actions.filter(action => filterFn(action)));
+        // this.fsSubscription.add(this.pagination$.subscribe(pagination => {
+        //   console.log('pagination$', pagination);
+        //   this.getGroupNotesFirestore(pagination);
+        // }));
+      }
 
-      this.stateChanges.subscribe(actions => actions.map(action => {
-        //console.log('stateChange', action.payload);
-        this.lastChanged = {
-          $key: action.payload.doc.id,
-          $type: action.type
-        };
+      this.pagination = pagination;
 
-        this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
-        setTimeout(_ => this.lastChanged.$type = '', 2000);
-      }));
+      return this.notes;//this.getGroupNotesFirestore(page && page >= 0);
     }
+  }
+
+  getPageNumber(next: boolean): number {
+    if ((next && this.isLastPage) || (!next && this.isFirstPage)) return this.page;
+
+    const newPage = this.page + (next ? 1 : -1);
+
+    return newPage > 0 ? newPage : this.page;
+  }
+
+  gotoPage(page: number) {
+    //this.pagination = true;
+    console.log(`gotoPage(${this.page}=>${page})`);
+    if (page === this.page) return;
+    const next = page > this.page;
+    this.page += next ? 1 : -1;
+    this.getGroupNotesFirestore(true, next);
+
+    this.next$.next(next);
+    //this.page$.next(true);// not needed.. already doing pagiantion?
+  }
+
+  private getQueryFn(pagination: boolean, next?: boolean) {
+    console.log(`getQueryFn(${pagination},${next === undefined ? 'na' : next ? '>' : '<'})`)
+    if (next === undefined) {
+      return (ref: firebase.firestore.CollectionReference) => {
+        let query = ref.orderBy('updatedAt', 'desc');
+        if (pagination) {
+          query = query.limit(PAGE_SIZE);
+        }
+        return query;
+      };
+    } else if (next) {
+      return (ref: firebase.firestore.CollectionReference) => {
+        return ref.orderBy('updatedAt', 'desc').startAfter(this.lastInPage).limit(PAGE_SIZE);
+      };
+    } else {
+      return (ref: firebase.firestore.CollectionReference) => {
+        return ref.orderBy('updatedAt').startAfter(this.firstInPage).limit(PAGE_SIZE);
+      };
+    }
+  }
+
+  private page: number = 1;
+  private first$: Observable<documentSnapshot>;
+  private last$: Observable<documentSnapshot>;
+  private first: documentSnapshot;
+  private last: documentSnapshot;
+  private firstInPage: documentSnapshot;
+  private lastInPage: documentSnapshot;
+  get isFirstPage(): boolean { return this.first && this.firstInPage && this.first.id === this.firstInPage.id ? true : false; }
+  get isLastPage(): boolean { return this.last && this.lastInPage && this.last.id === this.lastInPage.id ? true : false; }
+
+  private getGroupNotesFirestore(pagination: boolean, next?: boolean): Observable<any[]> {
+
+    this.collection = this.getGroupDoc(this.groupName).collection(`notes`, this.getQueryFn(pagination, next));
+
+    /*
+    // firestore stateChanges: emits changes only not a whole array
+    const filterFn = action => !(action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added');
+
+    this.stateChanges = this.collection.stateChanges()
+      .map(actions => actions.filter(action => filterFn(action)));
+    
+
+    if (this.subscription && !this.subscription.closed) {
+      this.subscription.unsubscribe();
+    }
+
+    this.subscription = this.stateChanges.subscribe(actions => actions.map(action => {
+      //console.log('stateChange', action.payload);
+      this.lastChanged = {
+        $key: action.payload.doc.id,
+        $type: action.type
+      };
+
+      this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
+      setTimeout(_ => this.lastChanged.$type = '', 2000);
+    }));
+    */
+
+    // notes
+    return this.notes = this.collection.snapshotChanges()
+      .filter(actions => actions.length > 0)
+      .map(actions => {
+        this.countNotes = actions.length;
+        // this.firstInPage = actions[0].payload.doc;
+        // this.lastInPage = actions[actions.length - 1].payload.doc;
+        // console.log('firstInPage', this.firstInPage.id);
+        // console.log('lastInPage', this.lastInPage.id);
+        return actions.map(action => {
+          const $key = action.payload.doc.id;
+          const $type = action.type;
+          //console.log('snapshotChange', $key, $type);
+          return { $key, $type, ...action.payload.doc.data() };
+        });
+        //return actions.map(action => ({ $key: action.payload.doc.id, $type: action.type, ...action.payload.doc.data() }));
+      });
+
   }
 
   private announceLastSaved($key, $type, index): void {
@@ -443,22 +664,18 @@ export class NoteService implements CanActivate, OnDestroy {
     }
   }
 
-  search(group: string, database?: any): Observable<Note[]> { // search by group name
-    this.groupName = group;
-    if (database) this.database = database;
-    this.getGroupNotes(group);
-
+  search(group: string, database: any, page?: any): Observable<any[]> { // search by group name
     if (this.windowRef.nativeWindow.localStorage) { // remember group
       this.windowRef.nativeWindow.localStorage.setItem('group', group);
     }
 
-    return this.notes;
+    return this.getGroupNotes(group, database, page);
   }
 
   setTheNote(note?: any) { // to be called by user of FormModalComponent
     if (note && note.$key) { // edit
       this.theNote = {
-        $key: note.$key,
+        $key: note.$key, // needed?
         group: note.group,
         name: note.name,
         text: note.text,
@@ -478,6 +695,10 @@ export class NoteService implements CanActivate, OnDestroy {
     }
   }
 
+  // togglePagination() {
+  //   this.pagination = !this.pagination;
+  // }
+
   private async update(note): Promise<void> {
     if (this.database == 1) {
       if (this.objRef) {
@@ -485,7 +706,9 @@ export class NoteService implements CanActivate, OnDestroy {
         this.objRef = null;
       }
     } else {
-      await this.collection.doc(note.$key).update(note);
+      const key = note.$key;
+      delete note.$key;
+      await this.collection.doc(key).update(note);
     }
   }
 

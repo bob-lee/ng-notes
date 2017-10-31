@@ -6,7 +6,7 @@ export class TouchStartDirective {
   constructor(el: ElementRef) {
     // passive listener
     el.nativeElement.addEventListener('touchstart', function() {}, {passive: true});
-    console.warn(`'touchStart'`);
+    //console.warn(`'touchStart'`);
   }
 }
 

@@ -9,6 +9,7 @@ addOrEdit($event, i, note)
 -->
 
 <div [@listChild]="noteService.countNotes" class="list" touchStart>
+  <pre>first:{{noteService.isFirstPage}}, last:{{noteService.isLastPage}}, page:{{noteService.page}}, pagination:{{noteService.pagination}}</pre>
   <div *ngFor="let note of noteService.notes | async; let i = index; trackBy: trackByFn" [@item]="noteService.getState(note)"
     class="item" [attr.tabindex]="i">
     {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy'}} {{note.updatedAt | date : 'shortTime' | lowercase}}
@@ -35,9 +36,42 @@ addOrEdit($event, i, note)
   </div>
 </div>
 
+<!-- <div *ngIf="noteService.database==2" [@listChild]="noteService.countNotes" class="list" touchStart>
+  <div *ngFor="let note of noteService.items$ | async; let i = index; trackBy: trackByFn" [@item]="noteService.getState(note)"
+  class="item" [attr.tabindex]="i">
+    {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy'}} {{note.updatedAt | date : 'shortTime' | lowercase}}
+    <span style="position:relative" dropdown>
+      <span dropdownToggle style="cursor:pointer" class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+      <ul *dropdownMenu class="dropdown-menu">
+        <li role="menuitem">
+          <a class="dropdown-item" (click)="remove(note)">remove</a>
+        </li>
+      </ul>
+    </span>
+    <br/>
+    <a (click)="addOrEdit($event, i, note)">
+      <markdown [data]="note.text"></markdown>
+      <span class="item-image" *ngIf="note.thumbURL">
+        <markdown>![alt]({{item.thumbURL}} "thumb title")</markdown>
+      </span>
+      <span class="image-span" *ngIf="!note.thumbURL && note.imageURL">
+        <img [src]="note.imageURL" alt="" class="image">
+      </span>
+    </a>
+
+    <hr>
+  </div>
+</div> -->
+
 <note-modal #modal></note-modal>
 
 <button class="fab" (click)="addOrEdit($event)">+</button>
+<button class="fab temp paged" (click)="togglePagination()">{{noteService.pagination ? 'p':'a'}}</button>
+<div *ngIf="noteService.pagination">
+  <button class="fab temp prev" (click)="gotoPage(false)" [ngClass]="{ 'disabled' : noteService.isFirstPage }" [disabled]="noteService.isFirstPage">
+    <</button>
+      <button class="fab temp next" (click)="gotoPage(true)" [ngClass]="{ 'disabled' : noteService.isLastPage }" [disabled]="noteService.isLastPage">></button>
+</div>
 
 <!-- 
 <div class="overlay">

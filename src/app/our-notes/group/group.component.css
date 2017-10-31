@@ -64,7 +64,8 @@
 }
 
 .image-span .image {
-  width: 100%;
+  /*width: 100%;*/
+  max-height: 100vh;
 }
 
 .fab {
@@ -75,7 +76,7 @@
   right: 0.2em;
   bottom: 1.5em;
   border-radius: 50%;
-  background-color: #F44336;
+  background-color: rgb(244, 67, 54);
   color: white;
   font-size: 18pt;
   outline: none;
@@ -91,4 +92,19 @@
 }
 .fab:active {
   background-color: #B71C1C;
+}
+.fab.temp {
+  opacity: 0.7;
+}
+.fab.disabled {
+  opacity: 0.3;
+}
+.fab.paged {
+  right: 2.5em;
+}
+.fab.next {
+  right: 4.8em;
+}
+.fab.prev {
+  right: 7.1em;
 }
