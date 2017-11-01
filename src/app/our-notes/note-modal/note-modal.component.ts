@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
-//import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { animate, group, query, style, transition, trigger } from '@angular/animations';
 
@@ -155,18 +154,11 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   private async saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
     let inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
-    /*
-    this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage)
-      .then(data => {
-        console.log('saved', data);
-      })
-      .catch((error) => console.log('saveNote error', error));
-    */
     try {
       const data = await this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage);
-      console.log('saved', data);
+      console.log('saveNote():', data);
     } catch (error) {
-      console.log('saveNote error', error);
+      console.error('saveNote():', error);
     }
   }
 
@@ -281,6 +273,5 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   toggle() {
     this.data.value === 'active' ? this.hide() : this.makeVisible();
   }
-
 
 }

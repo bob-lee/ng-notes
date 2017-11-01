@@ -13,7 +13,7 @@ import { listAnimation, listChild } from '../../app.animation';
 */
 @Component({
   template: `
-  <pre>firesotre has {{noteService.countGroupsFs}} group(s), page:{{noteService.page}}, pagination:{{noteService.pagination}}</pre>
+  <pre>firesotre has {{noteService.countGroupsFs}} group(s)</pre>
   <div class="list" touchStart>
     <div *ngFor="let group of noteService.groupsFs | async" class="item" (click)="goto(group,2)" >
       <a class="item-link">

@@ -10,6 +10,7 @@ import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/combineLatest';
@@ -36,16 +37,16 @@ export class NoteService implements CanActivate, OnDestroy {
   page$: BehaviorSubject<boolean | null>;
   next$: BehaviorSubject<boolean | null>;
 
-  _pagination: boolean | null = null;
-  get pagination(): boolean | null { return this._pagination; }
-  set pagination(v: boolean | null) {
-    const changed = this.pagination !== v;
-    this._pagination = v;
-    if (changed) {
-      this.pagination$.next(v);
-    }
-  }
-  private pagination$ = new Subject<boolean | null>();//new BehaviorSubject<boolean>(false);
+  pagination: boolean | null = null;
+  // get pagination(): boolean | null { return this._pagination; }
+  // set pagination(v: boolean | null) {
+  //   const changed = this.pagination !== v;
+  //   this._pagination = v;
+  //   if (changed) {
+  //     this.pagination$.next(v);
+  //   }
+  // }
+  // private pagination$ = new Subject<boolean | null>();//new BehaviorSubject<boolean>(false);
 
   user: Observable<firebase.User>;
   userName: string;
@@ -76,6 +77,7 @@ export class NoteService implements CanActivate, OnDestroy {
   get theNoteHasImage() { return this.theNote && this.theNote.imageURL; }
 
   subscription: Subscription = null;
+  subStateChange: Subscription;
 
   private groupName$ = new Subject<string>();
   announcedGroupName = this.groupName$.asObservable();
@@ -90,17 +92,11 @@ export class NoteService implements CanActivate, OnDestroy {
     this.groupName$.next(name);
   }
 
-  private _countNotes: number = 0;
-  get countNotes(): number { return this._countNotes; }
-  set countNotes(count: number) { this._countNotes = count; }
+  countNotes: number = 0;
 
-  private _todo: Todo = Todo.List;
-  get todo(): Todo { return this._todo; }
-  set todo(todo: Todo) { this._todo = todo; }
+  todo: Todo = Todo.List;
 
-  private _note: Note; // note to edit, to be set by note component when clicked for edit
-  get note(): Note { return this._note; }
-  set note(note: Note) { this._note = note; }
+  note: Note; // note to edit, to be set by note component when clicked for edit
 
   get loggedin() { return !!this.userName; }
 
@@ -130,18 +126,21 @@ export class NoteService implements CanActivate, OnDestroy {
     this.dbRef = this.db.database.ref();
     this.fsRef = firebase.firestore();
 
+    // observables for firestore
 
-    
     this.group$ = new BehaviorSubject(null);
     this.page$ = new BehaviorSubject(null);
     this.next$ = new BehaviorSubject(null);
 
-    this.notes = Observable.combineLatest(
+    this.items$ = Observable.combineLatest(
       this.group$,
       this.page$,
       this.next$
-    ).switchMap(([group, page, next]) => {
-      const collection = this.getGroupDoc(group).collection('notes', ref => {
+    ).switchMap(([group, page, next]) => { // called on any changes on [group, page, next]
+
+      if (this.subStateChange) this.subStateChange.unsubscribe(); // should do earlier?
+
+      this.collection = this.getGroupDoc(group).collection('notes', ref => {
         let query: firebase.firestore.Query = ref;
         if (page) { // do paginate
           if (next === null) { // first page
@@ -157,32 +156,34 @@ export class NoteService implements CanActivate, OnDestroy {
         return query;
       });
 
-      const filterFn = action => !(action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added');
-
+      // filter out 'modified' state change due to firestore timestamp being set for newly-added note
       this.stateChanges = this.collection.stateChanges()
-        .map(actions => actions.filter(action => filterFn(action)));
+        .map(actions => actions.filter(action =>
+          (action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added') ? false : true
+        ));
 
-      this.fsSubscription.add(
-        this.stateChanges.subscribe(actions => actions.map(action => {
-          //console.log('stateChange', action.payload);
-          this.lastChanged = {
-            $key: action.payload.doc.id,
-            $type: action.type
-          };
+      //if (this.subStateChange) this.subStateChange.unsubscribe(); // should do earlier?
 
-          this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
-          setTimeout(_ => this.lastChanged.$type = '', 2000);
-        }))
-      );
+      this.subStateChange = this.stateChanges.subscribe(actions => actions.map(action => {
+        console.log('stateChange', action.payload);
+        this.lastChanged = {
+          $key: action.payload.doc.id,
+          $type: action.type
+        };
 
-      return collection.snapshotChanges()
+        this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
+        setTimeout(_ => this.lastChanged.$type = '', 2000);
+      }));
+
+      return this.collection.snapshotChanges()
         .filter(actions => actions.length > 0)
-        .map(actions => {
+        .map(actions => { // why hits twice on page change?
           const array = this.next$.getValue() === false ? actions.reverse() : actions;
           this.firstInPage = array[0].payload.doc;
           this.lastInPage = array[actions.length - 1].payload.doc;
           console.log('firstInPage', this.firstInPage.id);
           console.log('lastInPage', this.lastInPage.id);
+          this.countNotes = actions.length;
 
           return array.map(action => {
             return {
@@ -194,17 +195,8 @@ export class NoteService implements CanActivate, OnDestroy {
         });
     });
 
-    this.first$ = this.group$.switchMap(group => {
-      this.last$ = this.getGroupDoc(group).collection('notes', ref =>
-        ref.orderBy('updatedAt', 'asc').limit(1))
-        .snapshotChanges()
-        .filter(actions => actions.length > 0)
-        .map(actions => {
-          console.log('last$', actions.length);
-          return actions[0].payload.doc
-        });
-
-      return this.getGroupDoc(group).collection('notes', ref =>
+    this.first$ = this.group$.switchMap(group =>
+      this.getGroupDoc(group).collection('notes', ref =>
         ref.orderBy('updatedAt', 'desc').limit(1))
         .snapshotChanges()
         .filter(actions => actions.length > 0)
@@ -212,7 +204,17 @@ export class NoteService implements CanActivate, OnDestroy {
           console.log('first$', actions.length);
           return actions[0].payload.doc
         })
-    });
+    );
+    this.last$ = this.group$.switchMap(group =>
+      this.getGroupDoc(group).collection('notes', ref =>
+        ref.orderBy('updatedAt', 'asc').limit(1))
+        .snapshotChanges()
+        .filter(actions => actions.length > 0)
+        .map(actions => {
+          console.log('last$', actions.length);
+          return actions[0].payload.doc
+        })
+    );
 
   }
 
@@ -227,7 +229,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
   exit(): void {
     // clear group-specific
-    //this.notes = null;
+    this.notes = null;
     this.countNotes = 0;
     this.groupName = '';
     this.groupDoc = null;
@@ -236,6 +238,11 @@ export class NoteService implements CanActivate, OnDestroy {
       this.fsSubscription.unsubscribe();
       this.fsSubscription = null;
     }
+    if (this.subStateChange) this.subStateChange.unsubscribe();
+    this.next$.next(null);
+    this.page$.next(null);
+    this.group$.next(null);
+
     this.pagination = null;
   }
 
@@ -303,7 +310,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
       this.pagination = pagination;
 
-      return this.notes;//this.getGroupNotesFirestore(page && page >= 0);
+      return this.notes;
     }
   }
 
@@ -321,32 +328,32 @@ export class NoteService implements CanActivate, OnDestroy {
     if (page === this.page) return;
     const next = page > this.page;
     this.page += next ? 1 : -1;
-    this.getGroupNotesFirestore(true, next);
+    //this.getGroupNotesFirestore(true, next);
 
     this.next$.next(next);
     //this.page$.next(true);// not needed.. already doing pagiantion?
   }
 
-  private getQueryFn(pagination: boolean, next?: boolean) {
-    console.log(`getQueryFn(${pagination},${next === undefined ? 'na' : next ? '>' : '<'})`)
-    if (next === undefined) {
-      return (ref: firebase.firestore.CollectionReference) => {
-        let query = ref.orderBy('updatedAt', 'desc');
-        if (pagination) {
-          query = query.limit(PAGE_SIZE);
-        }
-        return query;
-      };
-    } else if (next) {
-      return (ref: firebase.firestore.CollectionReference) => {
-        return ref.orderBy('updatedAt', 'desc').startAfter(this.lastInPage).limit(PAGE_SIZE);
-      };
-    } else {
-      return (ref: firebase.firestore.CollectionReference) => {
-        return ref.orderBy('updatedAt').startAfter(this.firstInPage).limit(PAGE_SIZE);
-      };
-    }
-  }
+  // private getQueryFn(pagination: boolean, next?: boolean) {
+  //   console.log(`getQueryFn(${pagination},${next === undefined ? 'na' : next ? '>' : '<'})`)
+  //   if (next === undefined) {
+  //     return (ref: firebase.firestore.CollectionReference) => {
+  //       let query = ref.orderBy('updatedAt', 'desc');
+  //       if (pagination) {
+  //         query = query.limit(PAGE_SIZE);
+  //       }
+  //       return query;
+  //     };
+  //   } else if (next) {
+  //     return (ref: firebase.firestore.CollectionReference) => {
+  //       return ref.orderBy('updatedAt', 'desc').startAfter(this.lastInPage).limit(PAGE_SIZE);
+  //     };
+  //   } else {
+  //     return (ref: firebase.firestore.CollectionReference) => {
+  //       return ref.orderBy('updatedAt').startAfter(this.firstInPage).limit(PAGE_SIZE);
+  //     };
+  //   }
+  // }
 
   private page: number = 1;
   private first$: Observable<documentSnapshot>;
@@ -358,53 +365,53 @@ export class NoteService implements CanActivate, OnDestroy {
   get isFirstPage(): boolean { return this.first && this.firstInPage && this.first.id === this.firstInPage.id ? true : false; }
   get isLastPage(): boolean { return this.last && this.lastInPage && this.last.id === this.lastInPage.id ? true : false; }
 
-  private getGroupNotesFirestore(pagination: boolean, next?: boolean): Observable<any[]> {
+  // private getGroupNotesFirestore(pagination: boolean, next?: boolean): Observable<any[]> {
 
-    this.collection = this.getGroupDoc(this.groupName).collection(`notes`, this.getQueryFn(pagination, next));
+  //   this.collection = this.getGroupDoc(this.groupName).collection(`notes`, this.getQueryFn(pagination, next));
 
-    /*
-    // firestore stateChanges: emits changes only not a whole array
-    const filterFn = action => !(action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added');
+  //   /*
+  //   // firestore stateChanges: emits changes only not a whole array
+  //   const filterFn = action => !(action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added');
 
-    this.stateChanges = this.collection.stateChanges()
-      .map(actions => actions.filter(action => filterFn(action)));
+  //   this.stateChanges = this.collection.stateChanges()
+  //     .map(actions => actions.filter(action => filterFn(action)));
     
 
-    if (this.subscription && !this.subscription.closed) {
-      this.subscription.unsubscribe();
-    }
+  //   if (this.subscription && !this.subscription.closed) {
+  //     this.subscription.unsubscribe();
+  //   }
 
-    this.subscription = this.stateChanges.subscribe(actions => actions.map(action => {
-      //console.log('stateChange', action.payload);
-      this.lastChanged = {
-        $key: action.payload.doc.id,
-        $type: action.type
-      };
+  //   this.subscription = this.stateChanges.subscribe(actions => actions.map(action => {
+  //     //console.log('stateChange', action.payload);
+  //     this.lastChanged = {
+  //       $key: action.payload.doc.id,
+  //       $type: action.type
+  //     };
 
-      this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
-      setTimeout(_ => this.lastChanged.$type = '', 2000);
-    }));
-    */
+  //     this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
+  //     setTimeout(_ => this.lastChanged.$type = '', 2000);
+  //   }));
+  //   */
 
-    // notes
-    return this.notes = this.collection.snapshotChanges()
-      .filter(actions => actions.length > 0)
-      .map(actions => {
-        this.countNotes = actions.length;
-        // this.firstInPage = actions[0].payload.doc;
-        // this.lastInPage = actions[actions.length - 1].payload.doc;
-        // console.log('firstInPage', this.firstInPage.id);
-        // console.log('lastInPage', this.lastInPage.id);
-        return actions.map(action => {
-          const $key = action.payload.doc.id;
-          const $type = action.type;
-          //console.log('snapshotChange', $key, $type);
-          return { $key, $type, ...action.payload.doc.data() };
-        });
-        //return actions.map(action => ({ $key: action.payload.doc.id, $type: action.type, ...action.payload.doc.data() }));
-      });
+  //   // notes
+  //   return this.notes = this.collection.snapshotChanges()
+  //     .filter(actions => actions.length > 0)
+  //     .map(actions => {
+  //       this.countNotes = actions.length;
+  //       // this.firstInPage = actions[0].payload.doc;
+  //       // this.lastInPage = actions[actions.length - 1].payload.doc;
+  //       // console.log('firstInPage', this.firstInPage.id);
+  //       // console.log('lastInPage', this.lastInPage.id);
+  //       return actions.map(action => {
+  //         const $key = action.payload.doc.id;
+  //         const $type = action.type;
+  //         //console.log('snapshotChange', $key, $type);
+  //         return { $key, $type, ...action.payload.doc.data() };
+  //       });
+  //       //return actions.map(action => ({ $key: action.payload.doc.id, $type: action.type, ...action.payload.doc.data() }));
+  //     });
 
-  }
+  // }
 
   private announceLastSaved($key, $type, index): void {
     if ($type === 'removed' || $type !== this.toSave.$type) return;
@@ -494,11 +501,11 @@ export class NoteService implements CanActivate, OnDestroy {
   }
 
   async save(noteToSave: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): Promise<any> {
-    console.log(`save ${Todo[this._todo]}, imageFailedToLoad=${imageFailedToLoad}, toRemoveExistingImage=${toRemoveExistingImage}`);
+    console.log(`save ${Todo[this.todo]}, imageFailedToLoad=${imageFailedToLoad}, toRemoveExistingImage=${toRemoveExistingImage}`);
 
     const note = noteToSave || this.theNote;
 
-    if (this._todo !== Todo.Remove) {
+    if (this.todo !== Todo.Remove) {
       if (this.database == 1) {
         note.updatedAt = firebase.database.ServerValue.TIMESTAMP;
       } else {
@@ -508,7 +515,7 @@ export class NoteService implements CanActivate, OnDestroy {
     note.group = this._groupName;
     console.log('note', note);
 
-    if (this._todo === Todo.Add) { // add
+    if (this.todo === Todo.Add) { // add
 
       if (files && files.length > 0) {
         const file = files.item(0);
@@ -527,11 +534,11 @@ export class NoteService implements CanActivate, OnDestroy {
 
       return this.saveNew(note);
 
-    } else if (this._todo === Todo.Edit) { // edit
+    } else if (this.todo === Todo.Edit) { // edit
 
       return this.saveEdit(note, files, imageFailedToLoad, toRemoveExistingImage);
 
-    } else if (this._todo === Todo.Remove) { // remove
+    } else if (this.todo === Todo.Remove) { // remove
 
       if (note.imageURL && !imageFailedToLoad && this.database == 1) { // for firestore, let cloud function 'handleImage' do the job
         await this.deleteImage(note.imageURL);
@@ -694,10 +701,6 @@ export class NoteService implements CanActivate, OnDestroy {
       this.todo = Todo.Add;
     }
   }
-
-  // togglePagination() {
-  //   this.pagination = !this.pagination;
-  // }
 
   private async update(note): Promise<void> {
     if (this.database == 1) {

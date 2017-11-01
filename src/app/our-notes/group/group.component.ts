@@ -46,7 +46,6 @@ export class GroupComponent implements OnInit, OnDestroy {
   count = 0;
   i;
   subscription: Subscription;
-  //subscription2: Subscription;
   private init: boolean = false;
 
   constructor(private router: Router,
@@ -130,15 +129,12 @@ export class GroupComponent implements OnInit, OnDestroy {
       } else { // firestore
         this.init = true;
       }
-
-
     }
   }
 
   ngOnDestroy() {
     console.warn(`'GroupComponent' ngOnDestroy`);
     if (this.subscription) this.subscription.unsubscribe();
-    //if (this.subscription2) this.subscription2.unsubscribe();
   }
 
   addOrEdit(event, index?: number, note?: any) {
@@ -198,9 +194,6 @@ export class GroupComponent implements OnInit, OnDestroy {
   gotoPage(next: boolean) {
     const newPage = this.noteService.getPageNumber(next);
     this.router.navigate(['group', this.noteService.groupName, newPage], { queryParams: { db: 2 } });
-    // console.log(`page(${next})`);
-    // this.page += next ? 1 : -1;
-    // this.getGroupNotesFirestore(true, next);
   }
 
   remove(note) {

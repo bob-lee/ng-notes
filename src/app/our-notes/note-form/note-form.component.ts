@@ -47,7 +47,6 @@ export class NoteFormComponent implements OnInit {
     const group = this.route.snapshot.params['name'];
     const idToEdit = this.route.snapshot.params['id'];
     const idxToEdit = this.route.snapshot.queryParams['i'];
-    //this.db = this.route.snapshot.queryParams['db']; // ${this.db==1 ? 'rtdb' : this.db==2 ? 'firestore' : 'na'}
     console.log(`'NoteFormComponent' ${addOrEdit ? 'adding' : 'editing'} ${idToEdit} ${idxToEdit}`, this.route.snapshot);
 
     if (addOrEdit) { // add

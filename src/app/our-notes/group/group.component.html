@@ -6,11 +6,13 @@ addOrEdit($event, i, note)
 <pre>lastChanged({{noteService.lastChanged.$key || 'na'}}, {{noteService.lastChanged.$type || 'na'}})</pre>
   <pre>toSave ({{noteService.toSave.$key}}, {{noteService.toSave.$type}})</pre>
   <pre>lastChanged ({{noteService.lastChanged.$key || 'na'}}, {{noteService.lastChanged.$type || 'na'}})</pre>
+  first:{{noteService.isFirstPage}}, last:{{noteService.isLastPage}}
+  <pre>lastChanged({{noteService.lastChanged.$key || 'na'}}, {{noteService.lastChanged.$type || 'na'}}), page:{{noteService.page}} / {{noteService.pagination}}</pre>
+  
 -->
 
-<div [@listChild]="noteService.countNotes" class="list" touchStart>
-  <pre>first:{{noteService.isFirstPage}}, last:{{noteService.isLastPage}}, page:{{noteService.page}}, pagination:{{noteService.pagination}}</pre>
-  <div *ngFor="let note of noteService.notes | async; let i = index; trackBy: trackByFn" [@item]="noteService.getState(note)"
+<div *ngIf="((noteService.database==1 && noteService.notes) || (noteService.database==2 && noteService.items$)) | async; let notes" [@listChild]="noteService.countNotes" class="list" touchStart>
+  <div *ngFor="let note of notes; let i = index; trackBy: trackByFn" [@item]="noteService.getState(note)"
     class="item" [attr.tabindex]="i">
     {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy'}} {{note.updatedAt | date : 'shortTime' | lowercase}}
     <span style="position:relative" dropdown>
