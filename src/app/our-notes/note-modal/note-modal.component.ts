@@ -34,8 +34,8 @@ routerLink="/"
         style({ opacity: 0 }),
         query('.container', [style(zoomFadeInFrom)]),
         group([
-          animate(easeInFor(100), style({ opacity: 1 })),
-          query('.container', animate(easeInFor(300), style('*'))),
+          animate(easeInFor(150), style({ opacity: 1 })),
+          query('.container', animate(easeInFor(450), style('*'))),
         ]),
       ], { params: { x: '0px', y: '0px', ox: '50%', oy: '50%' } }),
       transition(':leave', group([
