@@ -137,8 +137,8 @@ export class GroupComponent implements OnInit, OnDestroy {
     if (this.subscription) this.subscription.unsubscribe();
   }
 
-  addOrEdit(event, index?: number, note?: any) {
-    console.log(`addOrEdit(x:${event.screenX}, i:${index}, key:${note && note.$key || 'na'})`);
+  addOrEdit({ event, index = -1, note = undefined }) {
+    console.log(`addOrEdit(x:${event.clientX}, i:${index}, key:${note && note.$key || 'na'})`);
     if (this.noteService.database == 1) {
       if (note) { // edit
         this.noteService.note = note;

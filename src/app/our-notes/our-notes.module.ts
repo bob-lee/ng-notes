@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MdButtonModule, MdCheckboxModule, MdRadioModule, MdInputModule } from '@angular/material';
-import 'hammerjs';
+import { MatInputModule } from '@angular/material';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { MarkdownModule } from 'angular2-markdown';
 
@@ -19,12 +18,13 @@ import { AfterIfDirective } from '../after-if.directive';
 import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
+import { NoteComponent } from './group/note/note.component';
 
 @NgModule({
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MdButtonModule, MdCheckboxModule, MdRadioModule, MdInputModule,
+    MatInputModule,
     BsDropdownModule.forRoot(),
     MarkdownModule.forRoot(),
     OurNotesRoutingModule,
@@ -38,6 +38,7 @@ import { OurNotesRoutingModule } from './our-notes-routing.module';
     NoteModalComponent,
     FocusMeDirective,
     AfterIfDirective,
+    NoteComponent,
   ],
   providers: [ 
     NoteService,

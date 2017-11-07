@@ -1,0 +1,5 @@
+.note-header,
+:host(.item::before) {
+  font-size: 85%;
+  color: #000;
+}

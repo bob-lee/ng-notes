@@ -52,6 +52,8 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   title: string;
   @ViewChild('fileInput')
   inputEl: ElementRef;
+  busy: boolean = false;
+  takeLong: boolean = false;
 
   note: any; // reference to noteService.theNote set in init()
   noteForm: FormGroup;
@@ -92,7 +94,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     this.hide();
   }
 
-  save(e) {
+  async save(e) {
     e.stopPropagation();
     console.log(`save ${this.noteForm.status} changed=${this.changed()}, ${this.inputEl && this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
     if (this.noteForm.invalid) {
@@ -105,7 +107,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       this.note.name = this.noteForm.value.name;
       this.note.text = this.noteForm.value.text;
 
-      this.saveNote(this.imgToRemove);
+      await this.saveNote(this.imgToRemove);
     } else { // no change, go back without making server call
       this.noteService.todo = Todo.List;
     }
@@ -118,7 +120,6 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   }
 
   fileSelected() {
-    //this.imgToRemove = false;
     this._fileChanged = true;
     console.log(`fileSelected ${this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
   }
@@ -152,6 +153,8 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   }
 
   private async saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
+    this.busy = true;
+    setTimeout(_ => { if (this.busy) this.takeLong = true; }, 1000);
     let inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
     try {
@@ -160,6 +163,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     } catch (error) {
       console.error('saveNote():', error);
     }
+    this.busy = false;
   }
 
   popup;
@@ -167,15 +171,11 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   html;
 
   loadImage() {
-    //console.warn('imageURL', this.toHideButton, this.toHideImg);
-
-    // this.popup = document.querySelector('#popup');
-    // console.log(this.body);
-
-    /*this.body*///window.addEventListener('scroll', scroll, false);
-
-    if (this.note && this.note.imageURL) {
-      console.log('imageURL', this.note.imageURL);
+    if (!this.note || !this.note.imageURL) return;
+    const isImage = this.note.imageURL.indexOf('images') > -1;
+    const isVideo = this.note.imageURL.indexOf('videos') > -1;
+    console.log(`imageURL ${this.note.imageURL}, ${isImage}, ${isVideo}`);
+    if (isImage) {
       const img = <HTMLImageElement>document.querySelector("#myimg");
       img.addEventListener('load', _ => console.log('image loaded'));
       img.addEventListener('error', error => {
@@ -183,21 +183,24 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
         this.imageFailedToLoad = true;
       });
       img.src = this.note.imageURL;
+    } else if (isVideo) {
+      const video = <HTMLVideoElement>document.querySelector("#myvideo");
+      video.src = this.note.imageURL;
+      video.load();
+    } else {
+      console.warn('loadImage() gave up loading file');
     }
   }
 
   private init(showing: boolean = true) {
+    this.busy = false;
+    this.takeLong = false;
     this.body = document.querySelector('body');
-    this.html = document.querySelector('html');
+    //this.html = document.querySelector('html');
 
     if (showing) {
-      //var input = document.querySelector('.ddm input[type="checkbox"][id]');
-
-      //console.log('addEventListener');
-      //document.addEventListener('scroll', handlerScroll, true);
-
       this.body.classList.add('noScroll');
-      this.html.classList.add('noScroll');
+      //this.html.classList.add('noScroll');
       if (!this.noteService.theNote) { // this component assumes the user had called noteService.setTheNote() properly
         console.warn('theNote is not set');
         return;
@@ -213,7 +216,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       //console.log('removeEventListener');
       //document.removeEventListener('scroll', handlerScroll, true);
       this.body.classList.remove('noScroll');
-      this.html.classList.remove('noScroll');
+      //this.html.classList.remove('noScroll');
       //window.removeEventListener('scroll', scroll, false);
       this.note = null;
       this.imgToRemove = false;
@@ -230,13 +233,6 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     this.calculateZoomOrigin(event);
     this.makeVisible();
     this.init();
-
-    /*
-    this._selectedGroup = '_newGroup';
-    if (group) {
-      const all = this.groups.getAll();
-      this._selectedGroup = all[all.indexOf(group)].title;
-    }*/
   }
   /**
    * Calculate origin used in the `zoomFadeInFrom()`
@@ -245,18 +241,15 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     const clientX = event.clientX;
     const clientY = event.clientY;
 
-    const window = document.body.getBoundingClientRect();
-    const wh = window.width / 2;
-    const hh = window.height / 2;
-    const x = clientX - wh;
-    const y = clientY - hh;
-    const ox = clientX / window.width;
-    const oy = clientY / window.height;
+    const width = this.windowRef.nativeWindow.innerWidth;
+    const height = this.windowRef.nativeWindow.innerHeight;
 
-    this.data.params.x = `${x}px`;
-    this.data.params.y = `${y}px`;
-    this.data.params.ox = `${ox * 100}%`;
-    this.data.params.oy = `${oy * 100}%`;
+    this.data.params.x = `${clientX - width / 2}px`;
+    this.data.params.y = `${clientY - height / 2}px`;
+    this.data.params.ox = `${(clientX / width) * 100}%`;
+    this.data.params.oy = `${(clientY / height) * 100}%`;
+
+    //console.log(`zoom(${this.data.params.x}, ${this.data.params.y},${this.data.params.ox},${this.data.params.oy})`);
   }
 
   private makeVisible() {
@@ -264,6 +257,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   }
 
   hide() {
+    if (this.busy) return;
     this.init(false);
 
     this.data.value = 'inactive';

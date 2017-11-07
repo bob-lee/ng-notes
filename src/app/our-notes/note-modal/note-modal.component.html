@@ -3,98 +3,40 @@
     <button class="btn btn-lg btn-primary" (click)="remove($event)" [hidden]="noteService.todo === todoEnum.Add">Remove</button>
 -->
 <div class="overlay" *ngIf="data.value === 'active'" (click)="hide()" (afterIf)="loadImage()" [@overlay]="data">
-  <!-- <div class="container" (click)="$event.stopPropagation()">
-    <ul class="lea">
-      <li>Ada Catlace</li>
-      <li>Schrödingcat</li>
-      <li>Tim Purrners-Lee</li>
-      <li>Webkitty</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Ada Catlace</li>
-      <li>Schrödingcat</li>
-      <li>Tim Purrners-Lee</li>
-      <li>Webkitty</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Ada Catlace</li>
-      <li>Schrödingcat</li>
-      <li>Tim Purrners-Lee</li>
-      <li>Webkitty</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Ada Catlace</li>
-      <li>Schrödingcat</li>
-      <li>Tim Purrners-Lee</li>
-      <li>Webkitty</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Void</li>
-      <li>Neko</li>
-      <li>Schrödingcat</li>
-      <li>Tim Purrners-Lee</li>
-      <li>Webkitty</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Void</li>
-      <li>Neko</li>
-      <li>Alan Purring</li>
-      <li>Schrödingcat</li>
-      <li>Tim Purrners-Lee</li>
-      <li>Webkitty</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Json</li>
-      <li>Void</li>
-      <li>Neko</li>
-      <li>NaN</li>
-      <li>Cat5</li>
-      <li>Vector</li>
-    </ul>
-
-  </div> -->
   
   <form id="popup" class="container" [formGroup]="noteForm" novalidate (click)="$event.stopPropagation()" blFocusMe>
     <h2>
       {{title}}
       <div class="pull-right" touchStart>
         <a class="btn btn-default" (click)="cancel($event)">Cancel</a>
-        <a class="btn btn-primary" (click)="save($event)">Save</a>
+        <a class="btn btn-primary" (click)="save($event)" [ngClass]="{'loader-3': busy && takeLong}">Save</a>
       </div>
     </h2>
 
-
     <div>
-      <md-input-container>
-        <input mdInput placeholder="Name" formControlName="name" required blFocusMe>
+      <mat-form-field>
+        <input matInput placeholder="Name" formControlName="name" required blFocusMe>
         <div class="text-danger" [hidden]="!submitted || noteForm.controls.name.valid || !noteForm.controls.name.errors.required">Entry is mandatory</div>
-      </md-input-container>
+      </mat-form-field>
     </div>
 
     <div>
-      <md-input-container class="textarea">
-        <textarea mdInput placeholder="Note" formControlName="text" rows="8" required>
+      <mat-form-field class="textarea">
+        <textarea matInput placeholder="Note" formControlName="text" rows="8" required>
         </textarea>
         <div class="text-danger" [hidden]="!submitted || noteForm.controls.text.valid || !noteForm.controls.text.errors.required">Entry is mandatory</div>
-      </md-input-container>
+      </mat-form-field>
     </div>
 
     <div class="" touchStart>
-      <input class="btn" type="file" accept="image/*;capture=camera" (change)="fileSelected()" #fileInput>
+      <input class="btn" type="file" accept="image/*, video/*" (change)="fileSelected()" #fileInput>
       <button class="" type="button" (click)="removeFile($event)" [hidden]="toHideButton">
         <i class="material-icons">delete</i>
       </button>
     </div>
 
     <img id="myimg" [hidden]="toHideImg">
+    <video id="myvideo" [hidden]="toHideImg"></video>
 
   </form>
 

@@ -28,6 +28,9 @@ export interface FirestoreFunctions {
 export const PAGE_SIZE: number = 3;
 export type documentSnapshot = firebase.firestore.DocumentSnapshot;
 
+export const STORAGE_IMAGE_FOLDER = 'images';
+export const STORAGE_VIDEO_FOLDER = 'videos';
+
 @Injectable()
 export class NoteService implements CanActivate, OnDestroy {
   database: number = 1; // 1: rtds, 2: firestore
@@ -176,14 +179,21 @@ export class NoteService implements CanActivate, OnDestroy {
       }));
 
       return this.collection.snapshotChanges()
-        .filter(actions => actions.length > 0)
+        //.filter(actions => actions.length > 0)
         .map(actions => { // why hits twice on page change?
+          this.countNotes = actions.length;
+          console.log('snapshotChanges', this.countNotes);
+          if (this.countNotes === 0) {
+            this.firstInPage = null;
+            this.lastInPage = null;
+            return actions;
+          }
+
           const array = this.next$.getValue() === false ? actions.reverse() : actions;
           this.firstInPage = array[0].payload.doc;
           this.lastInPage = array[actions.length - 1].payload.doc;
           console.log('firstInPage', this.firstInPage.id);
           console.log('lastInPage', this.lastInPage.id);
-          this.countNotes = actions.length;
 
           return array.map(action => {
             return {
@@ -375,7 +385,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
   //   this.stateChanges = this.collection.stateChanges()
   //     .map(actions => actions.filter(action => filterFn(action)));
-    
+
 
   //   if (this.subscription && !this.subscription.closed) {
   //     this.subscription.unsubscribe();
@@ -498,6 +508,7 @@ export class NoteService implements CanActivate, OnDestroy {
     } else {
       await this.collection.doc(note.$key).delete();
     }
+    console.log('removed');
   }
 
   async save(noteToSave: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): Promise<any> {
@@ -522,13 +533,7 @@ export class NoteService implements CanActivate, OnDestroy {
         if (file) {
           console.log('file', file);
 
-          try {
-            const snapshot = await this.storage.child(`images/${file.name}`).put(file);
-            console.log('uploaded file:', snapshot.downloadURL);
-            note.imageURL = snapshot.downloadURL;
-          } catch (error) {
-            console.error('failed to upload', error);
-          }
+          await this.putImage(file, note);
         }
       }
 
@@ -641,7 +646,13 @@ export class NoteService implements CanActivate, OnDestroy {
 
   private async putImage(file: any, note: any): Promise<boolean> {
     try {
-      const snapshot = await this.storage.child(`images/${file.name}`).put(file);
+      const destination = file.type.startsWith('image/') ? STORAGE_IMAGE_FOLDER :
+        file.type.startsWith('video/') ? STORAGE_VIDEO_FOLDER : '';
+      if (!destination) {
+        throw `invalid file type '${file.type}'`;
+      }
+
+      const snapshot = await this.storage.child(`${destination}/${file.name}`).put(file);
       console.log('uploaded file:', snapshot.downloadURL);
       note.imageURL = snapshot.downloadURL;
       return true;
