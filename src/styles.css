@@ -4,7 +4,8 @@
   display: none !important; /* https://github.com/angular/material2/issues/445 */
 }
 
-html, body {
+/*html,*//* causes parent to scroll to top on modal popup */
+body {
   height: 100%;
 }
 

@@ -1,0 +1,13 @@
+div {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 0.5em;
+}
+
+@media only screen
+and (min-width: 568px) {
+  div { 
+    width: 80%;
+  }
+}

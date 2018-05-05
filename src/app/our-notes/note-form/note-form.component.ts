@@ -42,12 +42,11 @@ export class NoteFormComponent implements OnInit {
     this._fileChanged = false;
 
     // inspect route
-    const addOrEdit = this.route.snapshot.url.length === 2; // ':name/add' or ':name/edit/:id'
+    const addOrEdit = this.route.snapshot.url.length === 3; // ':name/rtdb/add' or ':name/rtdb/edit/:id'
     this._todo = addOrEdit ? Todo.Add : Todo.Edit;
     const group = this.route.snapshot.params['name'];
     const idToEdit = this.route.snapshot.params['id'];
     const idxToEdit = this.route.snapshot.queryParams['i'];
-    //this.db = this.route.snapshot.queryParams['db']; // ${this.db==1 ? 'rtdb' : this.db==2 ? 'firestore' : 'na'}
     console.log(`'NoteFormComponent' ${addOrEdit ? 'adding' : 'editing'} ${idToEdit} ${idxToEdit}`, this.route.snapshot);
 
     if (addOrEdit) { // add

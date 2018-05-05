@@ -46,12 +46,23 @@ export class GroupComponent implements OnInit, OnDestroy {
   count = 0;
   i;
   subscription: Subscription;
-  subscription2: Subscription;
+  private init: boolean = false;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
     public noteService: NoteService,
-    private modalService: ModalService) { }
+    private modalService: ModalService) {
+
+    console.log('GroupComponent()');
+
+    this.subscription = route.params.subscribe(params => {
+      if (!this.init) return;
+      if (this.noteService.database == 1) return;
+      console.log('GroupComponent params', params);
+      if (params.page) this.noteService.gotoPage(+params.page);
+    })
+
+  }
 
   ngOnInit() { // for rtdb, hits here whenever coming back from note-form. for firebase, hits here only once as this component uses note-modal
     this.modalService.setModal(this.modal);
@@ -59,7 +70,7 @@ export class GroupComponent implements OnInit, OnDestroy {
     this.noteService.todo = Todo.List;
     this.isTouchDevice = window.matchMedia("(pointer:coarse)").matches;
 
-    this.subscription = this.noteService.announcedLastSaved
+    let subscription = this.noteService.announcedLastSaved
       .subscribe(saved => {
         try {
           const savedEl = document.querySelector(`div.item[tabindex="${saved.index}"]`);
@@ -71,19 +82,26 @@ export class GroupComponent implements OnInit, OnDestroy {
           console.warn(e);
         }
       });
-
+    this.subscription.add(subscription);
 
     // inspect route
     const group = this.route.snapshot.params['name'];
+    let page = this.route.snapshot.params['page'];
+    if (page && page != 1) {
+      console.warn(`can't jump into page ${page}, redirecting to first page`);
+      page = 1;
+      this.router.navigate(['group', group, 1], { queryParams: { db: 2 } }); // ngOnInit won't hit again, just a url change
+    }
     const db = this.route.snapshot.queryParams['db'];
     const idxToFocus = this.route.snapshot.queryParams['i'];
     //this.i = idxToFocus;
     const to = this.route.snapshot.queryParams['to'];
 
-    this.subscription2 = (db == 1 ? this.noteService.groups : this.noteService.groupsFs)
-      .subscribe(_ => console.log('subscription2'));
-    
-    console.warn(`'GroupComponent' '${group}' ${idxToFocus} ${to} ${this.isTouchDevice}`);
+    subscription = (db == 1 ? this.noteService.groups : this.noteService.groupsFs)
+      .subscribe(_ => console.log(`subscribe to 'groups'`));
+    this.subscription.add(subscription);
+
+    console.warn(`'GroupComponent' '${group}' ${page} ${idxToFocus} ${to} ${this.isTouchDevice}`);
     if (group) { // route has group name
 
       if (group === this.noteService.groupName) {
@@ -93,60 +111,94 @@ export class GroupComponent implements OnInit, OnDestroy {
       /* Comparison:
        *  For rtdb, group and note-form are separate sibling routes whereas
        *  for firestore, group is a parent and shows / hides note-modal as needed.
-       *  So for firebase, this ngOnInit hits just once while user stays in the group.
+       *  So for firebase, this ngOnInit hits only once when user enterint the group.
       */
+      const notes$ = this.noteService.search(group, db, page);
 
-      this.noteService.search(group, db).first().subscribe(
-        notes => {
-          console.log(`GroupComponent got ${notes.length} note(s) ${this.count}`);
-          if (this.count++ > 0 || db == 2) return;
-
-          for (let i = 0, len = notes.length; i < len; i++) {
-            const status = idxToFocus == -1 && i === (len - 1) ? "added" :
-              idxToFocus == i && to == 2 ? "edited" :
-                "loaded";
-            this.hoverArray[i] = status;
-            if (status !== 'loaded') this.i = i;
+      if (db == 1) { // rtdb
+        notes$.first().subscribe(
+          notes => {
+            console.log(`GroupComponent got ${notes.length} note(s) ${this.count}`);
+            this.init = true;
+            if (this.count++ > 0 || db == 2) return;
+  
+            this.focusItem(notes, idxToFocus, to);
           }
-
-          if (idxToFocus) {
-            setTimeout(_ => {
-              const elements = document.querySelectorAll('div.item');
-              const len = elements.length;
-              console.log(`GroupComponent rendered ${len} note(s)`);
-              if (len > 0) {
-                const i = (idxToFocus == -1 || idxToFocus == len) ? (len - 1) : // focus last one
-                  (idxToFocus >= 0 && idxToFocus < len) ? idxToFocus : // focus specified one
-                    -1; // do nothing
-
-                console.log(`GroupComponent to focus [${i}]`);
-                if (i > -1) {
-                  const el = elements[i] as HTMLElement;
-
-                  el.focus();
-
-                  if (this.isTouchDevice) {
-                    /* on ios chrome, just calling focus() doesn't seem to scroll.
-
-                    */
-                    el.scrollIntoView();
-                  }
-
-                }
-              }
-            }, 0);
-          }
-
-        }
-      );
-
+        );
+  
+      } else { // firestore
+        this.init = true;
+      }
     }
   }
 
   ngOnDestroy() {
     console.warn(`'GroupComponent' ngOnDestroy`);
     if (this.subscription) this.subscription.unsubscribe();
-    if (this.subscription2) this.subscription2.unsubscribe();
+  }
+
+  addOrEdit({ event, index = -1, note = undefined }) {
+    console.log(`addOrEdit(x:${event.clientX}, i:${index}, key:${note && note.$key || 'na'})`);
+    if (this.noteService.database == 1) {
+      if (note) { // edit
+        this.noteService.note = note;
+        this.router.navigate(['group', this.noteService.groupName, 'rtdb', 'edit', note.$key],
+          { queryParams: { i: index } });
+      } else { // add
+        this.router.navigate(['group', this.noteService.groupName, 'rtdb', 'add']/*, { queryParams: { db: database } }*/);
+      }
+    } else {
+      this.noteService.setTheNote(note);
+      this.modal.show(event);
+    }
+  }
+
+  private focusItem(notes: any[], idxToFocus, to) { // for rtdb
+    for (let i = 0, len = notes.length; i < len; i++) {
+      const status = idxToFocus == -1 && i === (len - 1) ? "added" :
+        idxToFocus == i && to == 2 ? "edited" :
+          "loaded";
+      this.hoverArray[i] = status;
+      if (status !== 'loaded') this.i = i;
+    }
+
+    if (idxToFocus) {
+      setTimeout(_ => {
+        const elements = document.querySelectorAll('div.item');
+        const len = elements.length;
+        console.log(`GroupComponent rendered ${len} note(s)`);
+        if (len > 0) {
+          const i = (idxToFocus == -1 || idxToFocus == len) ? (len - 1) : // focus last one
+            (idxToFocus >= 0 && idxToFocus < len) ? idxToFocus : // focus specified one
+              -1; // do nothing
+
+          console.log(`GroupComponent to focus [${i}]`);
+          if (i > -1) {
+            const el = elements[i] as HTMLElement;
+
+            el.focus();
+
+            if (this.isTouchDevice) {
+              /* on ios chrome, just calling focus() doesn't seem to scroll.
+
+              */
+              el.scrollIntoView();
+            }
+
+          }
+        }
+      }, 0);
+    }
+  }
+
+  gotoPage(next: boolean) {
+    const newPage = this.noteService.getPageNumber(next);
+    this.router.navigate(['group', this.noteService.groupName, newPage], { queryParams: { db: 2 } });
+  }
+
+  remove(note) {
+    this.noteService.todo = Todo.Remove;
+    this.noteService.save(note, null, false);
   }
 
   toggle() {
@@ -155,26 +207,11 @@ export class GroupComponent implements OnInit, OnDestroy {
     body.classList.toggle('show-overlay');
   }
 
-  addOrEdit(event, index?: number, note?: any) {
-    console.log(`addOrEdit(x:${event.screenX}, i:${index}, key:${note && note.$key || 'na'})`);
-    if (this.noteService.database == 1) {
-      if (note) { // edit
-        this.noteService.note = note;
-        this.router.navigate(['group', this.noteService.groupName, 'edit', note.$key],
-          { queryParams: { i: index } });
-      } else { // add
-        this.router.navigate(['group', this.noteService.groupName, 'add']/*, { queryParams: { db: database } }*/);
-      }
+  togglePagination() {
+    if (this.noteService.pagination) {
+      this.router.navigate(['group', this.noteService.groupName], { queryParams: { db: this.noteService.database } });
     } else {
-      this.noteService.setTheNote(note);
-      this.modal.show(event);
+      this.router.navigate(['group', this.noteService.groupName, 1], { queryParams: { db: this.noteService.database } });
     }
-
   }
-
-  remove(note) {
-    this.noteService.todo = Todo.Remove;
-    this.noteService.save(note, null, false);
-  }
-
 }

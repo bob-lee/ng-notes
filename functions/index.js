@@ -20,40 +20,63 @@ const THUMB_MAX_WIDTH = 40;
 // Thumbnail prefix added to file names.
 const THUMB_PREFIX = 'thumb_';
 
-const DATABASE_TRIGGER_PATH = '/notes/{pushId}/imageURL';
-const DATABASE_IMAGE_PATH = '/images';
-
+const RTDB_TRIGGER_PATH = '/notes/{pushId}/imageURL';
 const FIRESTORE_TRIGGER_PATH = '/notes/{group}/notes/{key}';
+
+const STORAGE_IMAGE_FOLDER = 'images';
+const STORAGE_VIDEO_FOLDER = 'videos';
+
 const IMAGE_MAX_HEIGHT = 600;
 const IMAGE_MAX_BYTES = 100000; // resize if greater than 100kb
 const RESIZED_IMAGE_PREFIX = 'resized_';
 
-function getFilename(url) {
+function getFilename(url) { // returns 'Sarah.jpg' or 'bunny.mp4'
   if (url) {
     const downloadUrl = url.indexOf('firebasestorage.googleapis.com'); // or signedUrl with 'storage.googleapis.com'
     const END_MATCHER = downloadUrl > -1 ? '?alt=' : '?GoogleAccessId=';
-    const begin = url.indexOf(DATABASE_IMAGE_PATH); // .../images%2f or .../images/
+    let begin = url.indexOf(`/${STORAGE_IMAGE_FOLDER}`); // .../images%2f or .../images/
+    if (begin === -1) begin = url.indexOf(`/${STORAGE_VIDEO_FOLDER}`); // .../videos%2f or .../videos/
     const end = url.indexOf(END_MATCHER);
     //console.log(`getFilename(${downloadUrl},${END_MATCHER},${begin},${end})`)
     if (begin > -1 && end > -1) {
       const skip = url[begin + 7] === '%' ? 10 : 8;
       return url.slice(begin + skip, end);
     } else {
-      return url;
+      //return url;
+      throw `getFilename() got invalid url: ${url}`;
     }
   }
   return null;
 }
 
-function deleteImage(url) {
-  const currentFile = getFilename(url); // e.g. 'Sarah.jpg'
-  //console.log('deleteImage', currentFile);
+function getFilepath(url) { // returns 'images/Sarah.jpg' or 'videos/bunny.mp4'
+  if (url) {
+    const downloadUrl = url.indexOf('firebasestorage.googleapis.com');
+    const END_MATCHER = downloadUrl > -1 ? '?alt=' : '?GoogleAccessId=';
+    let begin = url.indexOf(`/${STORAGE_IMAGE_FOLDER}`);
+    let folder = STORAGE_IMAGE_FOLDER;
+    if (begin === -1) {
+      begin = url.indexOf(`/${STORAGE_VIDEO_FOLDER}`);
+      folder = STORAGE_VIDEO_FOLDER;
+    }
+    const end = url.indexOf(END_MATCHER);
 
+    if (begin > -1 && end > -1) {
+      const skip = url[begin + 7] === '%' ? 10 : 8;
+      return `${folder}/${url.slice(begin + skip, end)}`;
+    } else {
+      throw `getFilepath() got invalid url: ${url}`;
+    }
+  }
+  return null;
+}
+
+
+function deleteImage(url) {
   const bucketName = functions.config().firebase.storageBucket;
   const bucket = gcs.bucket(bucketName);
 
-  const filePath = 'images/' + currentFile;
-
+  const filePath = getFilepath(url);
   const file = bucket.file(filePath);
 
   return file.delete().then(data => {
@@ -79,7 +102,7 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
   } catch (e) {
     console.log('previous document null');
   }
-  
+
   if (!current) {
     if (previous && previous.imageURL) { // note with image deleted
       return deleteImage(previous.imageURL);
@@ -92,7 +115,6 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
     if (previous && previous.imageURL) { // note imageURL deleted
       return deleteImage(previous.imageURL);
     } else {
-      //console.log('current imageURL null');
       return 'current imageURL null';
     }
   }
@@ -100,14 +122,24 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
   const currentFile = getFilename(current.imageURL); // e.g. 'Sarah.jpg'
 
   if (currentFile.startsWith(RESIZED_IMAGE_PREFIX)) {
-    //console.log('Already resized');
     return 'Already resized';
   }
 
   const bucketName = functions.config().firebase.storageBucket;
   const bucket = gcs.bucket(bucketName);
 
-  const filePath = 'images/' + currentFile;
+  const filePath = getFilepath(current.imageURL);
+  console.log('getFilepath', filePath);
+
+  if (filePath.startsWith(STORAGE_VIDEO_FOLDER)) {
+    if (previous && previous.imageURL) { // note image changed, to delete previous image
+      return deleteImage(previous.imageURL);
+    } else {
+      return 'video file';
+    }
+  }
+
+  // got image file, resize it when possible, replace in storage and update url in database
   const fileDir = path.dirname(filePath);
   const fileName = path.basename(filePath);
 
@@ -168,7 +200,7 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
   });
 });
 
-exports.makeThumb = functions.database.ref(DATABASE_TRIGGER_PATH).onWrite(event => {
+exports.makeThumb = functions.database.ref(RTDB_TRIGGER_PATH).onWrite(event => {
   const current = event.data.val(); // ''(empty) when no image
   const previous = event.data.previous.val(); // null if non-existent
   const currentFile = getFilename(current);

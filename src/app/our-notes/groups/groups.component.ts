@@ -13,18 +13,18 @@ import { listAnimation, listChild } from '../../app.animation';
 */
 @Component({
   template: `
-  <pre>rtdb has {{noteService.countGroups}} group(s)</pre>
+  <pre>firesotre has {{noteService.countGroupsFs}} group(s)</pre>
   <div class="list" touchStart>
-    <div *ngFor="let group of noteService.groups | async" class="item" (click)="goto(group)" >
+    <div *ngFor="let group of noteService.groupsFs | async" class="item" (click)="goto(group,2)" >
       <a class="item-link">
         {{group.$key}}
       </a>
       <hr>
     </div>
   </div>
-  <pre>firesotre has {{noteService.countGroupsFs}} group(s)</pre>
+  <pre>rtdb has {{noteService.countGroups}} group(s)</pre>
   <div class="list" touchStart>
-    <div *ngFor="let group of noteService.groupsFs | async" class="item" (click)="goto(group,2)" >
+    <div *ngFor="let group of noteService.groups | async" class="item" (click)="goto(group)" >
       <a class="item-link">
         {{group.$key}}
       </a>
@@ -50,7 +50,11 @@ export class GroupsComponent implements OnInit {
   }
 
   goto(group, database: number = 1) {
-    this.router.navigate(['group', group.$key], { queryParams: { db: database } });
+    if (database == 1) { // rtdb
+      this.router.navigate(['group', group.$key], { queryParams: { db: database } });
+    } else { // firestore
+      this.router.navigate(['group', group.$key], { queryParams: { db: database } }); // no pagination by default
+    }
   }
   
 }

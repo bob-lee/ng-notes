@@ -1,7 +1,16 @@
 .my-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+}
+.my-header * {
+  margin-top: .5em;
+}
+
+.my-header .group-name {
+  border-radius: 4px;
+  background: rgba(68, 68, 68, 0.252);
+  padding: 0 0.1em;
 }
 
 button.add {

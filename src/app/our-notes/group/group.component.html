@@ -1,128 +1,15 @@
-<!--  
-<pre>[{{i}}]={{hoverArray[i]}}</pre>
-[@enlarge]="hoverArray[i]"
-toggle()
-addOrEdit($event, i, note)
-<pre>lastChanged({{noteService.lastChanged.$key || 'na'}}, {{noteService.lastChanged.$type || 'na'}})</pre>
-  <pre>toSave ({{noteService.toSave.$key}}, {{noteService.toSave.$type}})</pre>
-  <pre>lastChanged ({{noteService.lastChanged.$key || 'na'}}, {{noteService.lastChanged.$type || 'na'}})</pre>
--->
-
-<div [@listChild]="noteService.countNotes" class="list" touchStart>
-  <div *ngFor="let note of noteService.notes | async; let i = index; trackBy: trackByFn" [@item]="noteService.getState(note)"
-    class="item" [attr.tabindex]="i">
-    {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy'}} {{note.updatedAt | date : 'shortTime' | lowercase}}
-    <span style="position:relative" dropdown>
-      <span dropdownToggle style="cursor:pointer" class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-      <ul *dropdownMenu class="dropdown-menu">
-        <li role="menuitem">
-          <a class="dropdown-item" (click)="remove(note)">remove</a>
-        </li>
-      </ul>
-    </span>
-    <br/>
-    <a (click)="addOrEdit($event, i, note)">
-      <markdown [data]="note.text"></markdown>
-      <span class="item-image" *ngIf="note.thumbURL">
-        <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
-      </span>
-      <span class="image-span" *ngIf="!note.thumbURL && note.imageURL">
-        <img [src]="note.imageURL" alt="" class="image">
-      </span>
-    </a>
-
-    <hr>
-  </div>
+<div *ngIf="((noteService.database==1 && noteService.notes) || (noteService.database==2 && noteService.items$)) | async; let notes"
+  [@listChild]="noteService.countNotes" class="list" touchStart>
+  <my-note [note]="note" (toAddOrEdit)="addOrEdit($event)" (toRemove)="remove($event)" *ngFor="let note of notes; let i = index; trackBy: trackByFn"
+    [@item]="noteService.getState(note)" class="item" [attr.tabindex]="i">
+  </my-note>
 </div>
 
 <note-modal #modal></note-modal>
 
-<button class="fab" (click)="addOrEdit($event)">+</button>
-
-<!-- 
-<div class="overlay">
-  <div class="overlay-content">
-      <a (click)="toggle()">Close</a>
-      <ul class="lea">
-          <li>The.Start.Ada Catlace</li>
-          <li>Schrödingcat</li>
-          <li>Tim Purrners-Lee</li>
-          <li>Webkitty</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Ada Catlace</li>
-          <li>Schrödingcat</li>
-          <li>Tim Purrners-Lee</li>
-          <li>Webkitty</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Ada Catlace</li>
-          <li>Schrödingcat</li>
-          <li>Tim Purrners-Lee</li>
-          <li>Webkitty</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Ada Catlace</li>
-          <li>Schrödingcat</li>
-          <li>Tim Purrners-Lee</li>
-          <li>Webkitty</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Void</li>
-          <li>Neko</li>
-          <li>Schrödingcat</li>
-          <li>Tim Purrners-Lee</li>
-          <li>Webkitty</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Void</li>
-          <li>Neko</li>
-          <li>Alan Purring</li>
-          <li>Schrödingcat</li>
-          <li>Tim Purrners-Lee</li>
-          <li>Webkitty</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Json</li>
-          <li>Void</li>
-          <li>Neko</li>
-          <li>NaN</li>
-          <li>Cat5</li>
-          <li>The.End.Vector</li>
-        </ul>
-        <a (click)="toggle()">Close</a>
-  </div>
+<button class="fab" (click)="addOrEdit({ event: $event })">+</button>
+<button class="fab temp paged" (click)="togglePagination()">{{noteService.pagination ? 'p':'a'}}</button>
+<div *ngIf="noteService.pagination">
+  <button class="fab temp prev" (click)="gotoPage(false)" [ngClass]="{ 'disabled' : noteService.isFirstPage }" [disabled]="noteService.isFirstPage"><</button>
+  <button class="fab temp next" (click)="gotoPage(true)" [ngClass]="{ 'disabled' : noteService.isLastPage }" [disabled]="noteService.isLastPage">></button>
 </div>
-
-  <button class="fab firestore" (click)="add(2)">f</button>
-
-<pre>{{noteService.countNotesFs}}</pre>
-<div [@listChild]="noteService.countNotesFs" class="list" touchStart>
-  <div *ngFor="let note of noteService.notesFs | async; let i = index; trackBy: trackByFn" class="item">
-    {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy'}} {{note.updatedAt | date : 'shortTime' | lowercase}}
-    <span style="position:relative" dropdown>
-      <span dropdownToggle style="cursor:pointer" class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-      <ul *dropdownMenu class="dropdown-menu">
-        <li role="menuitem"><a class="dropdown-item" (click)="noteService.removeNote(note)">remove</a></li>
-      </ul>
-    </span>
-    <br/>
-    <a >
-      <markdown [data]="note.text"></markdown>
-    </a>
-    <span class="item-image" *ngIf="note.thumbURL">
-      <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
-    </span>
-    <hr>
-  </div>
-</div>
-
- -->
