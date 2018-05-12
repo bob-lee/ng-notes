@@ -53,6 +53,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
   user: Observable<firebase.User>;
   userName: string;
+  userPhotoUrl: string;
 
   private storage: firebase.storage.Reference;
   private dbRef: firebase.database.Reference;
@@ -116,11 +117,13 @@ export class NoteService implements CanActivate, OnDestroy {
       if (user) {
         console.log('logged in', user);
         this.userName = user.displayName || 'Anonymous';
+        this.userPhotoUrl = user.providerData[0].photoURL;
 
         this.initAfterLogin();
       } else {
         console.log('logged out');
         this.userName = '';
+        this.userPhotoUrl = '';
         this.router.navigate(['/login']);
       }
     });

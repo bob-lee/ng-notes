@@ -3,10 +3,12 @@
   align-items: flex-start;
   justify-content: space-between;
 }
-.my-header * {
-  margin-top: .5em;
+.my-header .btn-group {
+  margin-top: 1.4em;
 }
-
+.my-header .btn {
+  border-width: 0;
+}
 .my-header .group-name {
   border-radius: 4px;
   background: rgba(68, 68, 68, 0.252);
@@ -31,6 +33,12 @@ button.add {
 }
 .input-group-addon:active {
   background-color: #bbb;
+}
+
+img.userPhoto {
+  width: 23px;
+  border-radius: 3px;
+  margin-top: 0;
 }
 
 /* footer */
