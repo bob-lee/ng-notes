@@ -478,8 +478,8 @@ export class NoteService implements CanActivate, OnDestroy {
 
   async login(loginWith: LoginWith) {
     if (loginWith === LoginWith.Facebook) await this.loginFb();
-    if (loginWith === LoginWith.Google) await this.loginGoogle()
-    await this.loginAnonymous();
+    else if (loginWith === LoginWith.Google) await this.loginGoogle()
+    else await this.loginAnonymous();
   }
 
   async loginAnonymous() {
