@@ -6,11 +6,24 @@ This SPA(single-page app) allows to maintain notes by group. Each note can have 
 
 The project was built and deployed using following technologies:
 * [Angular](https://angular.io/): frontend framework
-* [Angular CLI](https://github.com/angular/angular-cli): CLIfor Angular application
 * [Angular Firebase](https://github.com/angular/angularfire2): Angular library for Firebase
-* [Firebase](https://firebase.google.com/): cloud infrastructure
+* [Firebase](https://firebase.google.com/): cloud 
+* [Workbox](https://workboxjs.org/): JavaScript libraries for Progressive Web Apps
+* [Node.js](https://nodejs.org): JavaScript runtime environment
 
-Visit [the live web app](https://ng-notes-abb75.firebaseapp.com/) and play with it! You would need to log in first as anonymous or using your Facebook, Google account.
+Visit [the web](https://ng-notes-abb75.firebaseapp.com/) and play with it! You would need to log in first as anonymous or using your Facebook, Google account.
 
 For development, clone the repo and run `yarn` to install dependencies, then `ng serve`.
 
+```
+// to install dependencies
+yarn
+// to debug on localhost:4200
+ng serve
+// to run tests
+ng test
+// to build for production
+npm run build:workbox
+// to test on localhost:5000 with production build
+npm run serve
+```
