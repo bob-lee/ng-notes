@@ -10,9 +10,7 @@ The project was built and deployed using following technologies:
 * [Angular Firebase](https://github.com/angular/angularfire2): Angular library for Firebase
 * [Firebase](https://firebase.google.com/): cloud infrastructure
 
-Visit [the live web app](https://ng-notes-abb75.firebaseapp.com/) and play with it! You would need to log in first as anonymous or using your Facebook, gmail account.
+Visit [the live web app](https://ng-notes-abb75.firebaseapp.com/) and play with it! You would need to log in first as anonymous or using your Facebook, Google account.
 
 For development, clone the repo and run `yarn` to install dependencies, then `ng serve`.
 
-### Author
-* [Bob Lee](mailto:bob.bumsuk.lee@gmail.com)
