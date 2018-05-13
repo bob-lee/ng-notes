@@ -10,9 +10,18 @@
   border-width: 0;
 }
 .my-header .group-name {
+  position: relative;
+  /*
   border-radius: 4px;
   background: rgba(68, 68, 68, 0.252);
   padding: 0 0.1em;
+  */
+}
+.my-header .group-name::before {
+  content: 'Group:';
+  font-size: 0.4em;
+  position: absolute;
+  top: -1.0em;
 }
 
 button.add {
