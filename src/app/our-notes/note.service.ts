@@ -1,10 +1,28 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 
-import { FirebaseApp } from 'angularfire2';
+import * as firebase from 'firebase';
+//import * as firebase from 'firebase/app';
+//import { firebase } from '@firebase/app';
+
+//import { FirebaseApp } from '@firebase/app-types';
+//import { FirebaseApp } from 'firebase/app';
+/*
+import { FirebaseAuth, User } from '@firebase/auth-types';
+import { FirebaseDatabase, Reference as DbRef } from '@firebase/database-types';
+import { FirebaseMessaging } from '@firebase/messaging-types';
+import { FirebaseStorage, Reference as StRef } from '@firebase/storage-types';
+import { FirebaseFirestore, DocumentSnapshot, Query } from '@firebase/firestore-types';
+*/
+import { User } from 'firebase';
+//import { Reference as DbRef } from 'firebase/database';
+//import { Reference as StRef } from 'firebase/storage';
+//import { DocumentSnapshot, } from 'firebase/firestore';
+
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
+import { AngularFireStorage } from 'angularfire2/storage';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -15,7 +33,6 @@ import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/combineLatest';
 
-import * as firebase from 'firebase/app';
 
 import { Note, Todo, LoginWith } from './Note';
 import { WindowRef } from '../service/window-ref.service';
@@ -51,13 +68,13 @@ export class NoteService implements CanActivate, OnDestroy {
   // }
   // private pagination$ = new Subject<boolean | null>();//new BehaviorSubject<boolean>(false);
 
-  user: Observable<firebase.User>;
+  user: Observable</*firebase.*/User>;
   userName: string;
   userPhotoUrl: string;
 
-  private storage: firebase.storage.Reference;
-  private dbRef: firebase.database.Reference;
-  private fsRef: firebase.firestore.Firestore;
+  //private storage: StRef;//firebase.storage.Reference;
+  private dbRef: firebase.database.Reference;//DbRef;
+  //private fsRef: firebase.firestore.Firestore;
 
   groups: Observable<any[]>;
   groupsFs: Observable<any[]>;
@@ -104,10 +121,11 @@ export class NoteService implements CanActivate, OnDestroy {
 
   get loggedin() { return !!this.userName; }
 
-  constructor(app: FirebaseApp,
+  constructor(//app: FirebaseApp,
     private afAuth: AngularFireAuth,
     private afs: AngularFirestore,
     private db: AngularFireDatabase,
+    private storage: AngularFireStorage,
     private router: Router,
     private windowRef: WindowRef) {
     console.warn(`'note.service'`); // watch when / how often the service is instantiated
@@ -128,9 +146,9 @@ export class NoteService implements CanActivate, OnDestroy {
       }
     });
 
-    this.storage = app.storage().ref();
+    //this.storage = app.storage().ref();
     this.dbRef = this.db.database.ref();
-    this.fsRef = firebase.firestore();
+    //this.fsRef = firebase.firestore();
 
     // observables for firestore
 
@@ -521,7 +539,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
     if (this.todo !== Todo.Remove) {
       if (this.database == 1) {
-        note.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+        note.updatedAt = firebase['database'].ServerValue.TIMESTAMP;
       } else {
         //note.updatedAt = firebase.firestore.FieldValue.serverTimestamp(); // updatedAt == createdAt
       }
@@ -555,7 +573,7 @@ export class NoteService implements CanActivate, OnDestroy {
       return this.removeNote(note);
     }
   }
-
+/*
   thumbURL: string;
   private testThumb(filename: string) {
     setTimeout(_ => {
@@ -566,7 +584,7 @@ export class NoteService implements CanActivate, OnDestroy {
         });
     }, 10000);
   }
-
+*/
   /* 5 edit cases for image:
 
       previous      current				action          description
@@ -655,7 +673,7 @@ export class NoteService implements CanActivate, OnDestroy {
         throw `invalid file type '${file.type}'`;
       }
 
-      const snapshot = await this.storage.child(`${destination}/${file.name}`).put(file);
+      const snapshot = await this.storage.ref(`${destination}/${file.name}`).put(file);
       console.log('uploaded file:', snapshot.downloadURL);
       note.imageURL = snapshot.downloadURL;
       return true;
@@ -709,7 +727,7 @@ export class NoteService implements CanActivate, OnDestroy {
         group: this.groupName,
         name: '',
         text: '',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase['firestore'].FieldValue.serverTimestamp(),
         imageURL: ''
       };
       this.todo = Todo.Add;

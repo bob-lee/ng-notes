@@ -111,7 +111,7 @@ export class GroupComponent implements OnInit, OnDestroy {
       /* Comparison:
        *  For rtdb, group and note-form are separate sibling routes whereas
        *  for firestore, group is a parent and shows / hides note-modal as needed.
-       *  So for firebase, this ngOnInit hits only once when user enterint the group.
+       *  So for firebase, this ngOnInit hits only once when user enter into the group.
       */
       const notes$ = this.noteService.search(group, db, page);
 

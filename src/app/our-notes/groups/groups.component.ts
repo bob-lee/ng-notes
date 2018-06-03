@@ -9,11 +9,10 @@ import { listAnimation, listChild } from '../../app.animation';
 [routerLink]="['/group', group.$key]"
 [@listChild]="noteService.countGroups"
   <pre>rtdb has {{noteService.countGroups}} group(s)</pre>
-  <pre>firesotre has {{noteService.countGroupsFs}} group(s)</pre>
 */
 @Component({
   template: `
-  <pre>firesotre has {{noteService.countGroupsFs}} group(s)</pre>
+  <pre>firestore has {{noteService.countGroupsFs}} group(s)</pre>
   <div class="list" touchStart>
     <div *ngFor="let group of noteService.groupsFs | async" class="item" (click)="goto(group,2)" >
       <a class="item-link">

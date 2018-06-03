@@ -4,8 +4,8 @@
   "dependencies": {
     "@google-cloud/storage": "^1.4.0",
     "child-process-promise": "^2.2.1",
-    "firebase-admin": "~5.4.0",
-    "firebase-functions": "^0.7.1",
+    "firebase-admin": "^5.12.1",
+    "firebase-functions": "^1.0.3",
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1"
   },
