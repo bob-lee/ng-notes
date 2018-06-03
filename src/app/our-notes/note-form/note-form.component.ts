@@ -23,7 +23,7 @@ export class NoteFormComponent implements OnInit {
   _fileChanged: boolean; // selected or removed
   imageFailedToLoad: boolean = false; // to indicate the case where the given image url failed to load
   db: number; // 1: rtdb, 2: firestore
-  /* 
+  /*
   note that it does not subscribe to value changes of this form.
   on button click, form value is checked and then manually taken to model.
   */
@@ -74,7 +74,7 @@ export class NoteFormComponent implements OnInit {
         this.note = response;
         if (this.note.imageURL) {
           console.log('imageURL', this.note.imageURL);
-          const img = <HTMLImageElement>document.querySelector("#myimg");
+          const img = <HTMLImageElement>document.querySelector('#myimg');
           img.addEventListener('load', () => console.log('load event'));
           img.addEventListener('error', () => {
             console.log('error event');
@@ -113,7 +113,7 @@ export class NoteFormComponent implements OnInit {
   }
 
   private goBack() {
-    const params = this._todo === null && this.noteIndex === -1 ? null : 
+    const params = this._todo === null && this.noteIndex === -1 ? null :
       { i: this.noteIndex, to: this._todo };
 
     this.router.navigate(['group', this.noteService.groupName],
@@ -167,7 +167,7 @@ export class NoteFormComponent implements OnInit {
   }
 
   private saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
-    let inputEl: HTMLInputElement = this.inputEl.nativeElement;
+    const inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
     this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage)
       .then(() => {
@@ -183,7 +183,10 @@ export class NoteFormComponent implements OnInit {
   }
 
   get toHideImg(): boolean {
-    const hideIt = this.imgToRemove || this.imageFailedToLoad || !this.note || !this.note.imageURL || (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
+    const hideIt = this.imgToRemove ||
+      this.imageFailedToLoad ||
+      !this.note || !this.note.imageURL ||
+      (this.inputEl.nativeElement.files.length > 0 && this.note.imageURL);
     return hideIt as boolean;
   }
 }

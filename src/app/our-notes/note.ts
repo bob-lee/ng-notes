@@ -21,8 +21,8 @@
 		"groupKey1": true,
 		"groupKey2": true
 	},
-	
-	"notes": {
+
+  "notes": {
 		"noteKey1": {
 			"group": "groupKey1",
 			"name: "Bob",
@@ -32,7 +32,7 @@
 		},
 		"noteKey2": {...},
 		"noteKey3": {...}
-	}	
+	}
 }
 
 */
@@ -46,14 +46,14 @@ export interface Note {
 }
 
 export enum Todo {
-  List = 0, 
+  List = 0,
   Add,
   Edit,
   Remove
 }
 
 export enum LoginWith {
-  Facebook = 0, 
+  Facebook = 0,
   Google,
   Anonymous
 }

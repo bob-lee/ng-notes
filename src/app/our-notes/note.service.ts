@@ -1,38 +1,24 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 
-import * as firebase from 'firebase';
-//import * as firebase from 'firebase/app';
-//import { firebase } from '@firebase/app';
-
-//import { FirebaseApp } from '@firebase/app-types';
-//import { FirebaseApp } from 'firebase/app';
+import * as firebase from 'firebase/app';
 /*
+import { firebase } from '@firebase/app';
+import { FirebaseApp } from '@firebase/app-types';
 import { FirebaseAuth, User } from '@firebase/auth-types';
 import { FirebaseDatabase, Reference as DbRef } from '@firebase/database-types';
 import { FirebaseMessaging } from '@firebase/messaging-types';
 import { FirebaseStorage, Reference as StRef } from '@firebase/storage-types';
 import { FirebaseFirestore, DocumentSnapshot, Query } from '@firebase/firestore-types';
 */
-import { User } from 'firebase';
-//import { Reference as DbRef } from 'firebase/database';
-//import { Reference as StRef } from 'firebase/storage';
-//import { DocumentSnapshot, } from 'firebase/firestore';
 
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { AngularFireDatabase, AngularFireList, AngularFireObject } from 'angularfire2/database';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFireStorage } from 'angularfire2/storage';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/first';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/observable/combineLatest';
 
+import { combineLatest as observableCombineLatest, Observable, Subject, BehaviorSubject, Subscription } from 'rxjs';
+import { first, filter, map, switchMap } from 'rxjs/operators';
 
 import { Note, Todo, LoginWith } from './Note';
 import { WindowRef } from '../service/window-ref.service';
@@ -42,7 +28,7 @@ export interface FirestoreFunctions {
   removeNote: (note: Note) => any;
   editNote: (note: Note) => any;
 }
-export const PAGE_SIZE: number = 3;
+export const PAGE_SIZE = 3;
 export type documentSnapshot = firebase.firestore.DocumentSnapshot;
 
 export const STORAGE_IMAGE_FOLDER = 'images';
@@ -50,7 +36,7 @@ export const STORAGE_VIDEO_FOLDER = 'videos';
 
 @Injectable()
 export class NoteService implements CanActivate, OnDestroy {
-  database: number = 1; // 1: rtds, 2: firestore
+  database = 1; // 1: rtds, 2: firestore
 
   items$: Observable<any[]>;
   group$: BehaviorSubject<string | null>;
@@ -68,20 +54,18 @@ export class NoteService implements CanActivate, OnDestroy {
   // }
   // private pagination$ = new Subject<boolean | null>();//new BehaviorSubject<boolean>(false);
 
-  user: Observable</*firebase.*/User>;
+  user: Observable<firebase.User>;
   userName: string;
   userPhotoUrl: string;
 
-  //private storage: StRef;//firebase.storage.Reference;
-  private dbRef: firebase.database.Reference;//DbRef;
-  //private fsRef: firebase.firestore.Firestore;
+  private dbRef: firebase.database.Reference;
 
   groups: Observable<any[]>;
   groupsFs: Observable<any[]>;
   groupsTotal: Observable<any[]>;
-  countGroups: number = 0;
-  countGroupsFs: number = 0;
-  countGroupsTotal: number = 0;
+  countGroups = 0;
+  countGroupsFs = 0;
+  countGroupsTotal = 0;
 
   notes: Observable<any[]>;
 
@@ -113,7 +97,7 @@ export class NoteService implements CanActivate, OnDestroy {
     this.groupName$.next(name);
   }
 
-  countNotes: number = 0;
+  countNotes = 0;
 
   todo: Todo = Todo.List;
 
@@ -121,7 +105,22 @@ export class NoteService implements CanActivate, OnDestroy {
 
   get loggedin() { return !!this.userName; }
 
-  constructor(//app: FirebaseApp,
+  private groupDoc: AngularFirestoreDocument<any>;
+  fsSubscription: Subscription = null;
+
+  // pagination -->
+  private page = 1;
+  private first$: Observable<documentSnapshot>;
+  private last$: Observable<documentSnapshot>;
+  private first: documentSnapshot;
+  private last: documentSnapshot;
+  private firstInPage: documentSnapshot;
+  private lastInPage: documentSnapshot;
+  get isFirstPage(): boolean { return this.first && this.firstInPage && this.first.id === this.firstInPage.id ? true : false; }
+  get isLastPage(): boolean { return this.last && this.lastInPage && this.last.id === this.lastInPage.id ? true : false; }
+  // <-- pagination
+
+  constructor(
     private afAuth: AngularFireAuth,
     private afs: AngularFirestore,
     private db: AngularFireDatabase,
@@ -146,9 +145,7 @@ export class NoteService implements CanActivate, OnDestroy {
       }
     });
 
-    //this.storage = app.storage().ref();
     this.dbRef = this.db.database.ref();
-    //this.fsRef = firebase.firestore();
 
     // observables for firestore
 
@@ -156,11 +153,11 @@ export class NoteService implements CanActivate, OnDestroy {
     this.page$ = new BehaviorSubject(null);
     this.next$ = new BehaviorSubject(null);
 
-    this.items$ = Observable.combineLatest(
+    this.items$ = observableCombineLatest(
       this.group$,
       this.page$,
       this.next$
-    ).switchMap(([group, page, next]) => { // called on any changes on [group, page, next]
+    ).pipe(switchMap(([group, page, next]) => { // called on any changes on [group, page, next]
 
       if (this.subStateChange) this.subStateChange.unsubscribe(); // should do earlier?
 
@@ -171,7 +168,7 @@ export class NoteService implements CanActivate, OnDestroy {
             query = query.orderBy('updatedAt', 'desc').limit(PAGE_SIZE);
           } else if (next) { // next page
             query = query.orderBy('updatedAt', 'desc').startAfter(this.lastInPage).limit(PAGE_SIZE);
-          } else { // previous page 
+          } else { // previous page
             query = query.orderBy('updatedAt').startAfter(this.firstInPage).limit(PAGE_SIZE);
           }
         } else { // query all
@@ -181,10 +178,12 @@ export class NoteService implements CanActivate, OnDestroy {
       });
 
       // filter out 'modified' state change due to firestore timestamp being set for newly-added note
-      this.stateChanges = this.collection.stateChanges()
-        .map(actions => actions.filter(action =>
-          (action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added') ? false : true
-        ));
+      this.stateChanges = this.collection.stateChanges().pipe(
+        map(actions => actions.filter(action =>
+          (action.type === 'modified' &&
+          action.payload.doc.id === this.lastChanged.$key &&
+          this.lastChanged.$type === 'added') ? false : true
+        )));
 
       //if (this.subStateChange) this.subStateChange.unsubscribe(); // should do earlier?
 
@@ -199,9 +198,9 @@ export class NoteService implements CanActivate, OnDestroy {
         setTimeout(_ => this.lastChanged.$type = '', 2000);
       }));
 
-      return this.collection.snapshotChanges()
+      return this.collection.snapshotChanges().pipe(
         //.filter(actions => actions.length > 0)
-        .map(actions => { // why hits twice on page change?
+        map(actions => { // why hits twice on page change?
           this.countNotes = actions.length;
           console.log('snapshotChanges', this.countNotes);
           if (this.countNotes === 0) {
@@ -223,34 +222,34 @@ export class NoteService implements CanActivate, OnDestroy {
               ...action.payload.doc.data()
             };
           })
-        });
-    });
+        }));
+    }));
 
-    this.first$ = this.group$.switchMap(group =>
+    this.first$ = this.group$.pipe(switchMap(group =>
       this.getGroupDoc(group).collection('notes', ref =>
         ref.orderBy('updatedAt', 'desc').limit(1))
-        .snapshotChanges()
-        .filter(actions => actions.length > 0)
-        .map(actions => {
+        .snapshotChanges().pipe(
+        filter(actions => actions.length > 0),
+        map(actions => {
           console.log('first$', actions.length);
           return actions[0].payload.doc
-        })
-    );
-    this.last$ = this.group$.switchMap(group =>
+        }),)
+    ));
+    this.last$ = this.group$.pipe(switchMap(group =>
       this.getGroupDoc(group).collection('notes', ref =>
         ref.orderBy('updatedAt', 'asc').limit(1))
-        .snapshotChanges()
-        .filter(actions => actions.length > 0)
-        .map(actions => {
+        .snapshotChanges().pipe(
+        filter(actions => actions.length > 0),
+        map(actions => {
           console.log('last$', actions.length);
           return actions[0].payload.doc
-        })
-    );
+        }),)
+    ));
 
   }
 
   canActivate(): Observable<boolean> {
-    return this.user.map(auth => !!auth);
+    return this.user.pipe(map(auth => !!auth));
   }
 
   ngOnDestroy() {
@@ -277,14 +276,13 @@ export class NoteService implements CanActivate, OnDestroy {
     this.pagination = null;
   }
 
-  private groupDoc: AngularFirestoreDocument<any>;
 
   private getGroupDoc(group: string): AngularFirestoreDocument<any> {
     if (this.groupDoc) {
       return this.groupDoc;
     }
     const groupDoc = this.afs.collection(`notes`).doc(group);
-    groupDoc.valueChanges().first().subscribe(doc => {
+    groupDoc.valueChanges().pipe(first()).subscribe(doc => {
       console.log('doc', doc);
       if (!doc) {
         groupDoc.set({ exist: true }); // create a document for a new group
@@ -296,8 +294,6 @@ export class NoteService implements CanActivate, OnDestroy {
     return groupDoc;
   }
 
-  fsSubscription: Subscription = null;
-
   getGroupNotes(group: string, database: any = 1, page?: any): Observable<any[]> { // to be called once entering the group
     this.groupName = group;
     this.database = database;
@@ -305,18 +301,15 @@ export class NoteService implements CanActivate, OnDestroy {
     if (database == 1 || !pagination) this.page = 1;
 
     console.log(`getGroupNotes(${group}, ${database == 1 ? 'rtdb' : 'firestore'}, ${page})`);
-    //if (!this.groupName) this.groupName = group;
-    //if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
 
     if (this.database == 1) { // rtdb
       this.listRef = this.db.list<Note>(`notes`, ref =>
         ref.orderByChild('group').equalTo(group));
-      return this.notes = this.listRef.snapshotChanges()
-        .map(actions => {
-          //console.log('action', action.length);
+      return this.notes = this.listRef.snapshotChanges().pipe(
+        map(actions => {
           this.countNotes = actions.length;
           return actions.map(action => ({ $key: action.key, ...action.payload.val() }));
-        });
+        }));
     } else { // firestore
       this.next$.next(null);
       this.page$.next(pagination);
@@ -386,16 +379,6 @@ export class NoteService implements CanActivate, OnDestroy {
   //   }
   // }
 
-  private page: number = 1;
-  private first$: Observable<documentSnapshot>;
-  private last$: Observable<documentSnapshot>;
-  private first: documentSnapshot;
-  private last: documentSnapshot;
-  private firstInPage: documentSnapshot;
-  private lastInPage: documentSnapshot;
-  get isFirstPage(): boolean { return this.first && this.firstInPage && this.first.id === this.firstInPage.id ? true : false; }
-  get isLastPage(): boolean { return this.last && this.lastInPage && this.last.id === this.lastInPage.id ? true : false; }
-
   // private getGroupNotesFirestore(pagination: boolean, next?: boolean): Observable<any[]> {
 
   //   this.collection = this.getGroupDoc(this.groupName).collection(`notes`, this.getQueryFn(pagination, next));
@@ -462,7 +445,7 @@ export class NoteService implements CanActivate, OnDestroy {
     console.log(`getNotePromise(${id}, ${group})`);
     return new Promise((resolve, reject) => {
       this.objRef = this.db.object<Note>(`notes/${id}`);
-      this.objRef.valueChanges().first().subscribe(item => {
+      this.objRef.valueChanges().pipe(first()).subscribe(item => {
         console.log('found', item);
         resolve(item);
       });
@@ -480,21 +463,21 @@ export class NoteService implements CanActivate, OnDestroy {
   }
 
   initAfterLogin() {
-    this.groups = this.db.list('groups').snapshotChanges()
-      .map(actions => {
+    this.groups = this.db.list('groups').snapshotChanges().pipe(
+      map(actions => {
         this.countGroups = actions.length;
         this.countGroupsTotal = this.countGroups + this.countGroupsFs;
         console.log('countGroups', this.countGroups);
         return actions.map(action => ({ $key: action.key }));
-      });
+      }));
 
-    this.groupsFs = this.afs.collection('notes').snapshotChanges()
-      .map(actions => {
+    this.groupsFs = this.afs.collection('notes').snapshotChanges().pipe(
+      map(actions => {
         this.countGroupsFs = actions.length;
         this.countGroupsTotal = this.countGroups + this.countGroupsFs;
         console.log('countGroupsFs', this.countGroupsFs);
         return actions.map(action => ({ $key: action.payload.doc.id }));
-      });
+      }));
   }
 
   async login(loginWith: LoginWith) {
@@ -653,7 +636,8 @@ export class NoteService implements CanActivate, OnDestroy {
     return this.update(note);
   }
 
-  private async deleteImage(downloadURL: string): Promise<boolean> { // for signed URL, refFromURL will fail and return false. Works for downloadURL.
+  private async deleteImage(downloadURL: string): Promise<boolean> {
+    // for signed URL, refFromURL will fail and return false. Works for downloadURL.
     try {
       const ref = this.storage.storage.refFromURL(downloadURL);
       await ref.delete();
@@ -670,7 +654,7 @@ export class NoteService implements CanActivate, OnDestroy {
       const destination = file.type.startsWith('image/') ? STORAGE_IMAGE_FOLDER :
         file.type.startsWith('video/') ? STORAGE_VIDEO_FOLDER : '';
       if (!destination) {
-        throw `invalid file type '${file.type}'`;
+        throw new Error(`invalid file type '${file.type}'`);
       }
 
       const snapshot = await this.storage.ref(`${destination}/${file.name}`).put(file);
@@ -687,8 +671,8 @@ export class NoteService implements CanActivate, OnDestroy {
     console.log('saveNew', this.database/*, note*/);
 
     if (this.database == 1) { // rtdb
-      var newNoteKey = this.dbRef.child('notes').push().key;
-      var updates = {};
+      const newNoteKey = this.dbRef.child('notes').push().key;
+      const updates = {};
       updates[`groups/${note.group}`] = true;
       updates[`notes/${newNoteKey}`] = note;
 

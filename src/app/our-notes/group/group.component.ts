@@ -1,20 +1,17 @@
+
+import {first} from 'rxjs/operators';
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { animate, animation, animateChild, group, keyframes, query, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
-import { Subscription } from 'rxjs/Subscription';
-import 'rxjs/add/operator/first';
+import { animate, animation, animateChild, group, keyframes,
+  query, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
+import { Subscription } from 'rxjs';
+
 
 import { Note, Todo } from '../Note';
 import { NoteService } from '../note.service';
 import { ModalService } from '../modal.service';
 import { listChild } from '../../app.animation';
-/* 
-; trackBy: trackFbObjects
-[@enlarge]="hoverArray[i]"
-[@listChild]="noteService.countNotes"
-[routerLink]="['/group', noteService.groupName, 'edit', note.$key]"
 
-*/
 @Component({
   templateUrl: './group.component.html',
   styleUrls: ['./group.component.css'],
@@ -46,7 +43,7 @@ export class GroupComponent implements OnInit, OnDestroy {
   count = 0;
   i;
   subscription: Subscription;
-  private init: boolean = false;
+  private init = false;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -64,7 +61,9 @@ export class GroupComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnInit() { // for rtdb, hits here whenever coming back from note-form. for firebase, hits here only once as this component uses note-modal
+  ngOnInit() { 
+    // for rtdb, hits here whenever coming back from note-form. 
+    // for firebase, hits here only once as this component uses note-modal
     this.modalService.setModal(this.modal);
 
     this.noteService.todo = Todo.List;
@@ -116,7 +115,7 @@ export class GroupComponent implements OnInit, OnDestroy {
       const notes$ = this.noteService.search(group, db, page);
 
       if (db == 1) { // rtdb
-        notes$.first().subscribe(
+        notes$.pipe(first()).subscribe(
           notes => {
             console.log(`GroupComponent got ${notes.length} note(s) ${this.count}`);
             this.init = true;

@@ -9,7 +9,7 @@ export class NoteComponent {
   @Input() note: any;
   @Output() toAddOrEdit: EventEmitter<any> = new EventEmitter();
   @Output() toRemove: EventEmitter<any> = new EventEmitter();
-  
+
   constructor() { }
 
   addOrEdit(event, index: number, note: any) {

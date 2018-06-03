@@ -40,7 +40,7 @@ import { NoteComponent } from './group/note/note.component';
     AfterIfDirective,
     NoteComponent,
   ],
-  providers: [ 
+  providers: [
     NoteService,
     ModalService,
   ]

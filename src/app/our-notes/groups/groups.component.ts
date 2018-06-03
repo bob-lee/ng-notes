@@ -55,5 +55,5 @@ export class GroupsComponent implements OnInit {
       this.router.navigate(['group', group.$key], { queryParams: { db: database } }); // no pagination by default
     }
   }
-  
+
 }

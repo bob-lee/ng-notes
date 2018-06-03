@@ -54,45 +54,45 @@ export const expandAnimation = animation([
 
 export const routerTransition = trigger('routerTransition', [
   transition('login => home, groups => group', [
-    query(':enter, :leave', style({ position: 'fixed', width:'100%',height:'100%' }), {optional:true}),
-    query(':enter', style({ transform: 'translateX(100%)' }), {optional:true}),
-    
+    query(':enter, :leave', style({ position: 'fixed', width: '100%', height: '100%' }), {optional: true}),
+    query(':enter', style({ transform: 'translateX(100%)' }), {optional: true}),
+
     group([
       query(':leave', [
         style({ transform: 'translateX(0%)' }),
         animate('1.0s ease-in-out', style({transform: 'translateX(-100%)'}))
-      ], {optional:true}),
+      ], {optional: true}),
       query(':enter', [
         animate('1.0s ease-in-out', style({transform: 'translateX(0%)'})),
         animateChild()
-      ], {optional:true}),
+      ], {optional: true}),
     ]),
   ]),
   transition('group => note', [
-    query(':enter', style({ position: 'fixed', width:'100%',height:'100%' }), {optional:true}),
-    query(':enter', style({ transform: 'translateX(100%)' }), {optional:true}),
-    
+    query(':enter', style({ position: 'fixed', width: '100%', height: '100%' }), {optional: true}),
+    query(':enter', style({ transform: 'translateX(100%)' }), {optional: true}),
+
     group([
       query(':enter', [
         animate('1.0s ease-in-out', style({transform: 'translateX(0%)'})),
         animateChild()
-      ], {optional:true}),
+      ], {optional: true}),
     ]),
   ]),
   transition('group => groups, home => login', [
-    query(':enter, :leave', style({ position: 'fixed', width:'100%',height:'100%' }), {optional:true}),
-    query(':enter', style({ transform: 'translateX(-100%)' }), {optional:true}),
-    
+    query(':enter, :leave', style({ position: 'fixed', width: '100%', height: '100%' }), {optional: true}),
+    query(':enter', style({ transform: 'translateX(-100%)' }), {optional: true}),
+
     group([
       query(':leave', [
         style({ transform: 'translateX(0%)' }),
         animate('1.0s ease-in-out', style({transform: 'translateX(100%)'}))
-      ], {optional:true}),
+      ], {optional: true}),
       query(':enter', [
         animate('1.0s ease-in-out', style({transform: 'translateX(0%)'})),
         animateChild()
-      ], {optional:true}),
+      ], {optional: true}),
     ]),
   ]),
-  
+
 ]);

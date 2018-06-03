@@ -52,16 +52,16 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   title: string;
   @ViewChild('fileInput')
   inputEl: ElementRef;
-  busy: boolean = false;
-  takeLong: boolean = false;
+  busy = false;
+  takeLong = false;
 
   note: any; // reference to noteService.theNote set in init()
   noteForm: FormGroup;
-  submitted: boolean = false;
-  imgToRemove: boolean = false;
-  _fileChanged: boolean = false; // selected or removed
-  imageFailedToLoad: boolean = false; // to indicate the case where the given image url failed to load
-  /* 
+  submitted = false;
+  imgToRemove = false;
+  _fileChanged = false; // selected or removed
+  imageFailedToLoad = false; // to indicate the case where the given image url failed to load
+  /*
   note that it does not subscribe to value changes of this form.
   on button click, form value is checked and then manually taken to model.
   */
@@ -75,6 +75,10 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       oy: null
     }
   };
+
+  popup;
+  body;
+  html;
 
   constructor(private formBuilder: FormBuilder,
     private noteService: NoteService,
@@ -155,7 +159,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
   private async saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
     this.busy = true;
     setTimeout(_ => { if (this.busy) this.takeLong = true; }, 1000);
-    let inputEl: HTMLInputElement = this.inputEl.nativeElement;
+    const inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
     try {
       const data = await this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage);
@@ -165,10 +169,6 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     }
     this.busy = false;
   }
-
-  popup;
-  body;
-  html;
 
   loadImage() {
     if (!this.note || !this.note.imageURL) return;

@@ -1,15 +1,16 @@
 import { Component, OnInit, OnDestroy, ElementRef, HostBinding, Input, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { trigger, animate, animation, style, group, animateChild, query, stagger, transition, keyframes, useAnimation } from '@angular/animations';
-import { Subscription } from 'rxjs/Subscription';
+import { animate, animateChild, animation, group, keyframes, query,
+  stagger, style, trigger, transition, useAnimation } from '@angular/animations';
+import { Subscription } from 'rxjs';
 
 import { Note, Todo } from './Note';
 import { NoteService } from './note.service';
 import { WindowRef } from '../service/window-ref.service';
 import { routerTransition, expandAnimation, itemAnimation, listAnimation } from '../app.animation';
 
-/* 
+/*
 
 0! note can have optional one image file
 0. try service worker to process image (e.g. downgrading if too big)
@@ -52,29 +53,16 @@ import { routerTransition, expandAnimation, itemAnimation, listAnimation } from 
       ])
     ]),
 
-    /*trigger('pageAnimation', [
-      // for staggering animation at initial load
-      transition(':enter', [ 
-        useAnimation(itemAnimation)
-      ]),
-      
-      // for a single item animation after load
-      transition('* => *', [ // each time the binding value changes
-        //query(':enter', [useAnimation(itemAnimation)], { optional: true })
-        useAnimation(listAnimation)
-      ])
-    ])*/
   ]
-
 })
 export class OurNotesComponent implements OnInit, OnDestroy {
   myForm: FormGroup;
-  inside: boolean = false;
+  inside = false;
   todoEnum = Todo;
   subscription: Subscription;
 
-  // @HostBinding('@pageAnimation') 
-  // get count (): number { return this.noteService.countNotes; } 
+  // @HostBinding('@pageAnimation')
+  // get count (): number { return this.noteService.countNotes; }
 
   get title(): string { return this.inside ? this.noteService.groupName : 'Groups'; }
 
