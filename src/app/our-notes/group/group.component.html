@@ -8,7 +8,9 @@
 <note-modal #modal></note-modal>
 
 <button class="fab" (click)="addOrEdit({ event: $event })">+</button>
-<button class="fab temp paged" (click)="togglePagination()">{{noteService.pagination ? 'p':'a'}}</button>
+<button class="fab temp paged" (click)="togglePagination()" *ngIf="noteService.pagination">
+  {{noteService.pagination ? 'p':'a'}}
+</button>
 <div *ngIf="noteService.pagination">
   <button class="fab temp prev" (click)="gotoPage(false)" [ngClass]="{ 'disabled' : noteService.isFirstPage }" [disabled]="noteService.isFirstPage"><</button>
   <button class="fab temp next" (click)="gotoPage(true)" [ngClass]="{ 'disabled' : noteService.isLastPage }" [disabled]="noteService.isLastPage">></button>

@@ -44,15 +44,6 @@ export class NoteService implements CanActivate, OnDestroy {
   next$: BehaviorSubject<boolean | null>;
 
   pagination: boolean | null = null;
-  // get pagination(): boolean | null { return this._pagination; }
-  // set pagination(v: boolean | null) {
-  //   const changed = this.pagination !== v;
-  //   this._pagination = v;
-  //   if (changed) {
-  //     this.pagination$.next(v);
-  //   }
-  // }
-  // private pagination$ = new Subject<boolean | null>();//new BehaviorSubject<boolean>(false);
 
   user: Observable<firebase.User>;
   userName: string;
@@ -147,6 +138,8 @@ export class NoteService implements CanActivate, OnDestroy {
 
     this.dbRef = this.db.database.ref();
 
+    afs.firestore.settings({ timestampsInSnapshots: true });
+
     // observables for firestore
 
     this.group$ = new BehaviorSubject(null);
@@ -216,10 +209,14 @@ export class NoteService implements CanActivate, OnDestroy {
           console.log('lastInPage', this.lastInPage.id);
 
           return array.map(action => {
+            //console.log(action.payload.doc.data());
+            const { updatedAt, ...rest } = action.payload.doc.data();
             return {
               $key: action.payload.doc.id,
               $type: action.type,
-              ...action.payload.doc.data()
+              //...action.payload.doc.data()
+              updatedAt: updatedAt && updatedAt.toDate(),
+              ...rest
             };
           })
         }));
@@ -347,85 +344,13 @@ export class NoteService implements CanActivate, OnDestroy {
   }
 
   gotoPage(page: number) {
-    //this.pagination = true;
     console.log(`gotoPage(${this.page}=>${page})`);
     if (page === this.page) return;
     const next = page > this.page;
     this.page += next ? 1 : -1;
-    //this.getGroupNotesFirestore(true, next);
 
     this.next$.next(next);
-    //this.page$.next(true);// not needed.. already doing pagiantion?
   }
-
-  // private getQueryFn(pagination: boolean, next?: boolean) {
-  //   console.log(`getQueryFn(${pagination},${next === undefined ? 'na' : next ? '>' : '<'})`)
-  //   if (next === undefined) {
-  //     return (ref: firebase.firestore.CollectionReference) => {
-  //       let query = ref.orderBy('updatedAt', 'desc');
-  //       if (pagination) {
-  //         query = query.limit(PAGE_SIZE);
-  //       }
-  //       return query;
-  //     };
-  //   } else if (next) {
-  //     return (ref: firebase.firestore.CollectionReference) => {
-  //       return ref.orderBy('updatedAt', 'desc').startAfter(this.lastInPage).limit(PAGE_SIZE);
-  //     };
-  //   } else {
-  //     return (ref: firebase.firestore.CollectionReference) => {
-  //       return ref.orderBy('updatedAt').startAfter(this.firstInPage).limit(PAGE_SIZE);
-  //     };
-  //   }
-  // }
-
-  // private getGroupNotesFirestore(pagination: boolean, next?: boolean): Observable<any[]> {
-
-  //   this.collection = this.getGroupDoc(this.groupName).collection(`notes`, this.getQueryFn(pagination, next));
-
-  //   /*
-  //   // firestore stateChanges: emits changes only not a whole array
-  //   const filterFn = action => !(action.type === 'modified' && action.payload.doc.id === this.lastChanged.$key && this.lastChanged.$type === 'added');
-
-  //   this.stateChanges = this.collection.stateChanges()
-  //     .map(actions => actions.filter(action => filterFn(action)));
-
-
-  //   if (this.subscription && !this.subscription.closed) {
-  //     this.subscription.unsubscribe();
-  //   }
-
-  //   this.subscription = this.stateChanges.subscribe(actions => actions.map(action => {
-  //     //console.log('stateChange', action.payload);
-  //     this.lastChanged = {
-  //       $key: action.payload.doc.id,
-  //       $type: action.type
-  //     };
-
-  //     this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
-  //     setTimeout(_ => this.lastChanged.$type = '', 2000);
-  //   }));
-  //   */
-
-  //   // notes
-  //   return this.notes = this.collection.snapshotChanges()
-  //     .filter(actions => actions.length > 0)
-  //     .map(actions => {
-  //       this.countNotes = actions.length;
-  //       // this.firstInPage = actions[0].payload.doc;
-  //       // this.lastInPage = actions[actions.length - 1].payload.doc;
-  //       // console.log('firstInPage', this.firstInPage.id);
-  //       // console.log('lastInPage', this.lastInPage.id);
-  //       return actions.map(action => {
-  //         const $key = action.payload.doc.id;
-  //         const $type = action.type;
-  //         //console.log('snapshotChange', $key, $type);
-  //         return { $key, $type, ...action.payload.doc.data() };
-  //       });
-  //       //return actions.map(action => ({ $key: action.payload.doc.id, $type: action.type, ...action.payload.doc.data() }));
-  //     });
-
-  // }
 
   private announceLastSaved($key, $type, index): void {
     if ($type === 'removed' || $type !== this.toSave.$type) return;
@@ -504,7 +429,6 @@ export class NoteService implements CanActivate, OnDestroy {
     await this.afAuth.auth.signOut();
   }
 
-  //firestore: public addNote, removeNote, editNote
   async removeNote(note): Promise<void> {
     console.log('removeNote', note.$key, this.database);
     if (this.database == 1) {
@@ -523,8 +447,6 @@ export class NoteService implements CanActivate, OnDestroy {
     if (this.todo !== Todo.Remove) {
       if (this.database == 1) {
         note.updatedAt = firebase['database'].ServerValue.TIMESTAMP;
-      } else {
-        //note.updatedAt = firebase.firestore.FieldValue.serverTimestamp(); // updatedAt == createdAt
       }
     }
     note.group = this._groupName;
@@ -556,18 +478,7 @@ export class NoteService implements CanActivate, OnDestroy {
       return this.removeNote(note);
     }
   }
-/*
-  thumbURL: string;
-  private testThumb(filename: string) {
-    setTimeout(_ => {
-      this.storage.child(`images/thumb_${filename}`).getDownloadURL()
-        .then(url => {
-          this.thumbURL = url;
-          console.log('thumb URL: ', url);
-        });
-    }, 10000);
-  }
-*/
+
   /* 5 edit cases for image:
 
       previous      current				action          description
