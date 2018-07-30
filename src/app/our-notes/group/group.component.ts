@@ -1,9 +1,11 @@
 
-import {first} from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { animate, animation, animateChild, group, keyframes,
-  query, stagger, state, style, transition, trigger, useAnimation } from '@angular/animations';
+import {
+  animate, animation, animateChild, group, keyframes,
+  query, stagger, state, style, transition, trigger, useAnimation
+} from '@angular/animations';
 import { Subscription } from 'rxjs';
 
 
@@ -17,6 +19,7 @@ import { listChild } from '../../app.animation';
   styleUrls: ['./group.component.css'],
   animations: [
     listChild,
+    /*
     trigger('item', [
       transition('* => modified', [
         animate('1000ms ease-out', keyframes([
@@ -27,7 +30,16 @@ import { listChild } from '../../app.animation';
           style({ opacity: 1, offset: 1 })
         ]))
       ], { delay: 600 }),
+      transition('* => added', [
+        style({ height: 0, opacity: 0 }),
+        animate('1s', style({ height: '*', opacity: 1 }))
+      ]),
+      transition('* => removed', [
+        style({ height: '5em', opacity: 1 }),
+        animate('1s ease-out', style({ height: 0, opacity: 0 }))
+      ]),
     ]),
+    */
 
   ],
   encapsulation: ViewEncapsulation.None
@@ -61,7 +73,7 @@ export class GroupComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnInit() { 
+  ngOnInit() {
     // for rtdb, hits here whenever coming back from note-form. 
     // for firebase, hits here only once as this component uses note-modal
     this.modalService.setModal(this.modal);
@@ -120,11 +132,11 @@ export class GroupComponent implements OnInit, OnDestroy {
             console.log(`GroupComponent got ${notes.length} note(s) ${this.count}`);
             this.init = true;
             if (this.count++ > 0 || db == 2) return;
-  
+
             this.focusItem(notes, idxToFocus, to);
           }
         );
-  
+
       } else { // firestore
         this.init = true;
       }
@@ -134,6 +146,16 @@ export class GroupComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     console.warn(`'GroupComponent' ngOnDestroy`);
     if (this.subscription) this.subscription.unsubscribe();
+  }
+
+  animStart(event) {
+    console.log(`animStart`, event);
+    // console.log(`animStart`, event.element.className, event.fromState, event.toState);
+  }
+  animDone(event) {
+    console.log(`animDone`, event);
+
+    this.noteService.resetListState();
   }
 
   addOrEdit({ event, index = -1, note = undefined }) {
@@ -213,4 +235,5 @@ export class GroupComponent implements OnInit, OnDestroy {
       this.router.navigate(['group', this.noteService.groupName, 1], { queryParams: { db: this.noteService.database } });
     }
   }
+
 }
