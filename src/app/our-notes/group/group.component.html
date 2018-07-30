@@ -1,10 +1,26 @@
-<div *ngIf="((noteService.database==1 && noteService.notes) || (noteService.database==2 && noteService.items$)) | async; let notes"
-  [@listChild]="noteService.countNotes" class="list" touchStart>
-  <my-note [note]="note" (toAddOrEdit)="addOrEdit($event)" (toRemove)="remove($event)" *ngFor="let note of notes; let i = index; trackBy: trackByFn"
-    [@item]="noteService.getState(note)" class="item" [attr.tabindex]="i">
+<!-- <pre>{{noteService.listState}}</pre> -->
+<div class="list"
+  [@listChild]="noteService.listState"
+  (@listChild.start)="animStart($event)" 
+  (@listChild.done)="animDone($event)" 
+  touchStart>
+  <my-note class="item"
+    [note]="note" (toAddOrEdit)="addOrEdit($event)" (toRemove)="remove($event)" 
+    *ngFor="let note of noteService.items$ | async; let i = index; trackBy: trackByFn"
+    [ngClass]="{ 'modified' : note.$type === 'modified' && noteService.listState === 'modified' }"
+    [attr.tabindex]="i">
   </my-note>
 </div>
-
+<!-- 
+  comment 
+  [@listChild]="noteService.countNotes"
+  (@listChild.start)="animStart($event)" 
+  (@listChild.done)="animDone($event)" 
+    [@item]="noteService.getState(note)" 
+    (@item.start)="animStart($event)" 
+    (@item.done)="animDone($event)" 
+  *ngIf="((noteService.database==1 && noteService.notes) || (noteService.database==2 && noteService.items$)) | async; let notes"
+-->
 <note-modal #modal></note-modal>
 
 <button class="fab" (click)="addOrEdit({ event: $event })">+</button>

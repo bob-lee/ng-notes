@@ -89,6 +89,8 @@ export class NoteService implements CanActivate, OnDestroy {
   }
 
   countNotes = 0;
+  private listStateInternal = 'none'; // none, added, modified, removed
+  listState = 'none';
 
   todo: Todo = Todo.List;
 
@@ -186,6 +188,7 @@ export class NoteService implements CanActivate, OnDestroy {
           $key: action.payload.doc.id,
           $type: action.type
         };
+        this.listStateInternal = action.type;
 
         this.announceLastSaved(this.lastChanged.$key, this.lastChanged.$type, action.payload.newIndex);
         setTimeout(_ => this.lastChanged.$type = '', 2000);
@@ -211,10 +214,10 @@ export class NoteService implements CanActivate, OnDestroy {
           return array.map(action => {
             //console.log(action.payload.doc.data());
             const { updatedAt, ...rest } = action.payload.doc.data();
+            this.listState = this.listStateInternal;
             return {
               $key: action.payload.doc.id,
               $type: action.type,
-              //...action.payload.doc.data()
               updatedAt: updatedAt && updatedAt.toDate(),
               ...rest
             };
@@ -380,6 +383,8 @@ export class NoteService implements CanActivate, OnDestroy {
   getState(note: any): string {
     if (note.$type === 'added') {
       return 'added';
+    } else if (note.$type === 'removed') {
+      return 'removed';
     } else if (note.$type === 'modified' && this.lastChanged.$key === note.$key && this.lastChanged.$type === 'modified') {
       return 'modified'; // animate it
     } else {
@@ -640,6 +645,10 @@ export class NoteService implements CanActivate, OnDestroy {
       delete note.$key;
       await this.collection.doc(key).update(note);
     }
+  }
+
+  resetListState() {
+    this.listState = 'none';
   }
 
 }
