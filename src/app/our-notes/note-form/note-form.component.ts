@@ -70,6 +70,7 @@ export class NoteFormComponent implements OnInit {
     } else { // edit
       this.noteIndex = idxToEdit;
 
+      /*
       this.noteService.getNotePromise(idToEdit, group).then((response) => {
         this.note = response;
         if (this.note.imageURL) {
@@ -85,6 +86,7 @@ export class NoteFormComponent implements OnInit {
 
         this.initDone(addOrEdit);
       })
+      */
     }
   }
 

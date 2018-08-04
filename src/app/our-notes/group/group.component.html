@@ -1,4 +1,3 @@
-<!-- <pre>{{noteService.listState}}</pre> -->
 <div class="list"
   [@listChild]="noteService.listState"
   (@listChild.start)="animStart($event)" 
@@ -11,23 +10,7 @@
     [attr.tabindex]="i">
   </my-note>
 </div>
-<!-- 
-  comment 
-  [@listChild]="noteService.countNotes"
-  (@listChild.start)="animStart($event)" 
-  (@listChild.done)="animDone($event)" 
-    [@item]="noteService.getState(note)" 
-    (@item.start)="animStart($event)" 
-    (@item.done)="animDone($event)" 
-  *ngIf="((noteService.database==1 && noteService.notes) || (noteService.database==2 && noteService.items$)) | async; let notes"
--->
+
 <note-modal #modal></note-modal>
 
 <button class="fab" (click)="addOrEdit({ event: $event })">+</button>
-<button class="fab temp paged" (click)="togglePagination()" *ngIf="noteService.pagination">
-  {{noteService.pagination ? 'p':'a'}}
-</button>
-<div *ngIf="noteService.pagination">
-  <button class="fab temp prev" (click)="gotoPage(false)" [ngClass]="{ 'disabled' : noteService.isFirstPage }" [disabled]="noteService.isFirstPage"><</button>
-  <button class="fab temp next" (click)="gotoPage(true)" [ngClass]="{ 'disabled' : noteService.isLastPage }" [disabled]="noteService.isLastPage">></button>
-</div>

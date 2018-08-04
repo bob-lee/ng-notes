@@ -26,22 +26,26 @@
 <div [@routerTransition]="getState(o)">
   <router-outlet #o="outlet"></router-outlet>
 </div>
-<!--
-  <pre>todo:{{todoEnum[noteService.todo]}}, note: {{noteService.note | json}}</pre>
- {{noteService.countGroups}}/{{noteService.countNotes}}
-     data-count="{{noteService.countNotes}}"
-    [ngClass]="{'bl-icon-selected': inside}"
--->
 
 <footer class="bl-footer navbar-fixed-bottom">
-  <div class="bl-icon bl-icon-unselected bl-icon-count bl-icon-title" data-title="Home" 
-    [attr.data-count]="noteService.countGroupsTotal" touchStart
+  <div class="bl-icon bl-icon-unselected bl-icon-title" data-title="Home" 
+    touchStart
     [ngClass]="{'bl-icon-selected': !inside}" (click)="exit()">
+    <div class="wrap">
+      <div class="box" [@valueUpdated]="noteService.countGroupsFs">
+        <div *ngFor="let num of [ noteService.countGroupsFs ]">{{ num }}</div>
+      </div>
+    </div>
     <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
   </div>
-  <div class="bl-icon bl-icon-unselected bl-icon-count bl-icon-title" data-title="Group" 
-    [attr.data-count]="noteService.countNotes" touchStart
+  <div class="bl-icon bl-icon-unselected bl-icon-title" data-title="Group" 
+    touchStart
     [ngClass]="{'bl-icon-selected': inside}">
+    <div class="wrap">
+      <div class="box" [@valueUpdated]="noteService.countNotes">
+        <div *ngFor="let num of [ noteService.countNotes ]">{{ num }}</div>
+      </div>
+    </div>
     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
   </div>
   <div class="bl-icon bl-icon-unselected bl-icon-title" data-title="GitHub" touchStart>

@@ -1,14 +1,13 @@
-import { Component, OnInit, OnDestroy, ElementRef, HostBinding, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { animate, animateChild, animation, group, keyframes, query,
-  stagger, style, trigger, transition, useAnimation } from '@angular/animations';
+import { Router, ActivatedRoute } from '@angular/router';
+import { trigger, transition, useAnimation } from '@angular/animations';
 import { Subscription } from 'rxjs';
 
-import { Note, Todo } from './Note';
+import { Todo } from './Note';
 import { NoteService } from './note.service';
 import { WindowRef } from '../service/window-ref.service';
-import { routerTransition, expandAnimation, itemAnimation, listAnimation } from '../app.animation';
+import { routerTransition, expandAnimation, valueUpdated } from '../app.animation';
 
 /*
 
@@ -52,7 +51,7 @@ import { routerTransition, expandAnimation, itemAnimation, listAnimation } from 
         useAnimation(expandAnimation)
       ])
     ]),
-
+    valueUpdated,
   ]
 })
 export class OurNotesComponent implements OnInit, OnDestroy {
@@ -60,9 +59,6 @@ export class OurNotesComponent implements OnInit, OnDestroy {
   inside = false;
   todoEnum = Todo;
   subscription: Subscription;
-
-  // @HostBinding('@pageAnimation')
-  // get count (): number { return this.noteService.countNotes; }
 
   get title(): string { return this.inside ? this.noteService.groupName : 'Groups'; }
 

@@ -100,6 +100,32 @@ img.userPhoto {
   z-index: 1;
 }
 
+.wrap {
+  position: absolute;
+  top: 10%;
+  left: 37%;
+  z-index: 1;
+  /* opacity: 0.5; */
+}
+.box {
+  display: inline-block;
+  position: relative;
+  height: 2em;
+  width: 2em;
+  border-radius: 1em;
+  background: red;
+  color: white;
+  font-size: small;
+}
+.box div {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .bl-icon-title {
   position: relative;
 }
