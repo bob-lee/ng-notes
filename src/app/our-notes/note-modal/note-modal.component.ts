@@ -1,13 +1,14 @@
-import { Component, OnInit, Input, Output, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, OnInit, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { animate, group, query, style, transition, trigger } from '@angular/animations';
 
-import { Note, Todo } from '../Note';
+import { Todo } from '../Note';
 import { NoteService } from '../note.service';
 import { WindowRef } from '../../service/window-ref.service';
 
-export const zoomFadeIn = { opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)' };
-export const zoomFadeInFrom = { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' };
+const zoomFadeIn = { opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)' };
+// const zoomFadeInFrom = { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' };
+// export function zoomFadeInFrom() { return { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' }; };
 export function easeInFor(duration) { return `${duration}ms cubic-bezier(0.35, 0, 0.25, 1)`; };
 
 const handlerScroll = e => {
@@ -21,9 +22,7 @@ const scroll = function (e) {
   e.preventDefault(); // how to eat up scroll event to prevent parent scrolling on modal popup???
   return false;
 };
-/*
-routerLink="/"
-*/
+
 @Component({
   selector: 'note-modal',
   templateUrl: './note-modal.component.html',
@@ -32,7 +31,8 @@ routerLink="/"
     trigger('overlay', [
       transition(':enter', [
         style({ opacity: 0 }),
-        query('.container', [style(zoomFadeInFrom)]),
+        // query('.container', [style(zoomFadeInFrom)]),
+        query('.container', [style({ opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)', transformOrigin: '{{ ox }} {{ oy }}' })]),
         group([
           animate(easeInFor(150), style({ opacity: 1 })),
           query('.container', animate(easeInFor(450), style('*'))),
@@ -48,7 +48,7 @@ routerLink="/"
   ],
   encapsulation: ViewEncapsulation.None
 })
-export class NoteModalComponent implements OnInit { // note form modal only for firestore
+export class NoteModalComponent implements OnInit {
   title: string;
   @ViewChild('fileInput')
   inputEl: ElementRef;
@@ -196,11 +196,9 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     this.busy = false;
     this.takeLong = false;
     this.body = document.querySelector('body');
-    //this.html = document.querySelector('html');
 
     if (showing) {
       this.body.classList.add('noScroll');
-      //this.html.classList.add('noScroll');
       if (!this.noteService.theNote) { // this component assumes the user had called noteService.setTheNote() properly
         console.warn('theNote is not set');
         return;
@@ -213,11 +211,7 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
       // apply model to view
       this.noteForm.patchValue(this.noteService.theNote);
     } else {
-      //console.log('removeEventListener');
-      //document.removeEventListener('scroll', handlerScroll, true);
       this.body.classList.remove('noScroll');
-      //this.html.classList.remove('noScroll');
-      //window.removeEventListener('scroll', scroll, false);
       this.note = null;
       this.imgToRemove = false;
       this.imageFailedToLoad = false;
@@ -225,18 +219,13 @@ export class NoteModalComponent implements OnInit { // note form modal only for 
     }
   }
 
-  /**
-   * This component initializes with hidden DOM
-   */
   show(event: any, group: any) {
 
     this.calculateZoomOrigin(event);
     this.makeVisible();
     this.init();
   }
-  /**
-   * Calculate origin used in the `zoomFadeInFrom()`
-   */
+
   private calculateZoomOrigin(event) {
     const clientX = event.clientX;
     const clientY = event.clientY;

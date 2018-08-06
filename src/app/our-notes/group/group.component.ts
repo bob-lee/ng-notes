@@ -64,9 +64,6 @@ export class GroupComponent implements OnInit, OnDestroy {
 
     // inspect route
     const group = this.route.snapshot.params['name'];
-    // const db = this.route.snapshot.queryParams['db'];
-    // const idxToFocus = this.route.snapshot.queryParams['i'];
-    // const to = this.route.snapshot.queryParams['to'];
 
     subscription = this.noteService.groupsFs
       .subscribe(_ => console.log(`subscribe to 'groups'`));
