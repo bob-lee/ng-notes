@@ -9,7 +9,7 @@
 .my-header .btn {
   border-width: 0;
 }
-.my-header .group-name {
+.my-header .title {
   position: relative;
   /*
   border-radius: 4px;
@@ -17,11 +17,15 @@
   padding: 0 0.1em;
   */
 }
-.my-header .group-name::before {
-  content: 'Group:';
+.my-header .title::before {
+  content: 'To create a new group, enter group name in footer bar below';
   font-size: 0.4em;
   position: absolute;
   top: -1.0em;
+  width: 400%;
+}
+.my-header .inside.title::before {
+  content: 'Group:';
 }
 
 button.add {
