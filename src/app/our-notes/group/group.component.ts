@@ -98,6 +98,12 @@ export class GroupComponent implements OnInit, OnDestroy {
     this.noteService.resetListState();
   }
 
+  add({ event, done }) {
+    console.log(`add`);
+    this.addOrEdit({ event });
+    done();
+  }
+
   addOrEdit({ event, index = -1, note = undefined }) {
     console.log(`addOrEdit(x:${event.clientX}, i:${index}, key:${note && note.$key || 'na'})`);
 
@@ -105,9 +111,10 @@ export class GroupComponent implements OnInit, OnDestroy {
     this.modal.show(event);
   }
 
-  remove(note) {
+  async remove({ note, done }) {
     this.noteService.todo = Todo.Remove;
-    this.noteService.save(note, null, false);
+    await this.noteService.save(note, null, false);
+    done();
   }
 
   toggle() {

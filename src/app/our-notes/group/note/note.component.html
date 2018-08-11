@@ -6,14 +6,18 @@
   <span dropdownToggle style="cursor:pointer" class="glyphicon glyphicon-trash" aria-hidden="true"></span>
   <ul *dropdownMenu class="dropdown-menu">
     <li role="menuitem">
-      <a class="dropdown-item" (click)="remove(note)">remove</a>
+      <a class="dropdown-item" (idleClick)="remove($event)">remove</a>
     </li>
   </ul>
 </span>
 
 <br/>
 
+<!--
+      <a class="dropdown-item" (click)="remove(note)">remove</a>
 <a (click)="addOrEdit($event, -1, note)">
+-->
+<a (idleClick)="edit($event)">
   <markdown [data]="note.text"></markdown>
   <span class="item-image" *ngIf="note.thumbURL">
     <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>

@@ -12,11 +12,22 @@ export class NoteComponent {
 
   constructor() { }
 
-  addOrEdit(event, index: number, note: any) {
+  edit({ event, done }) {
+    console.log(`edit`);
+    this.doEdit(event, -1, this.note);
+    done();
+  }
+
+  remove({ event, done }) {
+    console.log(`remove`);
+    this.doRemove(this.note, done);
+  }
+
+  private doEdit(event, index: number, note: any) {
     this.toAddOrEdit.emit({ event, index, note });
   }
 
-  remove(note) {
-    this.toRemove.emit(note);
+  private doRemove(note, done) {
+    this.toRemove.emit({ note, done });
   }
 }

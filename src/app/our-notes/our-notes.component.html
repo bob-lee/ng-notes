@@ -1,5 +1,9 @@
+<!-- 
+  inside ? 'group-name' : 'groups'
+  {'inside':inside} 
+-->
 <div class="my-header">
-  <h2 [@expand]="title" [ngClass]="{'group-name':inside}">
+  <h2 [@expand]="title" class="title" [ngClass]="{'inside':inside}">
     {{title}}
   </h2>
 

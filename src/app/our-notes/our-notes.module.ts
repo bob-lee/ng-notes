@@ -13,8 +13,10 @@ import { NoteModalComponent } from './note-modal/note-modal.component';
 
 import { NoteService } from './note.service';
 import { ModalService } from './modal.service';
+import { BusyService } from '../service/busy.service';
 import { FocusMeDirective } from '../focus-me.directive';
 import { AfterIfDirective } from '../after-if.directive';
+import { IdleClickDirective } from '../idle-click.directive';
 import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
@@ -38,11 +40,13 @@ import { NoteComponent } from './group/note/note.component';
     NoteModalComponent,
     FocusMeDirective,
     AfterIfDirective,
+    IdleClickDirective,
     NoteComponent,
   ],
   providers: [
     NoteService,
     ModalService,
+    BusyService,
   ]
 })
 export class OurNotesModule {}

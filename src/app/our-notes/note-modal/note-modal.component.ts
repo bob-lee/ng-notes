@@ -52,8 +52,6 @@ export class NoteModalComponent implements OnInit {
   title: string;
   @ViewChild('fileInput')
   inputEl: ElementRef;
-  busy = false;
-  takeLong = false;
 
   note: any; // reference to noteService.theNote set in init()
   noteForm: FormGroup;
@@ -98,9 +96,14 @@ export class NoteModalComponent implements OnInit {
     this.hide();
   }
 
-  async save(e) {
+  async save({ event, done }) {
+    console.log(`save`);
+    await this.doSave(event);
+    done();
+  }
+  private async doSave(e) {
     e.stopPropagation();
-    console.log(`save ${this.noteForm.status} changed=${this.changed()}, ${this.inputEl && this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
+    console.log(`doSave ${this.noteForm.status} changed=${this.changed()}, ${this.inputEl && this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
     if (this.noteForm.invalid) {
       this.submitted = true;
       return;
@@ -119,8 +122,9 @@ export class NoteModalComponent implements OnInit {
     this.goBack();
   }
 
-  cancel(e) {
+  cancel({ done }) {
     this.hide();
+    done();
   }
 
   fileSelected() {
@@ -157,8 +161,6 @@ export class NoteModalComponent implements OnInit {
   }
 
   private async saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
-    this.busy = true;
-    setTimeout(_ => { if (this.busy) this.takeLong = true; }, 1000);
     const inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
     try {
@@ -167,7 +169,6 @@ export class NoteModalComponent implements OnInit {
     } catch (error) {
       console.error('saveNote():', error);
     }
-    this.busy = false;
   }
 
   loadImage() {
@@ -193,8 +194,6 @@ export class NoteModalComponent implements OnInit {
   }
 
   private init(showing: boolean = true) {
-    this.busy = false;
-    this.takeLong = false;
     this.body = document.querySelector('body');
 
     if (showing) {
@@ -246,7 +245,6 @@ export class NoteModalComponent implements OnInit {
   }
 
   hide() {
-    if (this.busy) return;
     this.init(false);
 
     this.data.value = 'inactive';

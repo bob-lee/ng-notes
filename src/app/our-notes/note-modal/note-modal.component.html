@@ -1,6 +1,7 @@
 <!-- 
   (afterIf)="loadImage()" 
     <button class="btn btn-lg btn-primary" (click)="remove($event)" [hidden]="noteService.todo === todoEnum.Add">Remove</button>
+    [ngClass]="{'loader-3': busy && takeLong}"
 -->
 <div class="overlay" *ngIf="data.value === 'active'" (click)="hide()" (afterIf)="loadImage()" [@overlay]="data">
   
@@ -8,8 +9,8 @@
     <h2>
       {{title}}
       <div class="pull-right" touchStart>
-        <a class="btn btn-default" (click)="cancel($event)">Cancel</a>
-        <a class="btn btn-primary" (click)="save($event)" [ngClass]="{'loader-3': busy && takeLong}">Save</a>
+        <a class="btn btn-default" (idleClick)="cancel($event)">Cancel</a>
+        <a class="btn btn-primary" (idleClick)="save($event)">Save</a>
       </div>
     </h2>
 
