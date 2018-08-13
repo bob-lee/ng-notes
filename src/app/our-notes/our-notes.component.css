@@ -18,11 +18,11 @@
   */
 }
 .my-header .title::before {
-  content: 'To create a new group, enter group name in footer bar below';
+  content: 'To create a new group, enter group name in footer bar';
   font-size: 0.4em;
   position: absolute;
   top: -1.0em;
-  width: 400%;
+  width: 40em;
 }
 .my-header .inside.title::before {
   content: 'Group:';
@@ -52,6 +52,7 @@ img.userPhoto {
   width: 23px;
   border-radius: 3px;
   margin-top: 0;
+  margin-right: .5em;
 }
 
 /* footer */

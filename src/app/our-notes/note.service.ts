@@ -70,6 +70,8 @@ export class NoteService implements CanActivate, OnDestroy {
   private groupDoc: AngularFirestoreDocument<any>;
   fsSubscription: Subscription = null;
 
+  showIcon = false;
+
   constructor(
     private afAuth: AngularFireAuth,
     private afs: AngularFirestore,

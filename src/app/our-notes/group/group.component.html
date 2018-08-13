@@ -13,4 +13,4 @@
 
 <note-modal #modal></note-modal>
 
-<button class="fab" (idleClick)="add($event)">+</button>
+<button class="fab" (idleClick)="add($event)" [ngClass]="{'show': noteService.showIcon}">+</button>

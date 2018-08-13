@@ -77,7 +77,11 @@ export class OurNotesComponent implements OnInit, OnDestroy {
       groupName => {
         console.log(`OurNotesComponent announcedGroupName '${groupName}'`);
         this.myForm.controls['groupName'].setValue(groupName);
-        setTimeout(_ => this.inside = !!groupName);
+        setTimeout(_ => {
+          this.inside = !!groupName;
+          if (this.inside)
+            setTimeout(_ => { this.noteService.showIcon = true; }, 500);
+        });
       });
 
     console.warn(`'OurNotesComponent'`);
@@ -93,7 +97,8 @@ export class OurNotesComponent implements OnInit, OnDestroy {
       this.windowRef.nativeWindow.localStorage.setItem('group', '');
     }
 
-    this.router.navigate(['group']);
+    this.noteService.showIcon = false;
+    setTimeout(_ => this.router.navigate(['group']), 500);
   }
 
   async logout() {

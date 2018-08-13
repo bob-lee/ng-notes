@@ -47,5 +47,5 @@ button {
   font-size: 1.3em;
   line-height: 1;
   margin-top: 15px;
-  /*margin-left: 0.5em;*/
+  border-radius: .4em;
 }
