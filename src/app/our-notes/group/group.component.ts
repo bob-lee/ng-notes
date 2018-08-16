@@ -114,7 +114,7 @@ export class GroupComponent implements OnInit, OnDestroy {
   async remove({ note, done }) {
     this.noteService.todo = Todo.Remove;
     await this.noteService.save(note, null, false);
-    done();
+    //done();
   }
 
   toggle() {

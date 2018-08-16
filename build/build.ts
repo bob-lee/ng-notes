@@ -4,6 +4,7 @@ import * as uglify from 'uglify-js';
 import * as pathmodule from 'path';
 
 const workbox: WorkboxBuild = require('workbox-build');
+const outputPath = 'dist/ng-notes';
 
 /**
  * Copy workbox from npm
@@ -14,12 +15,12 @@ async function copyWorkbox() {
   const pkg = require(pkgPath);
   const readPath = `${cwd}/node_modules/workbox-sw/${pkg.main}`;
   const data = fs.readFileSync(readPath, 'utf8');
-  const path = `${cwd}/dist/workbox-sw.js`;
+  const path = `${cwd}/${outputPath}/workbox-sw.js`;
   return [
     { data, path },
     {
       data: fs.readFileSync(`${readPath}.map`, 'utf8'),
-      path: `${cwd}/dist/${pathmodule.basename(pkg.main)}.map`
+      path: `${cwd}/${outputPath}/${pathmodule.basename(pkg.main)}.map`
     }
   ]
 }
@@ -30,7 +31,7 @@ async function copyWorkbox() {
 async function minifiedDropdownJs() {
   const code = fs.readFileSync(process.cwd() + '/src/dropdown.js', 'utf8');
   const data = uglify.minify(code).code;
-  const path = process.cwd() + '/dist/dropdown.js';
+  const path = process.cwd() + `/${outputPath}/dropdown.js`;
   return [{ data,  path }];
 }
 
@@ -52,12 +53,13 @@ async function build() {
   });
 
   return workbox.injectManifest({
-    globDirectory: './dist/',
+    // globDirectory: './dist/',
+    globDirectory: './dist/ng-notes/',
     globPatterns: ['**\/*.{html,js,css,png,jpg,json,svg}'],
     globIgnores: ['build/*', 'sw-default.js', 'workbox-sw.js', 'index.html'],
     // globIgnores: ['build/*', 'sw-default.js', 'workbox-sw.js', 'assets/icons/**/*', 'index.html'],
     swSrc: './src/sw-template.js',
-    swDest: './dist/sw-default.js',
+    swDest: './dist/ng-notes/sw-default.js',
   });
 }
 

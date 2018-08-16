@@ -257,7 +257,7 @@ export class NoteService implements CanActivate, OnDestroy {
   async removeNote(note): Promise<void> {
     console.log('removeNote', note.$key);
     await this.collection.doc(note.$key).delete();
-    console.log('removed');
+    //console.log('removed');
   }
 
   async save(noteToSave: any, files, imageFailedToLoad: boolean, toRemoveExistingImage?: boolean): Promise<any> {

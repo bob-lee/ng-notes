@@ -1,7 +1,4 @@
 <div class="list"
-  [@listChild]="noteService.listState"
-  (@listChild.start)="animStart($event)" 
-  (@listChild.done)="animDone($event)" 
   touchStart>
   <my-note class="item"
     [note]="note" (toAddOrEdit)="addOrEdit($event)" (toRemove)="remove($event)" 
@@ -14,3 +11,8 @@
 <note-modal #modal></note-modal>
 
 <button class="fab" (idleClick)="add($event)" [ngClass]="{'show': noteService.showIcon}">+</button>
+<!-- 
+[@listChild]="noteService.listState"
+(@listChild.start)="animStart($event)" 
+(@listChild.done)="animDone($event)" 
+ -->

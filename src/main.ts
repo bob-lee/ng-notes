@@ -1,8 +1,8 @@
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-import { AppModule } from 'app/app.module';
-import { environment } from 'environments/environment';
+import { AppModule } from './app/app.module';
+import { environment } from './environments/environment';
 import 'hammerjs';
 
 if (environment.production) {
@@ -10,7 +10,7 @@ if (environment.production) {
 }
 
 platformBrowserDynamic().bootstrapModule(AppModule)
-  .then(_ => registerServiceWorker('sw-default'))
+  // .then(_ => registerServiceWorker('sw-default'))
   .catch(err => console.log(err));
 
 function registerServiceWorker(swName: string) {

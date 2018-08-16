@@ -11,7 +11,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist",
+            "outputPath": "dist/ng-notes",
             "index": "src/index.html",
             "main": "src/main.ts",
             "tsConfig": "src/tsconfig.app.json",
@@ -116,6 +116,46 @@
               "e2e/tsconfig.e2e.json"
             ],
             "exclude": []
+          }
+        }
+      }
+    },
+    "ng-idle-click": {
+      "root": "projects/ng-idle-click",
+      "sourceRoot": "projects/ng-idle-click/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-idle-click/tsconfig.lib.json",
+            "project": "projects/ng-idle-click/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/ng-idle-click/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-idle-click/src/test.ts",
+            "tsConfig": "projects/ng-idle-click/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-idle-click/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-idle-click/tsconfig.lib.json",
+              "projects/ng-idle-click/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         }
       }
