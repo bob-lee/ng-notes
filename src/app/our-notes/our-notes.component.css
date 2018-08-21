@@ -55,6 +55,10 @@ img.userPhoto {
   margin-right: .5em;
 }
 
+.dropdown-item.click {
+  cursor: pointer;
+}
+
 /* footer */
 .bl-footer {
   z-index:100;

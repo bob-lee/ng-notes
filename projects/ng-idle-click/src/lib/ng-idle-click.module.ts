@@ -1,10 +1,14 @@
 import { NgModule } from '@angular/core';
-import { NgIdleClickComponent } from './ng-idle-click.component';
+import { NgIdleClickDirective } from './ng-idle-click.directive';
 
 @NgModule({
   imports: [
   ],
-  declarations: [NgIdleClickComponent],
-  exports: [NgIdleClickComponent]
+  declarations: [
+    NgIdleClickDirective,
+  ],
+  exports: [
+    NgIdleClickDirective
+  ]
 })
 export class NgIdleClickModule { }

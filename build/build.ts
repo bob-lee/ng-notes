@@ -53,13 +53,11 @@ async function build() {
   });
 
   return workbox.injectManifest({
-    // globDirectory: './dist/',
-    globDirectory: './dist/ng-notes/',
+    globDirectory: `./${outputPath}/`,
     globPatterns: ['**\/*.{html,js,css,png,jpg,json,svg}'],
     globIgnores: ['build/*', 'sw-default.js', 'workbox-sw.js', 'index.html'],
-    // globIgnores: ['build/*', 'sw-default.js', 'workbox-sw.js', 'assets/icons/**/*', 'index.html'],
     swSrc: './src/sw-template.js',
-    swDest: './dist/ng-notes/sw-default.js',
+    swDest: `./${outputPath}/sw-default.js`,
   });
 }
 

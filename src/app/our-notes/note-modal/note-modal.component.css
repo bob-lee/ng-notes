@@ -41,10 +41,10 @@ mat-form-field.textarea {
   width: 100%;
 }
 
-@keyframes loader-3 {
+@keyframes my-loader {
   0%, 100% { opacity: 0.9; }
   50% { opacity: 0.1; }
 }
-.loader-3 {
-  animation: loader-3 3s linear infinite;
+.my-loader {
+  animation: my-loader 3s linear infinite;
 }

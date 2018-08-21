@@ -7,7 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "tsc": "node_modules\\.bin\\tsc -p build\\tsconfig.json",
-    "clean": "rm -rf dist functions\\dist",
+    "clean": "rm -rf dist\\ng-notes functions\\dist",
     "clean:node": "rm -rf node_modules functions\\node_modules",
     "build": "ng build",
     "build-prod": "ng build --prod --output-hashing none",
