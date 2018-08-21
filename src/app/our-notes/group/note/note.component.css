@@ -3,3 +3,7 @@
   font-size: 85%;
   color: #000;
 }
+
+.dropdown-item.click {
+  cursor: pointer;
+}

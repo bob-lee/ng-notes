@@ -1,8 +1,3 @@
-<!-- 
-  (afterIf)="loadImage()" 
-    <button class="btn btn-lg btn-primary" (click)="remove($event)" [hidden]="noteService.todo === todoEnum.Add">Remove</button>
-    [ngClass]="{'loader-3': busy && takeLong}"
--->
 <div class="overlay" *ngIf="data.value === 'active'" (click)="hide()" (afterIf)="loadImage()" [@overlay]="data">
   
   <form id="popup" class="container" [formGroup]="noteForm" novalidate (click)="$event.stopPropagation()" blFocusMe>

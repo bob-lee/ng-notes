@@ -1,18 +1,19 @@
-import { Directive, ElementRef, EventEmitter, HostBinding, 
-  HostListener, Output  } from '@angular/core';
-import { BusyService } from './service/busy.service';
+import { Directive, EventEmitter, HostBinding, 
+  HostListener, Input, Output  } from '@angular/core';
+import { NgIdleClickService } from './ng-idle-click.service';
 
 @Directive({ selector: '[idleClick]' })
-export class IdleClickDirective {
+export class NgIdleClickDirective {
+  @Input() debugLog: boolean = false;
   @Output() idleClick: EventEmitter<any> = new EventEmitter();
-  @HostBinding('class.loader-3') loading: boolean;
+  @HostBinding('class.my-loader') loading: boolean;
   @HostListener('click', ['$event'])
   onClick(e) {
     if (this.busyService.busy) {
-      console.warn('busy');
+      if (this.debugLog) console.warn('busy');
       return;
     } else {
-      console.warn('click');
+      if (this.debugLog) console.warn('click');
       this.busyService.set();
       this.timer = setTimeout(_ => { 
         if (this.busyService.busy) 
@@ -23,8 +24,7 @@ export class IdleClickDirective {
   }
   private timer;
 
-  constructor(private busyService: BusyService, 
-    el: ElementRef) { }
+  constructor(private busyService: NgIdleClickService) { }
 
   done = () => {
     this.busyService.reset();
@@ -33,7 +33,6 @@ export class IdleClickDirective {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    console.warn('done');
+    if (this.debugLog) console.warn('done');
   };
-
 }
