@@ -5,7 +5,7 @@
       {{title}}
       <div class="pull-right" touchStart>
         <a class="btn btn-default" (idleClick)="cancel($event)">Cancel</a>
-        <a class="btn btn-primary" (idleClick)="save($event)">Save</a>
+        <a class="btn btn-primary" (idleClick)="save($event)" [idleClickLoader]="'my-loader2'">Save</a>
       </div>
     </h2>
 
