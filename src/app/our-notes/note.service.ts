@@ -120,12 +120,12 @@ export class NoteService implements CanActivate, OnDestroy {
       this.stateChanges = this.collection.stateChanges().pipe(
         map(actions => actions.filter(action =>
           (action.type === 'modified' &&
-          action.payload.doc.id === this.lastChanged.$key &&
-          this.lastChanged.$type === 'added') ? false : true
+            action.payload.doc.id === this.lastChanged.$key &&
+            this.lastChanged.$type === 'added') ? false : true
         )));
 
       this.subStateChange = this.stateChanges.subscribe(actions => actions.map(action => {
-        console.log('stateChange', action.payload);
+        // console.log('stateChange', action.payload);
         this.lastChanged = {
           $key: action.payload.doc.id,
           $type: action.type
@@ -206,7 +206,7 @@ export class NoteService implements CanActivate, OnDestroy {
     this.groupName = group;
     this.group$.next(group);
   }
-  
+
   private announceLastSaved($key, $type, index): void {
     if ($type === 'removed' || $type !== this.toSave.$type) return;
     if ($type === 'modified' && $key !== this.toSave.$key) return;
@@ -266,7 +266,7 @@ export class NoteService implements CanActivate, OnDestroy {
     const note = noteToSave || this.theNote;
 
     note.group = this._groupName;
-    console.log('note', note);
+    // console.log('note', note);
 
     if (this.todo === Todo.Add) { // add
 
@@ -373,14 +373,56 @@ export class NoteService implements CanActivate, OnDestroy {
         throw new Error(`invalid file type '${file.type}'`);
       }
 
+      const orientation = await this.getOrientation(file);
+      console.log(`putImage(orientation ${orientation})`);
+
       const snapshot = await this.storage.ref(`${destination}/${file.name}`).put(file);
-      console.log('uploaded file:', snapshot.downloadURL);
-      note.imageURL = snapshot.downloadURL;
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      console.log('uploaded file:', downloadURL);
+      note.imageURL = downloadURL;
+      note.orientation = orientation;
       return true;
     } catch (error) {
       console.error('failed to upload', error);
       return false;
     }
+  }
+
+  private getOrientation(file: any): Promise<number> {
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+      reader.onload = function (e) {
+        console.log(`reader`, e);
+        const view = new DataView(reader.result);
+        if (view.getUint16(0, false) != 0xFFD8) {
+          resolve(-2);
+        }
+        let length = view.byteLength, offset = 2;
+        while (offset < length) {
+          const marker = view.getUint16(offset, false);
+          offset += 2;
+          if (marker == 0xFFE1) {
+            if (view.getUint32(offset += 2, false) != 0x45786966) {
+              resolve(-1);
+            }
+            const little = view.getUint16(offset += 6, false) == 0x4949;
+            offset += view.getUint32(offset + 4, little);
+            var tags = view.getUint16(offset, little);
+            offset += 2;
+            for (let i = 0; i < tags; i++)
+              if (view.getUint16(offset + (i * 12), little) == 0x0112) {
+                const o = view.getUint16(offset + (i * 12) + 8, little);
+                resolve(o);
+              }
+          }
+          else if ((marker & 0xFF00) != 0xFF00) break;
+          else offset += view.getUint16(offset, false);
+        }
+
+        resolve(-1);
+      };
+      reader.readAsArrayBuffer(file);
+    });
   }
 
   private async saveNew(note: Note): Promise<any> {
@@ -410,7 +452,8 @@ export class NoteService implements CanActivate, OnDestroy {
         name: note.name,
         text: note.text,
         updatedAt: note.updatedAt,
-        imageURL: note.imageURL || ''
+        imageURL: note.imageURL || '',
+        orientation: note.orientation || 1
       };
       this.todo = Todo.Edit;
     } else { // add
@@ -419,7 +462,8 @@ export class NoteService implements CanActivate, OnDestroy {
         name: '',
         text: '',
         updatedAt: firebase['firestore'].FieldValue.serverTimestamp(),
-        imageURL: ''
+        imageURL: '',
+        orientation: 1
       };
       this.todo = Todo.Add;
     }

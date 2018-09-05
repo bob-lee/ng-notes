@@ -9,6 +9,7 @@ import { OurNotesComponent } from './our-notes.component';
 import { GroupsComponent } from './groups/groups.component';
 import { GroupComponent } from './group/group.component';
 import { NoteFormComponent } from './note-form/note-form.component';
+import { ImageComponent } from './group/note/image/image.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
 
 import { NoteService } from './note.service';
@@ -41,6 +42,7 @@ import { NoteComponent } from './group/note/note.component';
     FocusMeDirective,
     AfterIfDirective,
     NoteComponent,
+    ImageComponent,
   ],
   providers: [
     NoteService,

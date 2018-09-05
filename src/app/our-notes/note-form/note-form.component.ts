@@ -59,7 +59,8 @@ export class NoteFormComponent implements OnInit {
         text: '',
         updatedAt: '',
         imageURL: '',
-        thumbURL: null
+        thumbURL: null,
+        orientation: 1
       };
 
       if (!this.noteService.groupName) { // page refresh
