@@ -23,7 +23,9 @@
     <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
   </span>
   <span class="image-span" *ngIf="!note.thumbURL && note.imageURL">
-    <img [src]="note.imageURL" alt="" class="image" *ngIf="note.imageURL.indexOf('images') > -1">
+    <my-image *ngIf="note.imageURL.indexOf('images') > -1"
+      [source]="note.imageURL"
+      [orientation]="note.orientation"></my-image>
     <video playsinline preload="metadata" controls *ngIf="note.imageURL.indexOf('videos') > -1">
       <source [src]="note.imageURL" type="video/mp4">
     </video>
