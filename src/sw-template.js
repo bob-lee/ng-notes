@@ -1,29 +1,13 @@
 importScripts('/workbox-sw.js');
-//self.workbox.logLevel = self.workbox.LOG_LEVEL.verbose;
 
-const w = new self.WorkboxSW();
+workbox.skipWaiting();
+workbox.clientsClaim();
 
-self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
-self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
-
-w.precache([]);
+workbox.precaching.precacheAndRoute([]);
 
 // app-shell
-//w.router.registerNavigationRoute('/index.html');
-w.router.registerRoute('/', w.strategies.networkFirst());
-w.router.registerRoute(/^\/$|login|group/, w.strategies.networkFirst());
-
-// webfont-cache
-const webFontHandler = w.strategies.cacheFirst({
-  cacheName: 'webfont-cache',
-  cacheExpiration: {
-    maxEntries: 20
-  },
-  cacheableResponse: { statuses: [0, 200] }
-});
-w.router.registerRoute(/https:\/\/fonts.googleapis.com\/.*/, webFontHandler);
-w.router.registerRoute(/https:\/\/fonts.gstatic.com\/.*/, webFontHandler);
-w.router.registerRoute(/https:\/\/use.fontawesome.com\/.*/, webFontHandler);
+workbox.routing.registerRoute('/', workbox.strategies.networkFirst());
+workbox.routing.registerRoute(/^\/$|login|group/, workbox.strategies.networkFirst());
 
 // storage-cache
 const STORAGE1 = /https:\/\/firebasestorage.googleapis.com\/v0\/b\/ng-notes-abb75.appspot.com\/o\/.*/;
@@ -31,12 +15,12 @@ const STORAGE2 = /https:\/\/storage.googleapis.com\/ng-notes-abb75.appspot.com\/
 const matchCb = ({url, event}) => {
   return STORAGE1.test(url) || STORAGE2.test(url) ? {url} : null;
 };
-w.router.registerRoute(matchCb,
-  w.strategies.cacheFirst({
+workbox.routing.registerRoute(matchCb,
+  workbox.strategies.cacheFirst({
     cacheName: 'storage-cache',
-    cacheExpiration: {
-      maxEntries: 60
-    },
-    cacheableResponse: { statuses: [0, 200] }
+    plugins: [
+      new workbox.expiration.Plugin({maxEntries: 60}),
+      new workbox.cacheableResponse.Plugin({statuses: [0, 200]}),
+    ],
   })
 );
