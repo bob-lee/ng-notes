@@ -21,21 +21,19 @@ const webFontHandler = w.strategies.cacheFirst({
   },
   cacheableResponse: { statuses: [0, 200] }
 });
-w.router.registerRoute('https://fonts.googleapis.com/(.*)', webFontHandler);
-w.router.registerRoute('https://fonts.gstatic.com/(.*)', webFontHandler);
-w.router.registerRoute('https://use.fontawesome.com/(.*)', webFontHandler);
+w.router.registerRoute(/https:\/\/fonts.googleapis.com\/.*/, webFontHandler);
+w.router.registerRoute(/https:\/\/fonts.gstatic.com\/.*/, webFontHandler);
+w.router.registerRoute(/https:\/\/use.fontawesome.com\/.*/, webFontHandler);
 
-// get-urls-cache
-const API = 'https://us-central1-joanne-lee.cloudfunctions.net/getUrls/(.*)';
-const apiHandler = w.strategies.networkFirst({
-  cacheName: 'get-urls-cache'
-});
-w.router.registerRoute(API, apiHandler);
-
-// work-images-cache
-w.router.registerRoute('https://storage.googleapis.com/joanne-lee.appspot.com/(.*)',
+// storage-cache
+const STORAGE1 = /https:\/\/firebasestorage.googleapis.com\/v0\/b\/ng-notes-abb75.appspot.com\/o\/.*/;
+const STORAGE2 = /https:\/\/storage.googleapis.com\/ng-notes-abb75.appspot.com\/.*/;
+const matchCb = ({url, event}) => {
+  return STORAGE1.test(url) || STORAGE2.test(url) ? {url} : null;
+};
+w.router.registerRoute(matchCb,
   w.strategies.cacheFirst({
-    cacheName: 'work-images-cache',
+    cacheName: 'storage-cache',
     cacheExpiration: {
       maxEntries: 60
     },
