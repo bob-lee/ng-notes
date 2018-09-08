@@ -8,7 +8,8 @@ const gcs = require('@google-cloud/storage')({
   projectId: 'ng-notes-abb75'
 });
 const admin = require('firebase-admin');
-admin.initializeApp(functions.config().firebase);
+admin.initializeApp();
+
 const spawn = require('child-process-promise').spawn;
 const path = require('path');
 const os = require('os');
@@ -26,8 +27,8 @@ const FIRESTORE_TRIGGER_PATH = '/notes/{group}/notes/{key}';
 const STORAGE_IMAGE_FOLDER = 'images';
 const STORAGE_VIDEO_FOLDER = 'videos';
 
-const IMAGE_MAX_HEIGHT = 600;
-const IMAGE_MAX_BYTES = 100000; // resize if greater than 100kb
+const IMAGE_MAX_HEIGHT = 800;
+const IMAGE_MAX_BYTES = 500000; // resize if greater than 500kb
 const RESIZED_IMAGE_PREFIX = 'resized_';
 
 function getFilename(url) { // returns 'Sarah.jpg' or 'bunny.mp4'
@@ -71,16 +72,16 @@ function getFilepath(url) { // returns 'images/Sarah.jpg' or 'videos/bunny.mp4'
   return null;
 }
 
-
 function deleteImage(url) {
-  const bucketName = functions.config().firebase.storageBucket;
+  const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
+  const bucketName = /*functions.config().firebase*/firebaseConfig.storageBucket;
   const bucket = gcs.bucket(bucketName);
 
   const filePath = getFilepath(url);
   const file = bucket.file(filePath);
 
   return file.delete().then(data => {
-    console.log('image deleted:', currentFile);
+    console.log('image deleted:', filePath);
   });
 }
 
@@ -91,14 +92,15 @@ function getSize(file) {
   });
 }
 
-exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWrite(event => {
+exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWrite((change, context) => {
+  //console.log(`handleImage(${context.params.group}, ${context.params.key})`);
   try {
-    var current = event.data.data();
+    var current = change.after.data();
   } catch (e) {
     console.log('current document null');
   }
   try {
-    var previous = event.data.previous.data();
+    var previous = change.before.data();
   } catch (e) {
     console.log('previous document null');
   }
@@ -125,7 +127,8 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
     return 'Already resized';
   }
 
-  const bucketName = functions.config().firebase.storageBucket;
+  const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
+  const bucketName = firebaseConfig.storageBucket;
   const bucket = gcs.bucket(bucketName);
 
   const filePath = getFilepath(current.imageURL);
@@ -143,7 +146,8 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
   const fileDir = path.dirname(filePath);
   const fileName = path.basename(filePath);
 
-  const thumbFilePath = path.normalize(path.join(fileDir, `${RESIZED_IMAGE_PREFIX}${fileName}`));
+  const thumbFilePath = path.normalize(path.join(fileDir, 
+    `${RESIZED_IMAGE_PREFIX}${IMAGE_MAX_HEIGHT}_${fileName}`));
 
   const tempLocalFile = path.join(os.tmpdir(), filePath);
   const tempLocalDir = path.dirname(tempLocalFile);
@@ -183,7 +187,7 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
       const thumbResult = results[0];
       const thumbFileUrl = thumbResult[0];
 
-      return event.data.ref.set({
+      return change.after.ref.set({
         imageURL: thumbFileUrl
       }, { merge: true });
     }).then(result => {
@@ -200,15 +204,11 @@ exports.handleImage = functions.firestore.document(FIRESTORE_TRIGGER_PATH).onWri
   });
 });
 
-exports.makeThumb = functions.database.ref(RTDB_TRIGGER_PATH).onWrite(event => {
-  const current = event.data.val(); // ''(empty) when no image
-  const previous = event.data.previous.val(); // null if non-existent
+exports.makeThumb = functions.database.ref(RTDB_TRIGGER_PATH).onWrite((change, context) => {
+  const current = change.after.val(); // ''(empty) when no image
   const currentFile = getFilename(current);
-  const previousFile = getFilename(previous);
-  const changed = event.data.changed(); // always true
 
   const toMake = !!current; // can check if thumb already exists then skip generation?
-  const toDelete = !!previous; // be cautious when deleting a thumb file as it can be used in elsewhere
 
   //console.log(`makeThumb(${event.params.pushId}, ${current}, ${event.data.ref.parent.child('text').val})`);
   //console.log(`makeThumb(${event.params.pushId}, ${previousFile} => ${currentFile}, ${toMake}, ${toDelete})`);
@@ -217,12 +217,8 @@ exports.makeThumb = functions.database.ref(RTDB_TRIGGER_PATH).onWrite(event => {
     return;
   }
 
-  //const bucket = event.data.child('bucket').val();
-  //const bucket = gcs.bucket(functions.config().firebase.bucket);
-  //const bucket = functions.config().firebase.bucket;
-  //const bucket = gcs.bucket('ng-notes-abb75.appspot.com');
-  //const filename = currentFile;//event.data.child('filename').val();
-  const bucketName = functions.config().firebase.storageBucket;
+  const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
+  const bucketName = firebaseConfig.storageBucket;
   const bucket = gcs.bucket(bucketName);
 
   const filePath = 'images/' + currentFile;
@@ -253,7 +249,6 @@ exports.makeThumb = functions.database.ref(RTDB_TRIGGER_PATH).onWrite(event => {
   // }
 
   // Cloud Storage files.
-  //const bucket = gcs.bucket(event.data.bucket);
   const file = bucket.file(filePath);
   const thumbFile = bucket.file(thumbFilePath);
 
@@ -290,11 +285,9 @@ exports.makeThumb = functions.database.ref(RTDB_TRIGGER_PATH).onWrite(event => {
     const thumbResult = results[0];
     const originalResult = results[1];
     const thumbFileUrl = thumbResult[0];
-    const fileUrl = originalResult[0];
+    //const fileUrl = originalResult[0];
     // Add the URLs to the Database
-    return event.data.ref.parent.child('thumbURL').set(thumbFileUrl);
-
-    //return admin.database().ref('images').push({ path: fileUrl, thumbnail: thumbFileUrl });
+    return change.after.ref.parent.child('thumbURL').set(thumbFileUrl);
   });
 
 });
