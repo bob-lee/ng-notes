@@ -23,18 +23,19 @@
   margin-bottom: 4.4em;
 }
 
-@media only screen
-and (min-width: 568px) {
+@media only screen and (min-width: 568px) {
   .container { 
     width: 65%;
   }
 }
 
+button[mat-flat-button] {
+  margin-left: 0.5em;
+}
+
 img, video {
   max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: 30%;
+  width: 53%;
 }
 
 mat-form-field.textarea {

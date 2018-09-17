@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule, MatInputModule } from '@angular/material';
+import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { MarkdownModule } from 'angular2-markdown';
 
@@ -17,6 +18,7 @@ import { ModalService } from './modal.service';
 import { FocusMeDirective } from '../focus-me.directive';
 import { AfterIfDirective } from '../after-if.directive';
 import { NgIdleClickModule } from 'ng-idle-click';
+import { NgInputFileComponent } from 'ng-input-file';
 import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
@@ -25,8 +27,10 @@ import { NoteComponent } from './group/note/note.component';
 @NgModule({
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    MatButtonModule,
     MatInputModule,
+    MatIconModule,
+    ReactiveFormsModule,
     BsDropdownModule.forRoot(),
     MarkdownModule.forRoot(),
     OurNotesRoutingModule,
@@ -43,6 +47,7 @@ import { NoteComponent } from './group/note/note.component';
     AfterIfDirective,
     NoteComponent,
     ImageComponent,
+    NgInputFileComponent,
   ],
   providers: [
     NoteService,
