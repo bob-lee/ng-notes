@@ -5,10 +5,9 @@ import { animate, group, query, style, transition, trigger } from '@angular/anim
 import { Todo } from '../Note';
 import { NoteService } from '../note.service';
 import { WindowRef } from '../../service/window-ref.service';
+import { NgInputFileComponent } from 'ng-input-file';
 
 const zoomFadeIn = { opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)' };
-// const zoomFadeInFrom = { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' };
-// export function zoomFadeInFrom() { return { ...zoomFadeIn, transformOrigin: '{{ ox }} {{ oy }}' }; };
 export function easeInFor(duration) { return `${duration}ms cubic-bezier(0.35, 0, 0.25, 1)`; };
 
 const handlerScroll = e => {
@@ -22,6 +21,7 @@ const scroll = function (e) {
   e.preventDefault(); // how to eat up scroll event to prevent parent scrolling on modal popup???
   return false;
 };
+const FILE_EXISTS = 'Uploaded file exists';
 
 @Component({
   selector: 'note-modal',
@@ -31,7 +31,6 @@ const scroll = function (e) {
     trigger('overlay', [
       transition(':enter', [
         style({ opacity: 0 }),
-        // query('.container', [style(zoomFadeInFrom)]),
         query('.container', [style({ opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)', transformOrigin: '{{ ox }} {{ oy }}' })]),
         group([
           animate(easeInFor(150), style({ opacity: 1 })),
@@ -50,8 +49,11 @@ const scroll = function (e) {
 })
 export class NoteModalComponent implements OnInit {
   title: string;
-  @ViewChild('fileInput')
-  inputEl: ElementRef;
+
+  @ViewChild(NgInputFileComponent)
+  private fileInput: NgInputFileComponent;
+
+  files: any;
 
   note: any; // reference to noteService.theNote set in init()
   noteForm: FormGroup;
@@ -103,7 +105,7 @@ export class NoteModalComponent implements OnInit {
   }
   private async doSave(e) {
     e.stopPropagation();
-    console.log(`doSave ${this.noteForm.status} changed=${this.changed()}, ${this.inputEl && this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
+    console.log(`doSave ${this.noteForm.status} changed=${this.changed()}, ${this.files && this.files.length} file(s), imgToRemove=${this.imgToRemove}`);
     if (this.noteForm.invalid) {
       this.submitted = true;
       return;
@@ -127,6 +129,17 @@ export class NoteModalComponent implements OnInit {
     done();
   }
 
+  fileChanged({ files }) {
+    this._fileChanged = true;
+    if (files.length === 0) {
+      this.imgToRemove = true; // hide any downloaded image
+    }
+
+    this.files = files;
+
+    console.log(`fileChanged ${files.length} file(s), imgToRemove=${this.imgToRemove}`);
+  }
+/*
   fileSelected() {
     this._fileChanged = true;
     console.log(`fileSelected ${this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
@@ -141,13 +154,15 @@ export class NoteModalComponent implements OnInit {
 
   get toHideButton(): boolean {
     if (this.noteService.theNoteHasImage) return false; // show button
-    if (this.inputEl && this.inputEl.nativeElement.files.length > 0) return false; // show button
+    // if (this.inputEl && this.inputEl.nativeElement.files.length > 0) return false; // show button
+    if (this.files && this.files.length > 0) return false; // show button
     return true; // hide button
   }
-
+*/
   get toHideImg(): boolean {
     if (this.imgToRemove || this.imageFailedToLoad) return true; // hide image
-    if (this.noteService.theNoteHasImage && this.inputEl && this.inputEl.nativeElement.files.length > 0) return true; // hide image
+    // if (this.noteService.theNoteHasImage && this.inputEl && this.inputEl.nativeElement.files.length > 0) return true; // hide image
+    // if (this.noteService.theNoteHasImage && this.files && this.files.length > 0) return true; // hide image
     if (!this.noteService.theNoteHasImage) return true; // hide image
     return false; // show image
   }
@@ -161,10 +176,9 @@ export class NoteModalComponent implements OnInit {
   }
 
   private async saveNote(toRemoveExistingImage?: boolean) { // assumes this.note has form value
-    const inputEl: HTMLInputElement = this.inputEl.nativeElement;
 
     try {
-      const data = await this.noteService.save(this.note, inputEl.files, this.imageFailedToLoad, toRemoveExistingImage);
+      const data = await this.noteService.save(this.note, this.files, this.imageFailedToLoad, toRemoveExistingImage);
       console.log('saveNote():', data);
     } catch (error) {
       console.error('saveNote():', error);
@@ -173,6 +187,8 @@ export class NoteModalComponent implements OnInit {
 
   loadImage() {
     if (!this.note || !this.note.imageURL) return;
+    this.fileInput.filename = FILE_EXISTS;
+
     const isImage = this.note.imageURL.indexOf('images') > -1;
     const isVideo = this.note.imageURL.indexOf('videos') > -1;
     console.log(`imageURL ${this.note.imageURL}, ${isImage}, ${isVideo}`);
@@ -211,6 +227,7 @@ export class NoteModalComponent implements OnInit {
       this.noteForm.patchValue(this.noteService.theNote);
     } else {
       this.body.classList.remove('noScroll');
+
       this.note = null;
       this.imgToRemove = false;
       this.imageFailedToLoad = false;
@@ -219,7 +236,6 @@ export class NoteModalComponent implements OnInit {
   }
 
   show(event: any, group: any) {
-
     this.calculateZoomOrigin(event);
     this.makeVisible();
     this.init();

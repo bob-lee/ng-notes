@@ -1,0 +1,20 @@
+{
+  "name": "ng-input-file",
+  "version": "0.0.2",
+  "description": "A component that wraps input[type=file] element styled with Material",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bob-lee/ng-notes.git"
+  },
+  "keywords": [
+    "angular",
+    "component",
+    "file input"
+  ],
+  "author": "Bob Lee <bob.bumsuk.lee@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+  }
+}
