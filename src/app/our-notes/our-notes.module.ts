@@ -18,7 +18,8 @@ import { ModalService } from './modal.service';
 import { FocusMeDirective } from '../focus-me.directive';
 import { AfterIfDirective } from '../after-if.directive';
 import { NgIdleClickModule } from 'ng-idle-click';
-import { NgInputFileComponent } from 'ng-input-file';
+import { NgInputFileModule } from 'ng-input-file';
+import { NgScrolltopModule } from 'ng-scrolltop';
 import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
@@ -36,6 +37,8 @@ import { NoteComponent } from './group/note/note.component';
     OurNotesRoutingModule,
     TouchStartModule,
     NgIdleClickModule,
+    NgInputFileModule,
+    NgScrolltopModule,
   ],
   declarations: [
     OurNotesComponent,
@@ -47,7 +50,7 @@ import { NoteComponent } from './group/note/note.component';
     AfterIfDirective,
     NoteComponent,
     ImageComponent,
-    NgInputFileComponent,
+    // NgInputFileComponent,
   ],
   providers: [
     NoteService,

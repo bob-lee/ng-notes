@@ -1,7 +1,7 @@
 {
-  "name": "ng-input-file",
-  "version": "0.0.3",
-  "description": "A component that wraps input[type=file] element styled with Material",
+  "name": "ng-scrolltop",
+  "version": "0.0.2",
+  "description": "A component that detects current Y position in a long page and shows up a clickable, unobtrusive icon that scrolls to page top smoothly",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bob-lee/ng-notes.git"
@@ -9,7 +9,8 @@
   "keywords": [
     "angular",
     "component",
-    "file input"
+    "material",
+    "scroll top"
   ],
   "author": "Bob Lee <bob.bumsuk.lee@gmail.com>",
   "license": "MIT",

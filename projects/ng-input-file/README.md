@@ -5,6 +5,8 @@
 
 This library provides a component `input-file` that wraps a legacy `input[type=file]` element styled with `Material` components:
 
+<img src="ng-input-file.PNG" width="50%">
+
 
 ```
 // legacy input
@@ -25,10 +27,10 @@ npm install ng-input-file --save
 yarn add ng-input-file
 
 // in app.module.ts
-import { NgInputFileComponent } from 'ng-input-file';
+import { NgInputFileModule } from 'ng-input-file';
 @NgModule({
-  declarations: [
-    NgInputFileComponent,
+  imports: [
+    NgInputFileModule,
 
 // in template
 <input-file (files)="fileChanged($event)" #input1></input-file>
