@@ -199,6 +199,46 @@
           }
         }
       }
+    },
+    "ng-scrolltop": {
+      "root": "projects/ng-scrolltop",
+      "sourceRoot": "projects/ng-scrolltop/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-scrolltop/tsconfig.lib.json",
+            "project": "projects/ng-scrolltop/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/ng-scrolltop/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-scrolltop/src/test.ts",
+            "tsConfig": "projects/ng-scrolltop/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-scrolltop/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-scrolltop/tsconfig.lib.json",
+              "projects/ng-scrolltop/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "ng-notes",

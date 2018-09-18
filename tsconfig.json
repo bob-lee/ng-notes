@@ -28,6 +28,12 @@
       ],
       "ng-input-file/*": [
         "dist/ng-input-file/*"
+      ],
+      "ng-scrolltop": [
+        "dist/ng-scrolltop"
+      ],
+      "ng-scrolltop/*": [
+        "dist/ng-scrolltop/*"
       ]
     }
   }

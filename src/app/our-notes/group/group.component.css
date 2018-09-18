@@ -4,6 +4,7 @@
 
   padding-bottom: 4em;
   counter-reset: count;
+  scroll-behavior: smooth;
 }
 
 .item {
