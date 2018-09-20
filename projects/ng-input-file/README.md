@@ -5,7 +5,7 @@
 
 This library provides a component `input-file` that wraps a legacy `input[type=file]` element styled with `Material` components:
 
-<img src="ng-input-file.PNG" width="50%">
+<img src="https://raw.githubusercontent.com/bob-lee/ng-notes/master/projects/ng-input-file/ng-input-file.PNG" width="50%">
 
 
 ```

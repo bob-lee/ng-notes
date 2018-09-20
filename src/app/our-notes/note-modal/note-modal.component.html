@@ -3,7 +3,7 @@
   <form id="popup" class="container" [formGroup]="noteForm" novalidate (click)="$event.stopPropagation()" blFocusMe>
     <h2>
       {{title}}
-      <div class="pull-right" touchStart>
+      <div class="float-right" touchStart>
         <button type="button" mat-stroked-button (idleClick)="cancel($event)">Cancel</button>
         <button type="button" mat-flat-button (idleClick)="save($event)">Save</button>
       </div>
