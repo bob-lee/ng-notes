@@ -7,3 +7,7 @@
 .dropdown-item.click {
   cursor: pointer;
 }
+
+hr {
+  margin: 0;
+}

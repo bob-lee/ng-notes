@@ -16,9 +16,6 @@
   counter-increment: count;
   content: counter(count)".";
 }
-.item hr {
-  margin: 0.2em 0;
-}
 
 .item a {
   cursor: pointer;
@@ -80,16 +77,4 @@
 .fab.show {
   opacity: 1;
   visibility: visible;
-}
-.fab.disabled {
-  opacity: 0.3;
-}
-.fab.paged {
-  right: 2.5em;
-}
-.fab.next {
-  right: 4.8em;
-}
-.fab.prev {
-  right: 7.1em;
 }

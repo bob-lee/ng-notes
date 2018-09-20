@@ -3,7 +3,7 @@
 </span>
 
 <span style="position:relative" dropdown>
-  <span dropdownToggle style="cursor:pointer" class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+  <mat-icon dropdownToggle style="cursor:pointer">delete_outline</mat-icon>
   <ul *dropdownMenu class="dropdown-menu">
     <li role="menuitem">
       <a class="dropdown-item click" (idleClick)="remove($event)">remove</a>
@@ -13,10 +13,6 @@
 
 <br/>
 
-<!--
-      <a class="dropdown-item" (click)="remove(note)">remove</a>
-<a (click)="addOrEdit($event, -1, note)">
--->
 <a (idleClick)="edit($event)">
   <markdown [data]="note.text"></markdown>
   <span class="item-image" *ngIf="note.thumbURL">
