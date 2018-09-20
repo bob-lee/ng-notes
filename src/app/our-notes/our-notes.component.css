@@ -1,6 +1,6 @@
 .my-header {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
 }
 .my-header .btn-group {
@@ -11,11 +11,6 @@
 }
 .my-header .title {
   position: relative;
-  /*
-  border-radius: 4px;
-  background: rgba(68, 68, 68, 0.252);
-  padding: 0 0.1em;
-  */
 }
 .my-header .title::before {
   content: 'To create a new group, enter group name in footer bar';
@@ -61,8 +56,13 @@ img.userPhoto {
 
 /* footer */
 .bl-footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+
   z-index:100;
-  height: 4em;
+  height: 3.5em;
   opacity: 0.7;
   background: linear-gradient(#222, #444);
   color: #fff;
@@ -74,59 +74,76 @@ img.userPhoto {
 .bl-footer input {
   color:#000;
 }
-.bl-icon svg {
-  fill:#fff;
+
+/* borders for debug */
+.debug .bl-icon {
+  border: 1px solid red;
+}
+.debug .bl-icon-title {
+  border: 1px solid blue;
+}
+.debug .mat-icon-box {
+  border: 1px solid yellow;
+}
+.debug .svg-box {
+  border: 1px solid yellow;
 }
 
 .bl-icon {
+  height: 100%;
+  position: relative;
   font-size: 2.5em;
   cursor: pointer;
   transition:0.3s cubic-bezier(0.35, 0, 0.25, 1);
 }
-
 .bl-icon:active {
   transform:scale(1.1);
 }
 
-.bl-icon-count {
-  position: relative;
+.bl-icon svg {
+  display: inline-block;
+  margin-bottom: 0.7em;
+  fill:#fff;
 }
 
-.bl-icon-count::before {
+.bl-icon-title {
   position: absolute;
-  top: 32%;
-  left: 37%;
-  content: attr(data-count);
-  height: 2em;
-  width: 2em;
-  font-size: small;
-  border-radius: 1em;
-  background: red;
+  top: 70%; 
+  left: -50%;
+  width: 200%;
+  font-size: x-small;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
+  text-align:center;
 }
 
-.wrap {
+.mat-icon-box {
+  font-size: 48px;
+  height: 100%;
+  display: flex;
+}
+.mat-icon-box mat-icon {
+  margin-top: -.3em;
+}
+
+.bl-icon-count {
   position: absolute;
-  top: 10%;
+  top: -3%;
   left: 37%;
   z-index: 1;
-  /* opacity: 0.5; */
+  opacity: 0.7;
 }
-.box {
+.bl-icon-count-inner {
   display: inline-block;
   position: relative;
   height: 2em;
   width: 2em;
+  border: 1px red solid;
   border-radius: 1em;
   background: red;
   color: white;
   font-size: small;
 }
-.box div {
+.bl-icon-count-inner div {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -135,27 +152,12 @@ img.userPhoto {
   justify-content: center;
 }
 
-.bl-icon-title {
-  position: relative;
-}
-
-.bl-icon-title::after {
-  position: absolute;
-  top: 78%; 
-  left: -48%;
-  width:200%;
-  content: attr(data-title);
-  font-size: x-small;
-  color: white;
-  text-align:center;
-}
-
-.bl-icon-unselected > span,
-.bl-icon-unselected.bl-icon-count::before {
+:not(.bl-icon-selected) > mat-icon-box,
+:not(.bl-icon-selected) .bl-icon-count {
   opacity: 0.5;
 }
 
-.bl-icon-selected > span,
-.bl-icon-selected.bl-icon-count::before {
+.bl-icon-selected > mat-icon-box,
+.bl-icon-selected .bl-icon-count {
   opacity: 1;
 }
