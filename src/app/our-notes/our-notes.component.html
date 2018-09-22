@@ -3,23 +3,10 @@
     {{title}}
   </h2>
 
-  <div class="btn-group" dropdown>
-    <button dropdownToggle type="button" class="btn btn-default dropdown-toggle">
-      {{noteService.userPhotoUrl ? '' : noteService.userName}}
-      <img *ngIf="noteService.userPhotoUrl" [src]="noteService.userPhotoUrl" class="userPhoto" alt="{{noteService.userName}}">
-      <span class="caret"></span>
-    </button>
-    <ul *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-      <li role="menuitem">
-        <a class="dropdown-item">Logged in as
-          <strong>{{noteService.userName}}</strong>
-        </a>
-      </li>
-      <li class="divider dropdown-divider"></li>
-      <li role="menuitem">
-        <a class="dropdown-item click" style="cursor:pointer" (click)="logout()">Log out</a>
-      </li>
-    </ul>
+  <div class="user" (idleClick)="logoutSnackbar($event)">
+    <div class="photo" [attr.data-initial]="noteService.userNameInitials" [ngClass]="{'no-photo': !toShow}">
+      <img id="userPhoto" [src]="photoUrl" *ngIf="toShow" (error)="imageError($event)">
+    </div>
   </div>
 </div>
 
@@ -27,6 +14,15 @@
   <router-outlet #o="outlet"></router-outlet>
 </div>
 
+<ng-template #logoutTemplate>
+  <div class="logout-template">
+    <span>
+      Logged in as <strong>{{noteService.userName}}</strong>
+    </span>
+    <button mat-button (click)="logoutSnackbarTemplateAction()">Log out</button>
+  </div>
+</ng-template>
+  
 <footer class="bl-footer">
   <div class="bl-icon" touchStart
     [ngClass]="{'bl-icon-selected': !inside}" (click)="exit()">
@@ -73,8 +69,8 @@
 
   <div>
     <form [formGroup]="myForm" (submit)="search()">
-      <input type="text" maxlength="30" placeholder="Enter group name..." [attr.disabled]="inside ? '' : null" formControlName="groupName"
-      />
+      <input type="text" maxlength="30" placeholder="Enter group name" 
+        [attr.disabled]="inside ? '' : null" formControlName="groupName" />
     </form>
   </div>
 </footer>

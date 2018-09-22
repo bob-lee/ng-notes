@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, EmbeddedViewRef, TemplateRef } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 
 import * as firebase from 'firebase/app';
@@ -11,6 +11,7 @@ import { first, map, switchMap } from 'rxjs/operators';
 
 import { Note, Todo, LoginWith } from './Note';
 import { WindowRef } from '../service/window-ref.service';
+import { MatSnackBar, MatSnackBarRef, SimpleSnackBar  } from '@angular/material';
 
 export interface FirestoreFunctions {
   addNote: (note: Note) => any;
@@ -77,6 +78,7 @@ export class NoteService implements CanActivate, OnDestroy {
     private afs: AngularFirestore,
     private storage: AngularFireStorage,
     private router: Router,
+    public snackBar: MatSnackBar,
     private windowRef: WindowRef) {
     console.warn(`'note.service'`); // watch when / how often the service is instantiated
 
@@ -473,6 +475,27 @@ export class NoteService implements CanActivate, OnDestroy {
     const key = note.$key;
     delete note.$key;
     await this.collection.doc(key).update(note);
+  }
+
+  public openSnackBar(message: string, action: string, duration = 3000): MatSnackBarRef<SimpleSnackBar> {
+    return this.snackBar.open(message, action, {
+      duration: duration,
+    });
+  }
+  public openSnackBarTemplate(template: TemplateRef<any>, duration = 3000): MatSnackBarRef<EmbeddedViewRef<any>> {
+    return this.snackBar.openFromTemplate(template, {
+      duration: duration,
+    });
+  }
+
+  public get userNameInitials() { // https://stackoverflow.com/a/33076482/588521
+    const name = this.userName;
+    // const name = ''; // ''
+    // const name = 'A'; // A
+    // const name = 'a b'; // AB
+    // const name = 'a b c'; // AC
+    let initials = name.match(/\b\w/g) || [];
+    return ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
   }
 
   resetListState() {

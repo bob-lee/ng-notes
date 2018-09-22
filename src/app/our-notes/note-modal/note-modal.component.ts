@@ -139,30 +139,9 @@ export class NoteModalComponent implements OnInit {
 
     console.log(`fileChanged ${files.length} file(s), imgToRemove=${this.imgToRemove}`);
   }
-/*
-  fileSelected() {
-    this._fileChanged = true;
-    console.log(`fileSelected ${this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
-  }
 
-  removeFile(e) {
-    if (this.inputEl) this.inputEl.nativeElement.value = ''; // remove any selected file
-    this.imgToRemove = true; // hide any downloaded image
-    this._fileChanged = true;
-    console.log(`removeFile ${this.inputEl && this.inputEl.nativeElement.files.length} file(s), imgToRemove=${this.imgToRemove}`);
-  }
-
-  get toHideButton(): boolean {
-    if (this.noteService.theNoteHasImage) return false; // show button
-    // if (this.inputEl && this.inputEl.nativeElement.files.length > 0) return false; // show button
-    if (this.files && this.files.length > 0) return false; // show button
-    return true; // hide button
-  }
-*/
   get toHideImg(): boolean {
     if (this.imgToRemove || this.imageFailedToLoad) return true; // hide image
-    // if (this.noteService.theNoteHasImage && this.inputEl && this.inputEl.nativeElement.files.length > 0) return true; // hide image
-    // if (this.noteService.theNoteHasImage && this.files && this.files.length > 0) return true; // hide image
     if (!this.noteService.theNoteHasImage) return true; // hide image
     return false; // show image
   }

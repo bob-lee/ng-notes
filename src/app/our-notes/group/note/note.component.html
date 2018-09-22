@@ -2,15 +2,9 @@
   {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy'}} {{note.updatedAt | date : 'shortTime' | lowercase}}
 </span>
 
-<span style="position:relative" dropdown>
-  <mat-icon dropdownToggle style="cursor:pointer">delete_outline</mat-icon>
-  <ul *dropdownMenu class="dropdown-menu">
-    <li role="menuitem">
-      <a class="dropdown-item click" (idleClick)="remove($event)">remove</a>
-    </li>
-  </ul>
+<span class="mat-icon-box" (idleClick)="remove($event)">
+  <mat-icon [inline]="true" style="cursor:pointer">delete_outline</mat-icon>
 </span>
-
 <br/>
 
 <a (idleClick)="edit($event)">

@@ -9,13 +9,13 @@ const ACCEPT_DEFAULT = 'image/*, video/*';
 <div class="box">
   <div class="input-file" style="width:93%">
     <mat-form-field style="width:100%" (click)="inputEl.click()">
-      <mat-icon matPrefix>folder</mat-icon>
+      <mat-icon matPrefix>attachment</mat-icon>
       <input matInput placeholder="Choose file" disabled value="{{filename}}">
     </mat-form-field>
     <input type="file" [attr.accept]="accept" (change)="fileChanged()" #inputEl>
   </div>
 
-  <mat-icon (click)="remove()">{{filename ? 'delete' : ''}}</mat-icon>
+  <mat-icon (click)="remove()">{{filename ? 'delete_outline' : ''}}</mat-icon>
 </div>
   `,
   styles: [`
@@ -32,6 +32,9 @@ input[type=file] {
 }
 mat-icon[matPrefix] {
   margin-right: 5px;
+}
+.box > mat-icon {
+  margin-bottom: 12px;
 }
   `],
 })

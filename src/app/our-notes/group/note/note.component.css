@@ -1,13 +1,20 @@
 .note-header,
 :host(.item::before) {
-  font-size: 85%;
+  font-size: 80%;
   color: #000;
-}
-
-.dropdown-item.click {
-  cursor: pointer;
 }
 
 hr {
   margin: 0;
+}
+
+.mat-icon-box {
+  font-size: 20px;
+  display: inline-block;
+  position: relative;
+}
+
+.mat-icon-box mat-icon {
+  position: absolute;
+  top: -1.1em;
 }

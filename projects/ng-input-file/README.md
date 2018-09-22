@@ -5,8 +5,19 @@
 
 This library provides a component `input-file` that wraps a legacy `input[type=file]` element styled with `Material` components:
 
-<img src="https://raw.githubusercontent.com/bob-lee/ng-notes/master/projects/ng-input-file/ng-input-file.PNG" width="50%">
+<img class="screenshot" src="https://raw.githubusercontent.com/bob-lee/ng-notes/master/projects/ng-input-file/ng-input-file.PNG">
 
+<style>
+img.screenshot {
+  box-shadow: 6px 6px 12px rgba(0,0,0,.475);
+}
+@media only screen and (min-width: 568px) {
+  img.screenshot { 
+    width: 50%;
+  }
+}
+
+</style>
 
 ```
 // legacy input

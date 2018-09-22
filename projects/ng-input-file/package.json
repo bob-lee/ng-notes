@@ -1,6 +1,6 @@
 {
   "name": "ng-input-file",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A component that wraps input[type=file] element styled with Material",
   "repository": {
     "type": "git",
