@@ -20,10 +20,12 @@ export class LoginComponent implements OnInit {
   async login(loginWith: LoginWith) {
     try {
       await this.noteService.login(loginWith);
-      console.log(`login with ${LoginWith[loginWith]} success`);
+      const success = `logged in with ${LoginWith[loginWith]}`;
+      console.log(success);
       this.router.navigate(['group']);
     } catch (err) {
-      console.log(`login with ${LoginWith[loginWith]} fail ${err}`);
+      console.error(`failed to log in with ${LoginWith[loginWith]}: ${err}`);
+      this.noteService.openSnackBar(`Error: ${err.code}`, '');
       this.error = err;
     }
   }

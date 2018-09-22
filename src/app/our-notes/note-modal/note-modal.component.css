@@ -30,7 +30,15 @@
 }
 
 button[mat-flat-button] {
-  margin-left: 0.5em;
+  margin-left: 4px;
+}
+
+@media only screen and (max-width: 400px) {
+  button[mat-flat-button],
+  button[mat-stroked-button] {
+    min-width: 50px;
+    padding: 0 8px;
+  }
 }
 
 img, video {
