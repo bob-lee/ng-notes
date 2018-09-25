@@ -49,11 +49,3 @@ img, video {
 mat-form-field.textarea {
   width: 100%;
 }
-
-@keyframes my-loader {
-  0%, 100% { opacity: 0.9; }
-  50% { opacity: 0.1; }
-}
-.my-loader {
-  animation: my-loader 3s linear infinite;
-}

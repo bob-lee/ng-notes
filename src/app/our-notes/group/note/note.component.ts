@@ -39,6 +39,10 @@ export class NoteComponent {
   }
 
   private doRemove(note, done) {
+    if (!this.noteService.isOwner) {
+      done();
+      return;
+    }
     this.toRemove.emit({ note, done });
   }
 }

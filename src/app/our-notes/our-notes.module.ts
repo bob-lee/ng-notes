@@ -3,13 +3,11 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule, MatInputModule } from '@angular/material';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { MarkdownModule } from 'angular2-markdown';
 
 import { OurNotesComponent } from './our-notes.component';
 import { GroupsComponent } from './groups/groups.component';
 import { GroupComponent } from './group/group.component';
-import { NoteFormComponent } from './note-form/note-form.component';
 import { ImageComponent } from './group/note/image/image.component';
 import { NoteComponent } from './group/note/note.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
@@ -32,7 +30,6 @@ import { OurNotesRoutingModule } from './our-notes-routing.module';
     MatInputModule,
     MatIconModule,
     ReactiveFormsModule,
-    BsDropdownModule.forRoot(),
     MarkdownModule.forRoot(),
     OurNotesRoutingModule,
     TouchStartModule,
@@ -44,7 +41,6 @@ import { OurNotesRoutingModule } from './our-notes-routing.module';
     OurNotesComponent,
     GroupsComponent,
     GroupComponent,
-    NoteFormComponent,
     NoteModalComponent,
     FocusMeDirective,
     AfterIfDirective,

@@ -26,7 +26,7 @@ handle({ event, done }) {
 ```
 
 
-At `click` event, a ` busy` flag is set to true and at `done` function call, it is set to false and while it is busy, any clicks will be ignored.
+A `busy` flag will be set to true at `click` event and set to false at `done` function call. Any `click`s will be ignored while it is busy.
 
 `done` function also can be called asynchronously inside a callback function or `async` handler function like:
 
@@ -45,7 +45,7 @@ async handleAsync2({ event, done }) {
 ```
 
 
-If handling a click event takes longer than 1000ms, the directive will add `my-loader` class to the host element and remove it once `done` function is called so that user can indicate it is busy handling it by providing a keyframes animation for example. Optionally you can override the default class name `my-loader` by adding `[idleClickLoader]="'other-name'"`.
+If handling a click event takes longer than 1 second, the directive will play a default (opacity) animation on host element until it is `done` to indicate it is busy. You can override this behavior by providing your own loader class name, e.g. `[idleClickLoader]="'my-loader'"`.
 
 A [Stackblitz demo](https://stackblitz.com/edit/angular-zta1qz?embed=1&file=src/app/app.component.ts) is available to show the various usage.
 
