@@ -30,6 +30,7 @@ export class NoteService implements CanActivate, OnDestroy {
   user: Observable<firebase.User>;
   userName: string;
   userPhotoUrl: string;
+  isOwner = false;
 
   groupsFs: Observable<any[]>;
   countGroupsFs = 0;
@@ -64,7 +65,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
   todo: Todo = Todo.List;
 
-  note: Note; // note to edit, to be set by note component when clicked for edit
+  note: Note; // note to edit, to be set by note component when clicked for edit // to go
 
   get loggedin() { return !!this.userName; }
 
@@ -88,6 +89,7 @@ export class NoteService implements CanActivate, OnDestroy {
         console.log('logged in', user);
         this.userName = user.displayName || 'Anonymous';
         this.userPhotoUrl = user.providerData[0].photoURL;
+        this.isOwner = !user.isAnonymous && user.email === 'bob.bumsuk.lee@gmail.com';
 
         this.initAfterLogin();
       } else {

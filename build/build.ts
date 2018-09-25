@@ -26,17 +26,6 @@ async function copyWorkbox() {
 }
 
 /**
- * Minify dropdown.js
- */
-async function minifiedDropdownJs() {
-  const code = fs.readFileSync(process.cwd() + '/src/dropdown.js', 'utf8');
-  const data = uglify.minify(code).code;
-  const path = process.cwd() + `/${outputPath}/dropdown.js`;
-  return [{ data,  path }];
-}
-
-
-/**
  * Build Steps
  *  (assume tsc has ran)
  *  - Copy assets from npm
@@ -45,8 +34,6 @@ async function minifiedDropdownJs() {
  */
 async function build() {
   const wb = await copyWorkbox();
-  // const dropdown = await minifiedDropdownJs();
-  // const all = wb.concat(dropdown);
   await wb.map(file => {
     console.log(`Writing ${file.path}.`);
     return fs.writeFileSync(file.path, file.data, 'utf8');
