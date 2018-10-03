@@ -1,0 +1,23 @@
+{
+  "name": "ng-lazy-load",
+  "version": "1.0.0",
+  "description": "A library to enable lazy loading offscreen resource files",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bob-lee/ng-notes.git"
+  },
+  "keywords": [
+    "angular",
+    "directive",
+    "service",
+    "lazyload",
+    "offscreen",
+    "intersectionobserver api"
+  ],
+  "author": "Bob Lee <bob.bumsuk.lee@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+  }
+}
