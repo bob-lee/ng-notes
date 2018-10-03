@@ -35,8 +35,8 @@
     </div>
 
     <div class="chosen-file">
-      <img id="myimg" [hidden]="toHideImg">
-      <video id="myvideo" [hidden]="toHideImg"></video>
+      <img id="myimg" [hidden]="toHideImg" *ngIf="hasImage">
+      <video id="myvideo" [hidden]="toHideImg" *ngIf="hasVideo"></video>
     </div>
 
   </form>

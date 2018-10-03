@@ -1,3 +1,5 @@
+<!-- <div class="debug-info">{{debugInfo}}</div> -->
+
 <div class="my-header">
   <h2 [@expand]="title" class="title" [ngClass]="{'inside':inside}">
     {{title}}
@@ -13,7 +15,6 @@
 <div [@routerTransition]="getState(o)">
   <router-outlet #o="outlet"></router-outlet>
 </div>
-
 <ng-template #logoutTemplate>
   <div class="logout-template">
     <span>

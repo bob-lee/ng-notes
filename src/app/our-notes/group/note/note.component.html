@@ -1,23 +1,23 @@
 <span class="note-header">
   {{note.name}}, {{note.updatedAt | date : 'dd/MM/yyyy'}} {{note.updatedAt | date : 'shortTime' | lowercase}}
 </span>
+<!-- comment
+  {{toLoad}},{{getFilename(note.imageURL)}},{{videoURL}}
 
+ -->
 <span class="mat-icon-box" (idleClick)="remove($event)">
   <mat-icon [inline]="true" style="cursor:pointer">delete_outline</mat-icon>
 </span>
 <br/>
 
 <a (idleClick)="edit($event)">
-  <markdown [data]="note.text"></markdown>
-  <span class="item-image" *ngIf="note.thumbURL">
-    <markdown>![alt]({{note.thumbURL}} "thumb title")</markdown>
-  </span>
-  <span class="image-span" *ngIf="!note.thumbURL && note.imageURL">
-    <my-image *ngIf="note.imageURL.indexOf('images') > -1"
-      [source]="note.imageURL"
+  <ngx-md [data]="note.text"></ngx-md>
+  <span class="image-span" *ngIf="note.imageURL">
+    <my-image *ngIf="imageURL"
+      [source]="imageURL"
       [orientation]="note.orientation"></my-image>
-    <video playsinline preload="metadata" controls *ngIf="note.imageURL.indexOf('videos') > -1">
-      <source [src]="note.imageURL" type="video/mp4">
+    <video playsinline preload="metadata" controls *ngIf="videoURL">
+      <source [src]="videoURL" type="video/mp4">
     </video>
   </span>
 </a>

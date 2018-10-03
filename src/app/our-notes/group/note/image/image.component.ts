@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 @Component({
   selector: 'my-image',
   template: `
+  <loader *ngIf="source && !loaded"></loader>
   <canvas #canvas></canvas>
   `,
   styles: [`
@@ -12,14 +13,32 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
   `],
 })
 export class ImageComponent implements OnInit {
-  @Input() source: any;
+  private _source = '';
+  private _init = false;
+  loaded = false;
+ 
+  @Input()
+  set source(value: string) {
+    if (!value || value === this._source) return;
+    this.loaded = false;
+    this._source = value.trim();
+    if (this._init) this.doLoad(); // source changed runtime, load again
+  }
+  get source(): string { return this._source; }  
+
   @Input() orientation = 1;
   @ViewChild('canvas') canvas: ElementRef;
 
   constructor() { }
 
   ngOnInit() {
+    this.doLoad();
+    this._init = true;
+  }
+
+  private doLoad() {
     const img = new Image();
+
     img.addEventListener('load', _ => {
       const width = img.width;
       const height = img.height;
@@ -47,10 +66,10 @@ export class ImageComponent implements OnInit {
         default: break;
       }
 
+      this.loaded = true;
       ctx.drawImage(img, 0, 0);
-
     });
-    img.src = this.source;
+    
+    img.src = this._source;
   }
-
 }

@@ -74,6 +74,12 @@ export class NoteService implements CanActivate, OnDestroy {
 
   showIcon = false;
 
+  clear() {
+    this.userName = '';
+    this.userPhotoUrl = '';
+    this.isOwner = false;
+  }
+
   constructor(
     private afAuth: AngularFireAuth,
     private afs: AngularFirestore,
@@ -93,10 +99,9 @@ export class NoteService implements CanActivate, OnDestroy {
 
         this.initAfterLogin();
       } else {
-        console.log('logged out');
-        this.userName = '';
-        this.userPhotoUrl = '';
+        this.clear();
         this.router.navigate(['/login']);
+        console.log('logged out');
       }
     });
 

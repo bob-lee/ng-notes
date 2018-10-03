@@ -1,10 +1,11 @@
 
-import { Component, OnInit, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component,  OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { Todo } from '../Note';
 import { NoteService } from '../note.service';
+import { LazyLoadService } from 'ng-lazy-load';
 import { ModalService } from '../modal.service';
 import { listChild } from '../../app.animation';
 
@@ -14,7 +15,6 @@ import { listChild } from '../../app.animation';
   animations: [
     listChild,
   ],
-  // encapsulation: ViewEncapsulation.None
 })
 export class GroupComponent implements OnInit, OnDestroy {
   trackByFn = (idx, obj) => obj.$key; // do I need this?
@@ -29,6 +29,7 @@ export class GroupComponent implements OnInit, OnDestroy {
   constructor(private router: Router,
     private route: ActivatedRoute,
     public noteService: NoteService,
+    private lazyLoadService: LazyLoadService,
     private modalService: ModalService) {
 
     console.log('GroupComponent()');
@@ -84,12 +85,14 @@ export class GroupComponent implements OnInit, OnDestroy {
       this.noteService.search(group);
 
       this.init = true;
+
+      setTimeout(_ => this.lazyLoadService.announceOrder('register'), 1500);
     }
   }
 
   ngOnDestroy() {
-    console.warn(`'GroupComponent' ngOnDestroy`);
     if (this.subscription) this.subscription.unsubscribe();
+    console.warn(`'GroupComponent' ngOnDestroy`);
   }
 
   animStart(event) {
@@ -121,4 +124,10 @@ export class GroupComponent implements OnInit, OnDestroy {
     const body = document.querySelector("body");
     body.classList.toggle('show-overlay');
   }
+
+  // toLoad(note, index, reason) {
+  //   note.toLoad = true;
+  //   // console.log(`toLoad [${index}]`);
+  //   console.log(`toLoad [${index}] ${reason}`);
+  // }
 }
