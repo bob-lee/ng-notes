@@ -7,4 +7,4 @@ import { LazyLoadDirective } from './ng-lazy-load.directive';
   declarations: [LazyLoadDirective],
   exports: [LazyLoadDirective]
 })
-export class NgLazyLoadModule { }
+export class LazyLoadModule { }

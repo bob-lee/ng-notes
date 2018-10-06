@@ -32,13 +32,13 @@ export class GroupComponent implements OnInit, OnDestroy {
     private lazyLoadService: LazyLoadService,
     private modalService: ModalService) {
 
-    console.log('GroupComponent()');
-
+      
     this.subscription = route.params.subscribe(params => {
       if (!this.init) return;
 
       console.log('GroupComponent params', params);
     })
+    console.log('GroupComponent()');
   }
 
   ngOnInit() {
@@ -86,7 +86,7 @@ export class GroupComponent implements OnInit, OnDestroy {
 
       this.init = true;
 
-      setTimeout(_ => this.lazyLoadService.announceOrder('register'), 1500);
+      this.lazyLoadService.registerAfter(1500);
     }
   }
 
