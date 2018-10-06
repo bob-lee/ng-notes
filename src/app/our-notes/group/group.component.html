@@ -7,7 +7,7 @@
     [note]="note" (toAddOrEdit)="addOrEdit($event)" (toRemove)="remove($event)" 
     *ngFor="let note of noteService.items$ | async; let i = index; trackBy: trackByFn"
     [ngClass]="{ 'modified' : note.$type === 'modified' && noteService.listState === 'modified' }"
-    lazyLoad [url]="note.imageURL" [index]="i" manualRegister
+    (lazyLoad)="myNote.doLoad($event,i)" [url]="note.imageURL" [index]="i" #myNote
     [attr.tabindex]="i">
   </my-note>
 </div>

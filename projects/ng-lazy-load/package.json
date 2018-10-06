@@ -1,6 +1,6 @@
 {
   "name": "ng-lazy-load",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A library to enable lazy loading offscreen resource files",
   "repository": {
     "type": "git",

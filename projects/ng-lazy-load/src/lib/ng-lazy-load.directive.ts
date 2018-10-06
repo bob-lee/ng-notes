@@ -46,7 +46,9 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
   }
 
   @Input() index = -1;
-  get manual() { return this._element.nativeElement.getAttribute('manualRegister') !== null; }
+  get manual() { return this._service.delayMsec > 0; }
+
+  private toLoad = false;
 
   constructor(private _service: LazyLoadService,
     private _element: ElementRef,
@@ -56,12 +58,28 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
 
   public ngAfterViewInit() {
     if (!this._url) {
-      if (this._service.isDevMode) console.log('lazyLoad never', this.index === -1);
+      if (this._service.isDevMode) console.log('lazyLoad never');
     } else if (this.manual) { // register later
       const sub = this._service.announcedOrder.pipe(first()).subscribe(_ => this.doRegister());
       this._subscription.add(sub);
     } else { // register now (default)
       this.doRegister();
+    }
+
+    if (this.index !== -1) { // if [index] given, listen to insecting index
+      const sub = this._service.announcedIntersection.subscribe(params => {
+        const { index, state } = params;
+        if (!this.toLoad &&
+          this.index !== index &&
+          this._url && this._url !== NOT_GIVEN && 
+          (this.index - index) <= this._service.loadAheadCount) { // close to intersecting
+          this.toLoad = true;
+          const state = IntersectionState.NearIntersecting;
+          this.lazyLoad.emit(state);
+          if (this._service.isDevMode) console.log(`loading [${this.index}] (${IntersectionState[state]} ${index})`);
+        }
+      });
+      this._subscription.add(sub);
     }
 
     this._init = true;
@@ -139,9 +157,13 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
 
   private load(state: IntersectionState): void {
     this.removeListeners();
-    if (this.index === -1) { // [index] input not given
-      this.lazyLoad.emit(state);
-    } else {
+    if (this.toLoad) return;
+
+    this.toLoad = true;
+    this.lazyLoad.emit(state);
+    if (this._service.isDevMode) console.log(`loading [${this.index}] (${IntersectionState[state]})`);
+
+    if (this.index !== -1) { // if [index] given, announce as well
       this._service.announceIntersection({ index: this.index, state });
     }
   }

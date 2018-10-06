@@ -21,7 +21,7 @@ import { AfterIfDirective } from '../after-if.directive';
 import { NgIdleClickModule } from 'ng-idle-click';
 import { NgInputFileModule } from 'ng-input-file';
 import { NgScrolltopModule } from 'ng-scrolltop';
-import { NgLazyLoadModule } from 'ng-lazy-load';
+import { LazyLoadModule } from 'ng-lazy-load';
 import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
@@ -39,7 +39,7 @@ import { OurNotesRoutingModule } from './our-notes-routing.module';
     NgIdleClickModule,
     NgInputFileModule,
     NgScrolltopModule,
-    NgLazyLoadModule,
+    LazyLoadModule,
   ],
   declarations: [
     OurNotesComponent,

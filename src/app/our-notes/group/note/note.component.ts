@@ -1,22 +1,18 @@
-import { Component, Input, Output, ElementRef, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, Input, Output, ElementRef, EventEmitter } from '@angular/core';
 import { NoteService } from '../../note.service';
-import { LazyLoadService, IntersectionState } from 'ng-lazy-load';
-import { Subscription } from 'rxjs';
-
-const LOAD_AHEAD_COUNT = 0;
+import { IntersectionState } from 'ng-lazy-load';
 
 @Component({
   selector: 'my-note',
   templateUrl: './note.component.html',
   styleUrls: ['./note.component.css']
 })
-export class NoteComponent implements OnDestroy {
+export class NoteComponent {
   @Input() note: any;
   @Input() index: number;
   @Output() toAddOrEdit: EventEmitter<any> = new EventEmitter();
   @Output() toRemove: EventEmitter<any> = new EventEmitter();
   toLoad = false; // local state for lazy-loading offscreen images
-  private _subcription: Subscription;
 
   get imageURL() { 
     return this.toLoad && this.note.imageURL && this.note.imageURL.indexOf('images') > -1 ? this.note.imageURL : ''; 
@@ -26,23 +22,7 @@ export class NoteComponent implements OnDestroy {
   }
 
   constructor(private el: ElementRef,
-    private noteService: NoteService,
-    private lazyLoadService: LazyLoadService) {
-
-    this._subcription = this.lazyLoadService.announcedIntersection.subscribe(params => {
-      const { index, state } = params;
-      if (!this.toLoad && (this.index - index) <= LOAD_AHEAD_COUNT) {
-        this.toLoad = true;
-        console.log(`(${index},${IntersectionState[state]}) loading [${this.index}]`);
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    if (this._subcription) {
-      this._subcription.unsubscribe();
-    }
-  }
+    private noteService: NoteService) { }
 
   edit({ event, done }) {
     console.log(`edit`);
@@ -78,8 +58,7 @@ export class NoteComponent implements OnDestroy {
   }
 
   doLoad(state: IntersectionState, index) {
-    this.toLoad = state > IntersectionState.None;
-    console.log(`doLoad [${index}] ${IntersectionState[state]}`);
+    this.toLoad = true;
   }
 
 
