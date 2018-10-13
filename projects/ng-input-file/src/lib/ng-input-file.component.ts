@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { GoogleDriveService } from './google-drive.service';
 
@@ -46,7 +46,7 @@ i.icon {
 }
   `],
 })
-export class NgInputFileComponent {
+export class NgInputFileComponent implements OnInit {
   file = new FormControl({value: NO_FILE, disabled: true});
   get filename() { return this.file.value; }
   set filename(value) { this.file.setValue(value); }
@@ -57,9 +57,59 @@ export class NgInputFileComponent {
   private inputEl: ElementRef;
   private googleFile: File;
 
+  @Input() dropbox: any; // nativeElement
+
   constructor(public service: GoogleDriveService) {
     this.service.selectedFile.subscribe(file => this.googleFileChanged(file));
+
+    this.drop = this.drop.bind(this);
+    this.fileDropped = this.fileDropped.bind(this);
   }
+
+  ngOnInit() {
+    if (this.dropbox) {
+      this.dropbox.addEventListener("dragenter", this.dragenter, false);
+      this.dropbox.addEventListener("dragover", this.dragover, false);
+      this.dropbox.addEventListener("drop", this.drop, false);
+    }
+    if (this.service.isDevMode) console.warn('NgInputFileComponent', this.dropbox);
+  }
+
+  private dragenter(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  
+  private dragover(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  
+  private drop(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  
+    var dt = e.dataTransfer;
+    var files = dt.files;
+  
+    this.fileDropped(files);
+  }
+
+  private fileDropped(files) {
+    if (!files || files.length === 0) return;
+
+    const file = files.item(0);
+
+    if (this.service.isDevMode) console.log(`fileDropped '${file.name}'`, file);
+
+    if (this.filename === file.name) return;
+
+    // got new file drag-and-dropped from local device
+    this.filename = file.name;
+    this.googleFile = null;
+    this.emitFiles(files);
+  }
+
 
   fileChanged() {
     let filename = NO_FILE;
@@ -70,7 +120,7 @@ export class NgInputFileComponent {
 
     if (this.filename === filename) return;
 
-    // got new file from local device
+    // got new file chosen from local device
     this.filename = filename;
     this.googleFile = null;
     this.emitFiles();
@@ -107,8 +157,8 @@ export class NgInputFileComponent {
     this.emitFiles();
   }
 
-  private emitFiles() {
-    const files = this.googleFile ? [this.googleFile] : this.getFiles();
+  private emitFiles(droppedFiles?) {
+    const files = droppedFiles || (this.googleFile ? [this.googleFile] : this.getFiles());
     this.files.emit({ files: files });
   }
 

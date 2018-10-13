@@ -31,7 +31,7 @@
     </div>
 
     <div class="choose-file" touchStart>
-      <input-file (files)="fileChanged($event)"></input-file>
+      <input-file (files)="fileChanged($event)" [dropbox]="el.nativeElement"></input-file>
     </div>
 
     <div class="chosen-file">

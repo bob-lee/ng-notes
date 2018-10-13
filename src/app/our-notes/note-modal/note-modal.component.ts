@@ -88,6 +88,7 @@ export class NoteModalComponent implements OnInit {
   constructor(private formBuilder: FormBuilder,
     private noteService: NoteService,
     private googleDrive: GoogleDriveService,
+    public el: ElementRef, // modal to be a dropbox
     private windowRef: WindowRef) {
     this.googleDrive.init(GOOGLE_CONFIG);
   }
