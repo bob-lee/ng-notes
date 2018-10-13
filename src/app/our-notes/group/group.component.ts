@@ -124,10 +124,4 @@ export class GroupComponent implements OnInit, OnDestroy {
     const body = document.querySelector("body");
     body.classList.toggle('show-overlay');
   }
-
-  // toLoad(note, index, reason) {
-  //   note.toLoad = true;
-  //   // console.log(`toLoad [${index}]`);
-  //   console.log(`toLoad [${index}] ${reason}`);
-  // }
 }

@@ -5,7 +5,7 @@ import { animate, group, query, style, transition, trigger } from '@angular/anim
 import { Todo } from '../Note';
 import { NoteService } from '../note.service';
 import { WindowRef } from '../../service/window-ref.service';
-import { NgInputFileComponent } from 'ng-input-file';
+import { NgInputFileComponent, GoogleApiConfig, GoogleDriveService } from 'ng-input-file';
 
 const zoomFadeIn = { opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)' };
 export function easeInFor(duration) { return `${duration}ms cubic-bezier(0.35, 0, 0.25, 1)`; };
@@ -22,6 +22,11 @@ const scroll = function (e) {
   return false;
 };
 const FILE_EXISTS = 'Uploaded file exists';
+const GOOGLE_CONFIG: GoogleApiConfig = {
+  developerKey: 'AIzaSyAuDinv8z5S_Ym00MHJqZYZyh6UBooTPGM',
+  appId: '586189256171',
+  clientId: '586189256171-82i5f88n6geumca00fk4ksm7kqan9dmm.apps.googleusercontent.com'
+}
 
 @Component({
   selector: 'note-modal',
@@ -82,7 +87,10 @@ export class NoteModalComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder,
     private noteService: NoteService,
-    private windowRef: WindowRef) { }
+    private googleDrive: GoogleDriveService,
+    private windowRef: WindowRef) {
+    this.googleDrive.init(GOOGLE_CONFIG);
+  }
 
   ngOnInit() {
     console.log(`'NoteModalComponent'`);

@@ -280,7 +280,7 @@ export class NoteService implements CanActivate, OnDestroy {
     if (this.todo === Todo.Add) { // add
 
       if (files && files.length > 0) {
-        const file = files.item(0);
+        const file = files[0];
         if (file) {
           console.log('file', file);
 
@@ -334,7 +334,7 @@ export class NoteService implements CanActivate, OnDestroy {
         note.thumbURL = null;
       } else if (files && files.length > 0) {
         console.log('case 2c.');
-        const file = files.item(0);
+        const file = files[0];
 
         note.thumbURL = null;
 
@@ -350,7 +350,7 @@ export class NoteService implements CanActivate, OnDestroy {
       } else if (files && files.length > 0) {
         console.log('case 1b.');
 
-        const file = files.item(0);
+        const file = files[0];
         if (file) {
           console.log('selected file', file);
           await this.putImage(file, note);
