@@ -9,11 +9,9 @@
     "tsc": "node_modules\\.bin\\tsc -p build\\tsconfig.json",
     "clean": "rm -rf dist\\ng-notes functions\\dist",
     "clean:node": "rm -rf node_modules functions\\node_modules",
-    "build": "ng build",
     "build-prod": "ng build --prod --output-hashing none",
-    "build:workbox": "npm run clean && npm run build-prod && npm run tsc && node dist/build/build.js",
-    "serve": "firebase serve --only functions,hosting",
-    "build-serve": "npm run build:workbox && npm run serve",
+    "build": "npm run clean && npm run build-prod && npm run tsc && node dist/build/build.js",
+    "serve": "npm run build && firebase serve",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
