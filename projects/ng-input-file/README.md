@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/ng-input-file.svg)](https://www.npmjs.com/package/ng-input-file)
 [![npm License](https://img.shields.io/npm/l/ng-input-file.svg?style=flat-square)](https://opensource.org/licenses/mit-license.php)
 
-This library provides a component `input-file` that wraps a legacy `input[type=file]` element styled with `Material` components, enables user to choose file from local device or Google drive (needs extra setup below). This library assumes your application is already using `@angular/material` and one of the themes:
+This library provides a component `input-file` that wraps a legacy `input[type=file]` element styled with `Material` components, enables user to choose file from local device (supports drag-and-drop) or Google drive (needs extra setup below). This library assumes your application is already using `@angular/material` and one of the themes:
 
 <img width="50%" src="https://raw.githubusercontent.com/bob-lee/ng-notes/master/projects/ng-input-file/ng-input-file.PNG">
 
@@ -16,6 +16,11 @@ This library provides a component `input-file` that wraps a legacy `input[type=f
 ```
 
 `input-file` component emits `(files)` output whenever user chooses or removes a file. By default, the component accepts `image/*, video/*` and you can override it by providing optional input like `[accept]="'image/*'"`. 
+
+To support `drag-and-drop`, you'd need to pass in an element that will serve as a dropbox to the component:
+```html
+<input-file [dropbox]="el.nativeElement"></input-file>
+```
 
 To enable Google drive, you'd need to import `GoogleDriveService` and initialize it with [your developer information](https://developers.google.com/drive/api/v3/picker) like below:
 ```javascript
