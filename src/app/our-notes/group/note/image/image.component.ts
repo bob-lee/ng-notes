@@ -16,7 +16,7 @@ export class ImageComponent implements OnInit {
   private _source = '';
   private _init = false;
   loaded = false;
- 
+
   @Input()
   set source(value: string) {
     if (!value || value === this._source) return;
@@ -24,7 +24,7 @@ export class ImageComponent implements OnInit {
     this._source = value.trim();
     if (this._init) this.doLoad(); // source changed runtime, load again
   }
-  get source(): string { return this._source; }  
+  get source(): string { return this._source; }
 
   @Input() orientation = 1;
   @ViewChild('canvas') canvas: ElementRef;
@@ -44,7 +44,7 @@ export class ImageComponent implements OnInit {
       const height = img.height;
       const canvas = this.canvas.nativeElement;
       const ctx = canvas.getContext('2d');
-      
+
       // set proper canvas dimensions before transform
       if (4 < this.orientation && this.orientation < 9) {
         canvas.width = height;
@@ -69,7 +69,7 @@ export class ImageComponent implements OnInit {
       this.loaded = true;
       ctx.drawImage(img, 0, 0);
     });
-    
+
     img.src = this._source;
   }
 }

@@ -1,29 +1,33 @@
-<!-- <div class="debug-info">{{debugInfo}}</div> -->
+<div class="main">
 
-<div class="my-header">
-  <h2 [@expand]="title" class="title" [ngClass]="{'inside':inside}">
-    {{title}}
-  </h2>
+  <div class="my-header">
+    <bl-animate-value class="title" [ngClass]="{'inside':inside}"
+      [prop]="title" [left]="!inside">
+    </bl-animate-value>
 
-  <div class="user" (idleClick)="logoutSnackbar($event)">
-    <div class="photo" [attr.data-initial]="noteService.userNameInitials" [ngClass]="{'no-photo': !toShow}">
-      <img id="userPhoto" [src]="photoUrl" *ngIf="toShow" (error)="imageError($event)">
+    <div class="user" (idleClick)="logoutSnackbar($event)">
+      <div class="photo" [attr.data-initial]="noteService.userNameInitials" [ngClass]="{'no-photo': !toShow}">
+        <img id="userPhoto" [src]="photoUrl" *ngIf="toShow" (error)="imageError($event)">
+      </div>
     </div>
   </div>
+
+  <div class="" [@routerTransition]="getState(o)">
+    <router-outlet #o="outlet"></router-outlet>
+  </div>
+
 </div>
 
-<div [@routerTransition]="getState(o)">
-  <router-outlet #o="outlet"></router-outlet>
-</div>
-<ng-template #logoutTemplate>
+<!-- <ng-template #logoutTemplate>
   <div class="logout-template">
     <span>
       Logged in as <strong>{{noteService.userName}}</strong>
     </span>
     <button mat-button (click)="logoutSnackbarTemplateAction()">Log out</button>
   </div>
-</ng-template>
-  
+</ng-template> -->
+<button class="fab" (idleClick)="add($event)" [ngClass]="{'show': inside}" aria-label="Add">+</button>
+
 <footer class="bl-footer">
   <div class="bl-icon" touchStart
     [ngClass]="{'bl-icon-selected': !inside}" (click)="exit()">
@@ -70,8 +74,11 @@
 
   <div>
     <form [formGroup]="myForm" (submit)="search()">
-      <input type="text" maxlength="30" placeholder="Enter group name" 
+      <input type="text" maxlength="30" placeholder="Enter group name"
         [attr.disabled]="inside ? '' : null" formControlName="groupName" />
     </form>
   </div>
 </footer>
+
+<!--
+ -->

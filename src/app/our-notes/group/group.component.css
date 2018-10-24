@@ -1,10 +1,29 @@
 .list {
   height: 100%;
-  overflow: auto;
+  /* overflow: auto; */
+  background-color: #eee;
 
-  padding-bottom: 4em;
+  /* padding-bottom: 4em; */
   counter-reset: count;
   scroll-behavior: smooth;
+}
+
+@media (min-width: 576px) {
+  .list {
+    margin-left: 15px;
+  }
+}
+@media (min-width: 768px) {
+  .list {
+    margin-left: 95px;
+    margin-right: 80px;
+  }
+}
+@media (min-width: 992px) {
+  .list {
+    margin-left: 145px;
+    margin-right: 130px;
+  }
 }
 
 .item {

@@ -9,14 +9,14 @@ export interface GoogleApiConfig {
   clientId: string;
 }
 
-const GOOGLE_API_URL = "https://apis.google.com/js/api.js?onload=loadPicker";
+const GOOGLE_API_URL = 'https://apis.google.com/js/api.js?onload=loadPicker';
 const SCOPE = ['https://www.googleapis.com/auth/drive'];
 declare var google;
 
 @Injectable()
 export class GoogleDriveService implements OnDestroy {
   isDevMode = isDevMode();
-  
+
   config: GoogleApiConfig;
 
   private file$ = new Subject<File>();
@@ -36,7 +36,7 @@ export class GoogleDriveService implements OnDestroy {
     this.handleAuthResult = this.handleAuthResult.bind(this);
     this.pickerCallback = this.pickerCallback.bind(this);
   }
-  
+
   ngOnDestroy() {
   }
 
@@ -85,7 +85,7 @@ export class GoogleDriveService implements OnDestroy {
         },
         this.handleAuthResult);
   }
-  
+
   private onPickerApiLoad() {
     this.pickerApiLoaded = true;
     this.createPicker();
@@ -98,14 +98,14 @@ export class GoogleDriveService implements OnDestroy {
       if (this.isDevMode) console.log('handleAuthResult', authResult);
     }
   }
-  
+
   private createPicker() {
     if (this.pickerApiLoaded && this.oauthToken) {
       var origin = window.location.protocol + '//' + window.location.host;
       if (this.isDevMode) console.log(`createPicker origin '${origin}'`);
-  
+
       var view = new google.picker.View(google.picker.ViewId.DOCS);
-      view.setMimeTypes("image/png,image/jpeg,image/jpg");
+      view.setMimeTypes('image/png,image/jpeg,image/jpg');
       var picker = new google.picker.PickerBuilder()
           .enableFeature(google.picker.Feature.NAV_HIDDEN)
           .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)

@@ -279,6 +279,46 @@
           }
         }
       }
+    },
+    "ng-animate-value": {
+      "root": "projects/ng-animate-value",
+      "sourceRoot": "projects/ng-animate-value/src",
+      "projectType": "library",
+      "prefix": "bl",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-animate-value/tsconfig.lib.json",
+            "project": "projects/ng-animate-value/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/ng-animate-value/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-animate-value/src/test.ts",
+            "tsConfig": "projects/ng-animate-value/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-animate-value/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-animate-value/tsconfig.lib.json",
+              "projects/ng-animate-value/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "ng-notes",

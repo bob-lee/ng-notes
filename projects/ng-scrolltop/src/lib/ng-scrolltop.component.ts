@@ -1,11 +1,15 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { NgScrolltopService } from './ng-scrolltop.service';
 
 @Component({
   selector: 'scrolltop',
   template: `
 <div class="scroll-top" blScrolltop
-  [ngClass]="{'show-icon': showIcon}">
+  [ngClass]="{'show-icon': service.showIcon}">
   <mat-icon>skip_next</mat-icon>
+</div>
+<div class="scroll-top dev" *ngIf="service.isDevMode">
+  {{service.info}}
 </div>
   `,
   styles: [`
@@ -32,54 +36,64 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
     visibility: visible;
     opacity: 0.3;
   }
+  .scroll-top.dev {
+    bottom: 150px;
+    visibility: visible;
+    opacity: 0.5;
+    transform: none;
+    color: #fff;
+  }
     `],
 })
 export class NgScrolltopComponent implements OnInit, OnDestroy {
-  @Input() bottom: string;
-  @Input() background: string;
-  isWindow: boolean = typeof window !== 'undefined';
-  lastY: number = 0;
-  ticking: boolean = false;
+  private icon: HTMLElement;
+  private _bottom: string;
+  private _background: string;
+  private _elementId: string;
 
-  get currentPositionY(): number { return window.pageYOffset; }
-  get info(): number { return Math.ceil(this.lastY); }
-  get showIcon(): boolean { return this.isWindow && this.lastY > 500; }
-
-  updateLastY() {
-    const newY = this.currentPositionY
-    if (newY !== this.lastY) {
-      this.lastY = newY
+  @Input()
+  set bottom(value: string) {
+    this._bottom = value;
+    if (this.icon) {
+      this.icon.style.bottom = value;
     }
   }
 
-  handleScroll = (e) => {
-    if (!this.ticking) {
-      window.requestAnimationFrame(() => {
-        this.updateLastY()
-        this.ticking = false
-      })
-      this.ticking = true
+  @Input()
+  set background(value: string) {
+    this._background = value;
+    if (this.icon) {
+      this.icon.style.background = value;
     }
   }
+  @Input()
+  set elementId(value: string) {
+    this._elementId = value;
+    this.service.init(value);
+  }
 
-  constructor() { }
+  constructor(public service: NgScrolltopService) { }
 
   ngOnInit() {
-    this.isWindow && window.addEventListener('scroll', this.handleScroll);
 
-    const element = document.querySelector("div.scroll-top") as HTMLElement;
-    if (this.bottom) {
-      element.style.bottom = this.bottom;
+    if (!this.service._init) this.service.init(this._elementId);
+
+    this.icon = document.querySelector('div.scroll-top:not(.dev)') as HTMLElement;
+    if (this.icon) {
+      if (this._bottom) {
+        this.icon.style.bottom = this._bottom;
+      }
+      if (this._background) {
+        this.icon.style.background = this._background;
+      }
+    } else {
+      if (this.service.isDevMode) console.warn(`NgScrolltopComponent failed to find icon element, so any inputs will be ignored`);
     }
-    if (this.background) {
-      element.style.background = this.background;
-    }
+
+    if (this.service.isDevMode) console.log(`NgScrolltopComponent(${this.service.isWindow}, ${this._bottom}, ${this._background}, ${this._elementId})`, this.icon && this.icon.style);
   }
 
   ngOnDestroy() {
-    this.isWindow && window.removeEventListener('scroll', this.handleScroll);
+    this.service.destroy();
   }
-
 }
-
-

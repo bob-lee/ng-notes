@@ -19,12 +19,12 @@ import { listChild } from '../../app.animation';
 export class GroupComponent implements OnInit, OnDestroy {
   trackByFn = (idx, obj) => obj.$key; // do I need this?
 
-  @ViewChild('modal')
-  public modal;
-
   isTouchDevice: boolean;
   subscription: Subscription;
   private init = false;
+
+  @ViewChild('modal')
+  public modal;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -32,7 +32,7 @@ export class GroupComponent implements OnInit, OnDestroy {
     private lazyLoadService: LazyLoadService,
     private modalService: ModalService) {
 
-      
+
     this.subscription = route.params.subscribe(params => {
       if (!this.init) return;
 
@@ -42,12 +42,12 @@ export class GroupComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // for rtdb, hits here whenever coming back from note-form. 
+    // for rtdb, hits here whenever coming back from note-form.
     // for firebase, hits here only once as this component uses note-modal
     this.modalService.setModal(this.modal);
 
     this.noteService.todo = Todo.List;
-    this.isTouchDevice = window.matchMedia("(pointer:coarse)").matches;
+    this.isTouchDevice = window.matchMedia('(pointer:coarse)').matches;
 
     let subscription = this.noteService.announcedLastSaved
       .subscribe(saved => {
@@ -61,6 +61,10 @@ export class GroupComponent implements OnInit, OnDestroy {
           console.warn(e);
         }
       });
+    this.subscription.add(subscription);
+
+    subscription = this.noteService.announcedOrder
+      .subscribe(params => this.serveOrder(params));
     this.subscription.add(subscription);
 
     // inspect route
@@ -101,6 +105,13 @@ export class GroupComponent implements OnInit, OnDestroy {
     this.noteService.resetListState();
   }
 
+  serveOrder = ({ event, order }) => {
+    if (order === 'add') {
+      console.log(`add`);
+      this.addOrEdit({ event });
+    }
+  };
+
   add({ event, done }) {
     console.log(`add`);
     this.addOrEdit({ event });
@@ -121,7 +132,12 @@ export class GroupComponent implements OnInit, OnDestroy {
   }
 
   toggle() {
-    const body = document.querySelector("body");
+    const body = document.querySelector('body');
     body.classList.toggle('show-overlay');
   }
+
+  divScroll(e) {
+    console.log('div group', e);
+  }
+
 }

@@ -1,14 +1,13 @@
 import { Component, OnInit, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { trigger, transition, useAnimation } from '@angular/animations';
 import { MatSnackBar, MatSnackBarRef  } from '@angular/material';
 import { Subscription } from 'rxjs';
 
 import { Todo } from './Note';
 import { NoteService } from './note.service';
 import { WindowRef } from '../service/window-ref.service';
-import { routerTransition, expandAnimation, valueUpdated } from '../app.animation';
+import { routerTransition, valueUpdated } from '../app.animation';
 import { take } from 'rxjs/operators';
 
 @Component({
@@ -16,13 +15,8 @@ import { take } from 'rxjs/operators';
   styleUrls: ['./our-notes.component.css'],
   animations: [
     routerTransition,
-    trigger('expand', [
-      transition('* => *', [
-        useAnimation(expandAnimation)
-      ])
-    ]),
     valueUpdated,
-  ]
+  ],
 })
 export class OurNotesComponent implements OnInit, OnDestroy {
   myForm: FormGroup;
@@ -73,6 +67,12 @@ export class OurNotesComponent implements OnInit, OnDestroy {
     if (this.subscription) this.subscription.unsubscribe();
   }
 
+  add({ event, done }) { // moved from group.component in favor of animation
+    console.log(`add`);
+    this.noteService.add(event);
+    done();
+  }
+
   exit() {
     if (this.windowRef.nativeWindow.localStorage) { // clear group to let, after navigate, ngOnInit find no remembered group and exit
       this.windowRef.nativeWindow.localStorage.setItem('group', '');
@@ -88,7 +88,7 @@ export class OurNotesComponent implements OnInit, OnDestroy {
   }
 
   private getSnackBar(simple: boolean): MatSnackBarRef<any> {
-    return simple ? 
+    return simple ?
       this.noteService.openSnackBar(`Logged in as ${this.noteService.userName}`, 'Log out') :
       this.noteService.openSnackBarTemplate(this.logoutTemplate);
   }

@@ -1,9 +1,51 @@
-import { animate, animateChild, animation, group, keyframes, 
+import { animate, animateChild, animation, group, keyframes,
   query, style, transition, trigger } from '@angular/animations';
 
 export const PERIOD_1 = '500ms ease';
-export const PERIOD_2 = '500ms ease';
+export const PERIOD_2 = '1s ease-in-out';
+const WIDTH = 'calc(100% - 40px)';
+/*
+31.8 = 15 (.parent padding-left) + 16.8
 
+16.8 seems to be a scrollbar width in this browser
+*/
+const WIDTH2 = 'calc(100% - 16.8px)';
+const TIMING = '1s .5s ease-in-out';
+
+export const routerTransition = trigger('routerTransition', [
+  transition('home => about, group => groups', [ // slide upward
+    query(':enter, :leave', style({ position: 'fixed', width: WIDTH2, height: '*' })),
+    query(':leave', style({ transform: 'translateY(0%)', opacity: 1 })),
+    query(':enter', style({ transform: 'translateY(2em)', opacity: 0 })),
+
+    group([
+      query(':leave', animate(TIMING, style({transform: 'translateY(-2em)', opacity: 0}))),
+      query(':enter', animate(TIMING, style({transform: 'translateY(0%)', opacity: 1})))
+    ])
+  ]),
+  transition('about => home, groups => group', [ // slide downward
+    query(':enter, :leave', style({ position: 'fixed', width: WIDTH2, height: '*' })),
+    query(':leave', style({ transform: 'translateY(0%)', opacity: 1 })),
+    query(':enter', style({ transform: 'translateY(-2em)', opacity: 0 })),
+
+    group([
+      query(':leave', animate(TIMING, style({ transform: 'translateY(2em)', opacity: 0 }))),
+      query(':enter', animate(TIMING, style({ transform: 'translateY(0%)', opacity: 1 })))
+    ])
+  ]),
+]);
+/*
+export const titleChanged = trigger('titleChanged', [
+  transition('* => *', [
+    query(':enter', style({ opacity: 0 }), { optional: true }),
+    query(':leave', style({ opacity: 1 }), { optional: true }),
+    group([
+      query(':leave', animate('1s ease-out', style({ opacity: 0 })), { optional: true }),
+      query(':enter', animate('1s ease-out', style({ opacity: 1 })), { optional: true })
+    ])
+  ])
+]);
+*/
 export const listChild = trigger('listChild', [
   transition('* => *', [
     query(':enter', [
@@ -25,62 +67,47 @@ export const listChild = trigger('listChild', [
         style({ opacity: 1, offset: 1 })
       ]))
     ], { optional: true }),
-  
+
   ])
 ]);
 
-export const expandAnimation = animation([
-  style({ overflow: 'hidden', opacity: 0/*, height: 0*/ }),
-  animate('{{ time }}', style({ opacity: 1/*, height: '*'*/ }))
-], { params: { time: PERIOD_1 }});
+// export const expandAnimation = animation([
+//   style({ overflow: 'hidden', opacity: 0/*, height: 0*/ }),
+//   animate('{{ time }}', style({ opacity: 1/*, height: '*'*/ }))
+// ], { params: { time: PERIOD_1 }});
 
-export const routerTransition = trigger('routerTransition', [
-  transition('login => home, groups => group', [
-    query(':enter, :leave', style({ position: 'fixed', width: '100%', height: '100%' }), {optional: true}),
-    query(':enter', style({ transform: 'translateX(100%)' }), {optional: true}),
+// export const routerTransition = trigger('routerTransition', [ // opacity only
+//   transition('login => home, groups => group', [
+//     query(':enter, :leave', style({ position: 'fixed', width: WIDTH, height: '100%' }), {optional: true}),
+//     query(':leave', style({ opacity: 1 })),
+//     query(':enter', style({ opacity: 0 }), {optional: true}),
 
-    group([
-      query(':leave', [
-        style({ transform: 'translateX(0%)' }),
-        animate('1.0s ease-in-out', style({transform: 'translateX(-100%)'}))
-      ], {optional: true}),
-      query(':enter', [
-        animate('1.0s ease-in-out', style({transform: 'translateX(0%)'})),
-        animateChild()
-      ], {optional: true}),
-    ]),
-  ]),
-  transition('group => note', [
-    query(':enter', style({ position: 'fixed', width: '100%', height: '100%' }), {optional: true}),
-    query(':enter', style({ transform: 'translateX(100%)' }), {optional: true}),
+//     group([
+//       query(':leave', animate(PERIOD_2, style({ opacity: 0 })), {optional: true}),
+//       query(':enter', [
+//         animate(PERIOD_2, style({ opacity: 1 })),
+//         //animateChild()
+//       ], {optional: true}),
+//     ]),
+//   ]),
+//   transition('group => groups, home => login', [
+//     query(':enter, :leave', style({ position: 'fixed', width: WIDTH, height: '100%' }), {optional: true}),
+//     query(':leave', style({ opacity: 1 })),
+//     query(':enter', style({ opacity: 0 }), {optional: true}),
 
-    group([
-      query(':enter', [
-        animate('1.0s ease-in-out', style({transform: 'translateX(0%)'})),
-        animateChild()
-      ], {optional: true}),
-    ]),
-  ]),
-  transition('group => groups, home => login', [
-    query(':enter, :leave', style({ position: 'fixed', width: '100%', height: '100%' }), {optional: true}),
-    query(':enter', style({ transform: 'translateX(-100%)' }), {optional: true}),
+//     group([
+//       query(':leave', animate(PERIOD_2, style({ opacity: 0 })), {optional: true}),
+//       query(':enter', [
+//         animate(PERIOD_2, style({ opacity: 1 })),
+//         animateChild()
+//       ], {optional: true}),
+//     ]),
+//   ]),
 
-    group([
-      query(':leave', [
-        style({ transform: 'translateX(0%)' }),
-        animate('1.0s ease-in-out', style({transform: 'translateX(100%)'}))
-      ], {optional: true}),
-      query(':enter', [
-        animate('1.0s ease-in-out', style({transform: 'translateX(0%)'})),
-        animateChild()
-      ], {optional: true}),
-    ]),
-  ]),
-
-]);
+// ]);
 
 export const valueUpdated = trigger('valueUpdated', [
-  transition(":increment, :decrement, * => *", group([
+  transition(':increment, :decrement, * => *', group([
     query(':enter', [
       style({ opacity: 0, transform: 'translateX(40%)' }),
       animate('.5s ease-out', style({ opacity: 1, transform: 'translateX(0%)' }))

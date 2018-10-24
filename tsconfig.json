@@ -40,6 +40,12 @@
       ],
       "ng-lazy-load/*": [
         "dist/ng-lazy-load/*"
+      ],
+      "ng-animate-value": [
+        "dist/ng-animate-value"
+      ],
+      "ng-animate-value/*": [
+        "dist/ng-animate-value/*"
       ]
     }
   }

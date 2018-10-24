@@ -11,7 +11,6 @@ import { Component } from '@angular/core';
           background-position: -312px 0;
       }
     }
-    
     .loader {
       margin: 0 auto;
       width: 26px;

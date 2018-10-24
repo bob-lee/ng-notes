@@ -1,6 +1,7 @@
-import { Directive, ElementRef, HostListener, NgZone } from '@angular/core';
+import { Directive, HostListener, NgZone } from '@angular/core';
+import { NgScrolltopService } from './ng-scrolltop.service';
 
-const duration = 1000;
+const DURATION = 1000;
 
 @Directive({
   selector: '[blScrolltop]'
@@ -10,22 +11,22 @@ export class NgScrolltopDirective {
   startTop: number = null;
   progress: number = 0;
 
-  get currentPositionY(): number { return window.pageYOffset; }
-
-  constructor(private el: ElementRef,
+  constructor(public service: NgScrolltopService,
     private ngZone: NgZone) {
     this.scrollABit = this.scrollABit.bind(this);
   }
 
-  @HostListener('click') 
+  @HostListener('click')
   onclick() {
-    this.startTop = this.currentPositionY;
+    this.startTop = this.service.currentPositionY;
     this.startTime = null;
     this.ngZone.runOutsideAngular(() => { window.requestAnimationFrame(this.scrollABit); });
+
+    if (this.service.isDevMode) console.log('NgScrolltopDirective click');
   }
 
   easing = (x) => {
-    "use strict";
+    'use strict';
 
     if (x < 0.5) {
       return Math.pow(x * 2, 2) / 2;
@@ -39,14 +40,13 @@ export class NgScrolltopDirective {
     }
 
     this.progress = timestamp - this.startTime;
-    const percent = (this.progress >= duration ? 1 : this.easing(this.progress/duration));
+    const percent = (this.progress >= DURATION ? 1 : this.easing(this.progress / DURATION));
     const newY = this.startTop - Math.ceil(this.startTop * percent);
-    
-    window.scroll(0, newY);
+
+    this.service.scrollABit(newY);
 
     if (percent < 1) {
       this.ngZone.runOutsideAngular(() => { window.requestAnimationFrame(this.scrollABit); });
     }
   }
 }
-
