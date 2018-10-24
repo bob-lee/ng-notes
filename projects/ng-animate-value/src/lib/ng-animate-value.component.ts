@@ -53,10 +53,12 @@ export class BlHeaderComponent implements OnChanges, OnInit {
   ngOnInit() {
     const hostId = this.hostId ? `#${this.hostId} ` : '';
     const selector = hostId + `div.${BOX}`;
-    const selectorInner = selector + ` .${INNER}`;
+    const selectorEnter = selector + ` .${INNER}.enter`;
+    const selectorLeave = selector + ` .${INNER}.leave`;
 
     this.applyStyles(selector, this.styles);
-    this.applyStyles(selectorInner, this.stylesInner);
+    this.applyStyles(selectorEnter, this.stylesInner);
+    this.applyStyles(selectorLeave, this.stylesInner);
   }
 
   private applyStyles(selector: string, styles: any) {
