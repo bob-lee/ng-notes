@@ -22,6 +22,7 @@ import { NgIdleClickModule } from 'ng-idle-click';
 import { NgInputFileModule } from 'ng-input-file';
 import { NgScrolltopModule } from 'ng-scrolltop';
 import { LazyLoadModule } from 'ng-lazy-load';
+import { NgAnimateValueModule } from 'ng-animate-value';
 import { TouchStartModule } from '../touchstart.module';
 
 import { OurNotesRoutingModule } from './our-notes-routing.module';
@@ -39,6 +40,7 @@ import { OurNotesRoutingModule } from './our-notes-routing.module';
     NgIdleClickModule,
     NgInputFileModule,
     NgScrolltopModule,
+    NgAnimateValueModule,
     LazyLoadModule,
   ],
   declarations: [

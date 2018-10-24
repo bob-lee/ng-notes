@@ -15,6 +15,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { OurNotesModule } from './our-notes/our-notes.module';
 import { LoginComponent } from './login/login.component';
 import { TouchStartModule } from './touchstart.module';
+import { NgScrolltopModule } from 'ng-scrolltop';
 
 import { WindowRef } from './service/window-ref.service';
 
@@ -36,6 +37,7 @@ import { WindowRef } from './service/window-ref.service';
     OurNotesModule,
     AppRoutingModule,
     TouchStartModule,
+    NgScrolltopModule,
   ],
   providers: [
     WindowRef

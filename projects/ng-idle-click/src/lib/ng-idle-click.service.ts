@@ -1,17 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class NgIdleClickService {
-
-  constructor() {
-    console.warn(`'NgIdleClickService'`); // watch when / how often the service is instantiated
-  }
+  isDevMode = isDevMode();
 
   private _busy: boolean;
   get busy(): boolean { return this._busy; }
+
+  constructor() {
+    if (this.isDevMode) console.warn(`'NgIdleClickService'`);
+  }
 
   set() { this._busy = true; }
   reset() { this._busy = false; }

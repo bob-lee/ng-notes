@@ -1,13 +1,57 @@
+:host {
+  position: fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+}
+
+.parent { /* https://stackoverflow.com/a/49278385/588521 */
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* background-image: url("https://images.unsplash.com/photo-1482510356941-d087154c2931?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=cd6c067c548407960ec92f1e820775ee&auto=format&fit=crop&w=1355&q=80");
+  background-size: contain; */
+  background: rgba(221,221,221,0.5);
+  background: rgba(229, 229, 229, 0.4);
+  background: white;
+  /*padding-left: 15px;*/
+  /*padding-right: 7px;*/
+}
+.child {
+  height: 100%;
+  height: calc(100% + 15px); /* 15px push down to hide horizontal scrollbar */
+  margin-bottom: -50px; /* maximum width of scrollbar */
+  padding-bottom: 50px; /* maximum width of scrollbar */
+  margin-right: -50px; /* maximum width of scrollbar */
+  padding-right: 50px; /* maximum width of scrollbar, 50+15 */
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch; /* get Momentum scrolling back on iPhone */
+}
+
+/*
 div {
   width: 100%;
-  max-width: 640px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 0 0.5em;
+  padding: 0 10px;
 }
+
 
 @media only screen
 and (min-width: 568px) {
-  div { 
+  div {
     width: 80%;
   }
+}
+ */
+/* for desktop */
+/*@media not all and (pointer: coarse) {
+  div {
+    width: 80%;
+  }
+}*/
+
+div.debug {
+  border: 1px solid red;
 }

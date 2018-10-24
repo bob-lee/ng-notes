@@ -35,6 +35,9 @@ export class NoteService implements CanActivate, OnDestroy {
   groupsFs: Observable<any[]>;
   countGroupsFs = 0;
 
+  private order$ = new Subject<any>();
+  announcedOrder = this.order$.asObservable();
+
   // firestore
   private collection: AngularFirestoreCollection<any>;
   stateChanges: Observable<any[]>;
@@ -178,6 +181,10 @@ export class NoteService implements CanActivate, OnDestroy {
   ngOnDestroy() {
     console.warn(`'note.service' ngOnDestroy()`);
     if (this.subscription && !this.subscription.closed) this.subscription.unsubscribe();
+  }
+
+  add(event) {
+    this.order$.next({ event, order: 'add' });
   }
 
   exit(): void {
@@ -423,9 +430,11 @@ export class NoteService implements CanActivate, OnDestroy {
                 const o = view.getUint16(offset + (i * 12) + 8, little);
                 resolve(o);
               }
+          } else if ((marker & 0xFF00) != 0xFF00) {
+            break;
+          } else {
+            offset += view.getUint16(offset, false);
           }
-          else if ((marker & 0xFF00) != 0xFF00) break;
-          else offset += view.getUint16(offset, false);
         }
 
         resolve(-1);

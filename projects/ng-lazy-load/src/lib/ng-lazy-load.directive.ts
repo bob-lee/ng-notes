@@ -19,7 +19,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
 
   private _init = false;
   private _url = NOT_GIVEN;
-  
+
   /* cases for 'url' setter:
   1a. null (OnInit): do nothing in ngAfterViewInit
   1b. urla (OnInit): register promptly or manually in ngAfterViewInit
@@ -71,7 +71,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
         const { index, state } = params;
         if (!this.toLoad &&
           this.index !== index &&
-          this._url && this._url !== NOT_GIVEN && 
+          this._url && this._url !== NOT_GIVEN &&
           (this.index - index) <= this._service.loadAheadCount) { // close to intersecting
           this.toLoad = true;
           const state = IntersectionState.NearIntersecting;
@@ -147,7 +147,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
     if (entry && 'isIntersecting' in entry) {
       if ((<any>entry).isIntersecting && entry.target === this._element.nativeElement) {
         return IntersectionState.Intersecting;
-      } 
+      }
     }
     if (this.isVisible()) {
       return IntersectionState.Visible;

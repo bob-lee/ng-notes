@@ -1,5 +1,5 @@
 import { Injectable, isDevMode } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 
 export enum IntersectionState {
   Disconnected,
@@ -21,11 +21,26 @@ export class LazyLoadService {
   private _loadAheadCount = LOAD_AHEAD_COUNT;
   get loadAheadCount() { return this._loadAheadCount; }
   set loadAheadCount(value: number) {
-    this._loadAheadCount = value; 
+    this._loadAheadCount = value;
     if (this.isDevMode) console.log(`loadAheadCount set to (${value})`);
   }
 
   delayMsec = 0;
+
+  // announce order to [lazyLoad] directives
+  private order$ = new Subject<string>();
+  announcedOrder = this.order$.asObservable();
+  announceOrder(name: string) {
+    this.order$.next(name);
+  }
+
+  // announce intersecting index to [lazyLoad] directives
+  private intersection$ = new Subject<any>();
+  announcedIntersection = this.intersection$.asObservable();
+  announceIntersection(params: object) { // { index: number, state: IntersectionState }
+    this.intersection$.next(params);
+  }
+
   registerAfter(msec: number) {
     if (msec > 0) {
       this.delayMsec = msec;
@@ -37,20 +52,6 @@ export class LazyLoadService {
   }
   registerAll() {
     this.announceOrder('register');
-  }
-  
-  // announce order to [lazyLoad] directives
-  private order$ = new Subject<string>();
-  announcedOrder = this.order$.asObservable();
-  announceOrder(name: string) {
-    this.order$.next(name);
-  }
-
-  // announce intersecting index to [lazyLoad] directives
-  private intersection$ = new Subject<any>(); 
-  announcedIntersection = this.intersection$.asObservable();
-  announceIntersection(params: object) { // { index: number, state: IntersectionState }
-    this.intersection$.next(params);
   }
 
   constructor() {

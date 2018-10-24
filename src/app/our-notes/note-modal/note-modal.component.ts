@@ -36,15 +36,15 @@ const GOOGLE_CONFIG: GoogleApiConfig = {
     trigger('overlay', [
       transition(':enter', [
         style({ opacity: 0 }),
-        query('.container', [style({ opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)', transformOrigin: '{{ ox }} {{ oy }}' })]),
+        query('.bl-container', [style({ opacity: 0, transform: 'translateX({{ x }}) translateY({{ y }}) scale(0)', transformOrigin: '{{ ox }} {{ oy }}' })]),
         group([
           animate(easeInFor(150), style({ opacity: 1 })),
-          query('.container', animate(easeInFor(450), style('*'))),
+          query('.bl-container', animate(easeInFor(450), style('*'))),
         ]),
       ], { params: { x: '0px', y: '0px', ox: '50%', oy: '50%' } }),
       transition(':leave', group([
         animate(300, style({ opacity: 0 })),
-        query('.container', [
+        query('.bl-container', [
           animate(300, style(zoomFadeIn))
         ])
       ]), { params: { x: '0px', y: '0px', ox: '50%', oy: '50%' } })
@@ -182,7 +182,7 @@ export class NoteModalComponent implements OnInit {
 
     console.log(`imageURL ${this.note.imageURL}, ${this.hasImage}, ${this.hasVideo}`);
     if (this.hasImage) {
-      const img = <HTMLImageElement>document.querySelector("#myimg");
+      const img = <HTMLImageElement>document.querySelector('#myimg');
       img.addEventListener('load', _ => console.log('image loaded'));
       img.addEventListener('error', error => {
         console.warn('image failed to load', error);
@@ -190,7 +190,7 @@ export class NoteModalComponent implements OnInit {
       });
       img.src = this.note.imageURL;
     } else if (this.hasVideo) {
-      const video = <HTMLVideoElement>document.querySelector("#myvideo");
+      const video = <HTMLVideoElement>document.querySelector('#myvideo');
       video.src = this.note.imageURL;
       video.load();
     } else {

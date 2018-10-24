@@ -9,7 +9,7 @@ export class ModalService {
   getModal() {
     return this.modal;
   }
-  
+
   setModal(m) {
     this.modal = m;
   }

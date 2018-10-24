@@ -3,10 +3,9 @@
 [![npm](https://img.shields.io/npm/v/ng-scrolltop.svg)](https://www.npmjs.com/package/ng-scrolltop)
 [![npm License](https://img.shields.io/npm/l/ng-scrolltop.svg?style=flat-square)](https://opensource.org/licenses/mit-license.php)
 
-`scrolltop` component detects current Y position in a long page and shows up a clickable, unobtrusive icon that scrolls to page top smoothly:
+`scrolltop` component monitors current Y position in a long page or element then if scrolled down enough, shows up a clickable, unobtrusive icon that scrolls to top smoothly:
 
-```
-// template
+```html
 <div class="longList">
   ...
 </div>
@@ -14,9 +13,15 @@
 <scrolltop></scrolltop>
 ```
 
-By default, `scrolltop` component placed in left bottom of the screen with background color of `#333` and you can override them by providing optional inputs like `[bottom]="'60px'" [background]="'#999'"`. 
+## Optional inputs
+
+By default, `scrolltop` icon will show in left bottom of the screen with background color of `#333` and you can adjust its position and color by providing optional inputs like `[bottom]="'60px'" [background]="'#999'"`.
+
+By default, the library will work with `window` object but if your page has a scrolling element, you can pass over the `id` of that element like `[elementId]="'my-scrolling-div'"` to let the library work with the element not `window`.
 
 A [Stackblitz demo](https://stackblitz.com/edit/angular-ng-scrolltop) is available to show the usage.
+
+## Installation
 
 ```
 // to install

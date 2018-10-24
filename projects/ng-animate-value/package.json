@@ -1,18 +1,17 @@
 {
-  "name": "ng-scrolltop",
-  "version": "0.0.6",
-  "description": "A component that monitors current Y position in a long page or element then if scrolled down enough, shows up a clickable, unobtrusive icon that scrolls to top smoothly",
+  "name": "ng-animate-value",
+  "version": "0.0.5",
+  "description": "A directive / component to animate value changes with default or custom styles",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bob-lee/ng-notes.git"
   },
   "keywords": [
     "angular",
+    "directive",
     "component",
-    "material",
-    "scroll top",
-    "window",
-    "element"
+    "animation",
+    "value change"
   ],
   "author": "Bob Lee <bob.bumsuk.lee@gmail.com>",
   "license": "MIT",

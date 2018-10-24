@@ -1,7 +1,27 @@
 .list {
-  padding-bottom: 4em;
+  /* padding-bottom: 4em; */
   counter-reset: count;
+  background-color: #eee;
 }
+
+@media (min-width: 576px) {
+  .list {
+    margin-left: 15px;
+  }
+}
+@media (min-width: 768px) {
+  .list {
+    margin-left: 95px;
+    margin-right: 80px;
+  }
+}
+@media (min-width: 992px) {
+  .list {
+    margin-left: 145px;
+    margin-right: 130px;
+  }
+}
+
 .item-link {
   line-height: 3;
 }
@@ -25,10 +45,10 @@
 }
 
 .item:focus, .item:hover {
-  background: #eee;
+  background: rgba(255, 238, 238, 0.735);
 }
-.item a:active {
+/* .item a:active {
   top: 1px;
   background: #ddd;
 }
-
+ */

@@ -1,10 +1,10 @@
-<div class="list"
+<div class="list" #list id="xyz"
   [@listChild]="noteService.listState"
-  (@listChild.start)="animStart($event)" 
-  (@listChild.done)="animDone($event)" 
+  (@listChild.start)="animStart($event)"
+  (@listChild.done)="animDone($event)"
   touchStart>
   <my-note class="item"
-    [note]="note" (toAddOrEdit)="addOrEdit($event)" (toRemove)="remove($event)" 
+    [note]="note" (toAddOrEdit)="addOrEdit($event)" (toRemove)="remove($event)"
     *ngFor="let note of noteService.items$ | async; let i = index; trackBy: trackByFn"
     [ngClass]="{ 'modified' : note.$type === 'modified' && noteService.listState === 'modified' }"
     (lazyLoad)="myNote.doLoad($event,i)" [url]="note.imageURL" [index]="i" #myNote
@@ -14,6 +14,3 @@
 
 <note-modal #modal></note-modal>
 
-<button class="fab" (idleClick)="add($event)" [ngClass]="{'show': noteService.showIcon}" aria-label="Add">+</button>
-
-<scrolltop [bottom]="'60px'" [background]="'#999'"></scrolltop>

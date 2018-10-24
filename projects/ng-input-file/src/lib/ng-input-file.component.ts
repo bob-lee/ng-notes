@@ -68,9 +68,9 @@ export class NgInputFileComponent implements OnInit {
 
   ngOnInit() {
     if (this.dropbox) {
-      this.dropbox.addEventListener("dragenter", this.dragenter, false);
-      this.dropbox.addEventListener("dragover", this.dragover, false);
-      this.dropbox.addEventListener("drop", this.drop, false);
+      this.dropbox.addEventListener('dragenter', this.dragenter, false);
+      this.dropbox.addEventListener('dragover', this.dragover, false);
+      this.dropbox.addEventListener('drop', this.drop, false);
     }
     if (this.service.isDevMode) console.warn('NgInputFileComponent', this.dropbox);
   }
@@ -79,19 +79,19 @@ export class NgInputFileComponent implements OnInit {
     e.stopPropagation();
     e.preventDefault();
   }
-  
+
   private dragover(e) {
     e.stopPropagation();
     e.preventDefault();
   }
-  
+
   private drop(e) {
     e.stopPropagation();
     e.preventDefault();
-  
+
     var dt = e.dataTransfer;
     var files = dt.files;
-  
+
     this.fileDropped(files);
   }
 
@@ -129,9 +129,9 @@ export class NgInputFileComponent implements OnInit {
   googleFileChanged(file) {
     if (this.service.isDevMode) console.log(`googleFileChanged '${file.name}'`, file);
 
-    if (this.googleFile && 
-      this.googleFile.name === file.name && 
-      this.googleFile.size === file.size) 
+    if (this.googleFile &&
+      this.googleFile.name === file.name &&
+      this.googleFile.size === file.size)
       return;
 
     // got new file from google drive

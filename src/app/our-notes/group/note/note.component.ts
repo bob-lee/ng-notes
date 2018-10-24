@@ -14,11 +14,11 @@ export class NoteComponent {
   @Output() toRemove: EventEmitter<any> = new EventEmitter();
   toLoad = false; // local state for lazy-loading offscreen images
 
-  get imageURL() { 
-    return this.toLoad && this.note.imageURL && this.note.imageURL.indexOf('images') > -1 ? this.note.imageURL : ''; 
+  get imageURL() {
+    return this.toLoad && this.note.imageURL && this.note.imageURL.indexOf('images') > -1 ? this.note.imageURL : '';
   }
-  get videoURL() { 
-    return this.toLoad && this.note.imageURL && this.note.imageURL.indexOf('videos') > -1 ? this.note.imageURL : ''; 
+  get videoURL() {
+    return this.toLoad && this.note.imageURL && this.note.imageURL.indexOf('videos') > -1 ? this.note.imageURL : '';
   }
 
   constructor(private el: ElementRef,
