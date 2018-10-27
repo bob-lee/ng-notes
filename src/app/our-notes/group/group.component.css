@@ -1,7 +1,7 @@
 .list {
   height: 100%;
   /* overflow: auto; */
-  background-color: #eee;
+  /* background-color: #eee; */
 
   /* padding-bottom: 4em; */
   counter-reset: count;
