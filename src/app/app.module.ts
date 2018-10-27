@@ -16,6 +16,9 @@ import { OurNotesModule } from './our-notes/our-notes.module';
 import { LoginComponent } from './login/login.component';
 import { TouchStartModule } from './touchstart.module';
 import { NgScrolltopModule } from 'ng-scrolltop';
+import { NgIdleClickModule } from 'ng-idle-click';
+import { FooterComponent } from './footer/footer.component';
+import { MatIconModule } from '@angular/material/icon';
 
 import { WindowRef } from './service/window-ref.service';
 
@@ -23,11 +26,13 @@ import { WindowRef } from './service/window-ref.service';
   declarations: [
     AppComponent,
     LoginComponent,
+    FooterComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     MatSnackBarModule,
+    MatIconModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireDatabaseModule,
@@ -38,6 +43,7 @@ import { WindowRef } from './service/window-ref.service';
     AppRoutingModule,
     TouchStartModule,
     NgScrolltopModule,
+    NgIdleClickModule,
   ],
   providers: [
     WindowRef

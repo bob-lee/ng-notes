@@ -112,12 +112,6 @@ export class GroupComponent implements OnInit, OnDestroy {
     }
   };
 
-  add({ event, done }) {
-    console.log(`add`);
-    this.addOrEdit({ event });
-    done();
-  }
-
   addOrEdit({ event, index = -1, note = undefined }) {
     console.log(`addOrEdit(x:${event.clientX}, i:${index}, key:${note && note.$key || 'na'})`);
 
@@ -134,10 +128,6 @@ export class GroupComponent implements OnInit, OnDestroy {
   toggle() {
     const body = document.querySelector('body');
     body.classList.toggle('show-overlay');
-  }
-
-  divScroll(e) {
-    console.log('div group', e);
   }
 
 }
