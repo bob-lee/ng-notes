@@ -9,8 +9,16 @@ const INNER = 'inner';
 <div class="${BOX}"
   [ngClass]="{'dev':isDevMode}"
   blAnimateValue [prop]="prop" [left]="left">
-  <div class="${INNER} enter">{{ propEnter }}</div>
-  <div class="${INNER} leave">{{ propLeave }}</div>
+  <div class="${INNER} enter">
+    <div class="box" [attr.data-help]="helpEnter">
+      {{ propEnter }}
+    </div>
+  </div>
+  <div class="${INNER} leave">
+    <div class="box" [attr.data-help]="helpLeave">
+      {{ propLeave }}
+    </div>
+  </div>
 </div>
   `,
   styles: [`
@@ -33,6 +41,17 @@ const INNER = 'inner';
   display: flex;
   justify-content: flex-start;
 }
+.box {
+  position: relative;
+}
+.box::before {
+  content: attr(data-help);
+  font-size: 0.4em;
+  font-weight: normal;
+  position: absolute;
+  top: -.8em;
+  width: 40em;
+}
   `],
 })
 export class BlHeaderComponent implements OnChanges, OnInit {
@@ -40,10 +59,16 @@ export class BlHeaderComponent implements OnChanges, OnInit {
 
   propEnter;
   propLeave;
+  helpEnter;
+  helpLeave;
+
+  hostId: string;
+
+  @Input() helpLeft ='';
+  @Input() helpRight = '';
 
   @Input() prop: string;
   @Input() left: boolean;
-  @Input() hostId: string;
   @Input() styles: any;
   @Input() stylesInner: any;
 
@@ -51,8 +76,11 @@ export class BlHeaderComponent implements OnChanges, OnInit {
     private renderer: Renderer2) { }
 
   ngOnInit() {
-    const hostId = this.hostId ? `#${this.hostId} ` : '';
-    const selector = hostId + `div.${BOX}`;
+    const idAttr = this.el.nativeElement.attributes.getNamedItem('id');
+    this.hostId = idAttr && idAttr.value || '';
+
+    const findId = this.hostId ? `#${this.hostId} ` : '';
+    const selector = findId + `div.${BOX}`;
     const selectorEnter = selector + ` .${INNER}.enter`;
     const selectorLeave = selector + ` .${INNER}.leave`;
 
@@ -76,7 +104,9 @@ export class BlHeaderComponent implements OnChanges, OnInit {
     const prop = changes.prop;
     if (prop) {
       this.propEnter = prop.currentValue;
+      this.helpEnter = this.left ? this.helpLeft : this.helpRight;
       this.propLeave = prop.previousValue || '';
+      this.helpLeave = this.left ? this.helpRight : this.helpLeft;
     }
   }
 

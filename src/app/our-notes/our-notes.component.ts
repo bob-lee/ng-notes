@@ -1,12 +1,10 @@
-import { Component, OnInit, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarRef  } from '@angular/material';
 import { Subscription } from 'rxjs';
 
 import { Todo } from './Note';
 import { NoteService } from './note.service';
-import { WindowRef } from '../service/window-ref.service';
 import { routerTransition, valueUpdated } from '../app.animation';
 import { take } from 'rxjs/operators';
 
@@ -17,13 +15,14 @@ import { take } from 'rxjs/operators';
     routerTransition,
     valueUpdated,
   ],
+  //encapsulation: ViewEncapsulation.None // see this makes difference in footer
 })
 export class OurNotesComponent implements OnInit, OnDestroy {
-  myForm: FormGroup;
-  inside = false;
+  inside = false; // source of the truth is 'noteService.groupName'
   todoEnum = Todo;
   subscription: Subscription;
   @ViewChild('logoutTemplate') logoutTemplate: TemplateRef<any>;
+
   snackBarRef: MatSnackBarRef<any>;
   userPhotoLoaded = true;
   imageError(event) {
@@ -33,53 +32,31 @@ export class OurNotesComponent implements OnInit, OnDestroy {
   get photoUrl() { return this.noteService.userPhotoUrl; }
   get toShow() { return this.photoUrl && this.userPhotoLoaded; }
 
-  get title(): string { return this.inside ? this.noteService.groupName : 'Groups'; }
   get debugInfo() { return this.noteService.listState; }
 
-  constructor(private formBuilder: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
+  title = 'Groups';
+  helpGroup = 'Group:';
+  helpList = 'To create a new group, enter group name below';
+
+  constructor(private router: Router,
     public noteService: NoteService,
-    public snackBar: MatSnackBar,
-    private windowRef: WindowRef) { }
+    public snackBar: MatSnackBar) { }
 
   ngOnInit() {
-    this.myForm = this.formBuilder.group({
-      groupName: ['', Validators.required]
-    });
 
     this.subscription = this.noteService.announcedGroupName.subscribe(
       groupName => {
-        console.log(`OurNotesComponent announcedGroupName '${groupName}'`);
-        this.myForm.controls['groupName'].setValue(groupName);
-        setTimeout(_ => {
+        setTimeout(_ => { // to avoid ExpressionChangedAfterItHasBeenCheckedError
+          this.title = groupName || 'Groups';
           this.inside = !!groupName;
-          if (this.inside)
-            setTimeout(_ => { this.noteService.showIcon = true; }, 500);
         });
       });
-
     console.warn(`'OurNotesComponent'`);
   }
 
   ngOnDestroy() {
     console.warn(`'OurNotesComponent' ngOnDestroy`);
     if (this.subscription) this.subscription.unsubscribe();
-  }
-
-  add({ event, done }) { // moved from group.component in favor of animation
-    console.log(`add`);
-    this.noteService.add(event);
-    done();
-  }
-
-  exit() {
-    if (this.windowRef.nativeWindow.localStorage) { // clear group to let, after navigate, ngOnInit find no remembered group and exit
-      this.windowRef.nativeWindow.localStorage.setItem('group', '');
-    }
-
-    this.noteService.showIcon = false;
-    setTimeout(_ => this.router.navigate(['group']), 500);
   }
 
   async logout() {
@@ -119,12 +96,6 @@ export class OurNotesComponent implements OnInit, OnDestroy {
   logoutSnackbarTemplateAction() {
     console.log('logoutSnackbarTemplateAction');
     this.snackBarRef.dismissWithAction();
-  }
-
-  search() {
-    const group = this.myForm.controls['groupName'].value;
-    console.log(`search(${group})`);
-    this.router.navigate(['group', group], { queryParams: { db: 2 } }); // create / search a group in firestore
   }
 
   getState(outlet) {

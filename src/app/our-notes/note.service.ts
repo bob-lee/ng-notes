@@ -71,11 +71,10 @@ export class NoteService implements CanActivate, OnDestroy {
   note: Note; // note to edit, to be set by note component when clicked for edit // to go
 
   get loggedin() { return !!this.userName; }
+  get inside() { return !!this.groupName; }
 
   private groupDoc: AngularFirestoreDocument<any>;
   fsSubscription: Subscription = null;
-
-  showIcon = false;
 
   clear() {
     this.userName = '';

@@ -29,6 +29,44 @@
   -webkit-overflow-scrolling: touch; /* get Momentum scrolling back on iPhone */
 }
 
+.fab {
+  z-index:101;
+  width: 2em;
+  height: 2em;
+  position: fixed;
+  right: 0.2em;
+  bottom: 1.5em;
+  border-radius: 50%;
+  background-color: rgb(244, 67, 54);
+  color: white;
+  font-size: 18pt;
+  outline: none;
+  border: 0;
+  padding: 0; /* suspect bootstrap padding */
+  box-shadow: 6px 6px 12px rgba(0,0,0,.475);
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility .6s, opacity .6s;
+}
+
+@media not all and (pointer: coarse) {
+  .fab { /* for desktop, add transform transition property */
+    transition: transform 0.3s cubic-bezier(0.35, 0, 0.25, 1), visibility .6s, opacity .6s;
+  }
+}
+
+.fab:hover {
+  transform:scale(1.1);
+  background-color: #E53935;
+}
+.fab:active {
+  background-color: #B71C1C;
+}
+.fab.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 /*
 div {
   width: 100%;
