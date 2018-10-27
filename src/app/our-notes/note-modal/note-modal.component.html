@@ -11,7 +11,7 @@
 
     <div>
       <mat-form-field>
-        <input matInput placeholder="Name" formControlName="name" required blFocusMe>
+        <input matInput placeholder="Name" formControlName="name" required>
         <div class="text-danger"
           [hidden]="!submitted || noteForm.controls.name.valid || !noteForm.controls.name.errors.required">
           Entry is mandatory
@@ -21,7 +21,7 @@
 
     <div>
       <mat-form-field class="textarea">
-        <textarea matInput placeholder="Note" formControlName="text" rows="8" required>
+        <textarea matInput placeholder="Note" formControlName="text" rows="8" required blFocusMe>
         </textarea>
         <div class="text-danger"
           [hidden]="!submitted || noteForm.controls.text.valid || !noteForm.controls.text.errors.required">

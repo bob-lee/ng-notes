@@ -75,6 +75,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
   private groupDoc: AngularFirestoreDocument<any>;
   fsSubscription: Subscription = null;
+  private doAnimation = false;
 
   clear() {
     this.userName = '';
@@ -130,6 +131,7 @@ export class NoteService implements CanActivate, OnDestroy {
       // filter out 'modified' state change due to firestore timestamp being set for newly-added note
       this.stateChanges = this.collection.stateChanges().pipe(
         map(actions => actions.filter(action =>
+          !this.doAnimation ||
           (action.type === 'modified' &&
             action.payload.doc.id === this.lastChanged.$key &&
             this.lastChanged.$type === 'added') ? false : true
@@ -188,6 +190,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
   exit(): void {
     // clear group-specific
+    this.doAnimation = false;
     this.countNotes = 0;
     this.groupName = '';
     this.groupDoc = null;
@@ -282,6 +285,7 @@ export class NoteService implements CanActivate, OnDestroy {
 
     note.group = this._groupName;
     // console.log('note', note);
+    this.doAnimation = true;
 
     if (this.todo === Todo.Add) { // add
 
@@ -476,7 +480,7 @@ export class NoteService implements CanActivate, OnDestroy {
     } else { // add
       this.theNote = {
         group: this.groupName,
-        name: '',
+        name: this.userName || '',
         text: '',
         updatedAt: firebase['firestore'].FieldValue.serverTimestamp(),
         imageURL: '',
