@@ -85,31 +85,22 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
     this._init = true;
   }
 
-  public hasCompatibleBrowser(): boolean {
-    const hasIntersectionObserver = 'IntersectionObserver' in window;
-    const userAgent = window.navigator.userAgent;
-    const matches = userAgent.match(/Edge\/(\d*)\./i);
-
-    const isEdge = !!matches && matches.length > 1;
-    const isEdgeVersion16OrBetter = isEdge && (!!matches && parseInt(matches[1], 10) > 15);
-
-    return hasIntersectionObserver && (!isEdge || isEdgeVersion16OrBetter);
-  }
-
   public ngOnDestroy() {
     this.removeListeners();
   }
 
   private doRegister() {
     if (isPlatformBrowser(this.platformId)) {
-      if (this.hasCompatibleBrowser()) {
+      if (this._service.isCompatibleBrowser) {
         this.registerIntersectionObserver();
         if (this._intersectionObserver && this._element.nativeElement) {
           this._intersectionObserver.observe(<Element>(this._element.nativeElement));
+          if (!this._service.isSimpleMode) this.lazyLoad.emit(IntersectionState.Registered);
           if (this._service.isDevMode) console.log('lazyLoad register');
         }
       } else {
         this.addScrollListeners();
+        if (this._service.isSimpleMode) this.lazyLoad.emit(IntersectionState.Listening);
         if (this._service.isDevMode) console.log('lazyLoad listener');
       }
     } else {
@@ -132,7 +123,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
   private checkForIntersection = (entries: Array<IntersectionObserverEntry>) => {
     entries.forEach((entry: IntersectionObserverEntry) => {
       const state = this.checkIfIntersecting(entry);
-      if (state > IntersectionState.None ) {
+      if (state > IntersectionState.NotIntersecting ) {
         this.load(state);
         if (this._intersectionObserver && this._element.nativeElement) {
           this._intersectionObserver.unobserve(<Element>(this._element.nativeElement));
@@ -152,7 +143,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
     if (this.isVisible()) {
       return IntersectionState.Visible;
     }
-    return IntersectionState.None; // not intersecting
+    return IntersectionState.NotIntersecting;
   }
 
   private load(state: IntersectionState): void {

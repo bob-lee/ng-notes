@@ -26,6 +26,7 @@ import { valueUpdated } from '../app.animation';
   </div>
 
   <div class="bl-icon" touchStart
+    (click)="toggleDebug()"
     [ngClass]="{'bl-icon-selected': noteService.inside}">
 		<div class="bl-icon-title">
       Group
@@ -56,6 +57,7 @@ import { valueUpdated } from '../app.animation';
   <div>
     <form [formGroup]="myForm" (submit)="search()">
       <input type="text" maxlength="30" placeholder="Enter group name"
+
         [attr.disabled]="noteService.inside ? '' : null" formControlName="groupName" />
     </form>
   </div>
@@ -107,6 +109,13 @@ export class FooterComponent implements OnInit {
   search() {
     console.log(`search(${this.groupName})`);
     this.router.navigate(['group', this.groupName], { queryParams: { db: 2 } }); // create / search a group in firestore
+  }
+
+  toggleDebug() {
+    console.warn(`'toggleDebug'`);
+    if (this.noteService.inside) {
+      this.noteService.debug = !this.noteService.debug;
+    }
   }
 }
 

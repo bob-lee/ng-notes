@@ -12,6 +12,7 @@ import { first, map, switchMap } from 'rxjs/operators';
 import { Note, Todo, LoginWith } from './Note';
 import { WindowRef } from '../service/window-ref.service';
 import { MatSnackBar, MatSnackBarRef, SimpleSnackBar  } from '@angular/material';
+import { IntersectionState } from 'ng-lazy-load';
 
 export interface FirestoreFunctions {
   addNote: (note: Note) => any;
@@ -76,6 +77,46 @@ export class NoteService implements CanActivate, OnDestroy {
   private groupDoc: AngularFirestoreDocument<any>;
   fsSubscription: Subscription = null;
   private doAnimation = false;
+
+  debug = false;
+
+  countRegistered = 0;
+  countListening = 0;
+  countIntersecting = 0;
+  countNearIntersecting = 0;
+  countVisible = 0;
+  countPrerender = 0;
+
+  updateCount(state: IntersectionState) {
+    switch (state) {
+      case IntersectionState.Registered:
+        this.countRegistered++;
+        break;
+      case IntersectionState.Listening:
+        this.countListening++;
+        break;
+      case IntersectionState.Intersecting:
+        this.countIntersecting++;
+        break;
+      case IntersectionState.NearIntersecting:
+        this.countNearIntersecting++;
+        break;
+      case IntersectionState.Visible:
+        this.countVisible++;
+        break;
+      case IntersectionState.Prerender:
+        this.countPrerender++;
+        break;
+      default:
+        this.countRegistered = 0;
+        this.countListening = 0;
+        this.countIntersecting = 0;
+        this.countNearIntersecting = 0;
+        this.countVisible = 0;
+        this.countPrerender = 0;
+        break;
+    }
+  }
 
   clear() {
     this.userName = '';
@@ -412,7 +453,7 @@ export class NoteService implements CanActivate, OnDestroy {
     return new Promise((resolve, reject) => {
       reader.onload = function (e) {
         console.log(`reader`, e);
-        const view = new DataView(reader.result);
+        const view = new DataView(reader.result as ArrayBuffer);
         if (view.getUint16(0, false) != 0xFFD8) {
           resolve(-2);
         }

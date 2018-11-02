@@ -2,8 +2,10 @@ import { Injectable, isDevMode } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 
 export enum IntersectionState {
-  Disconnected,
-  None,
+  NotRegistered, // initial state
+  Registered,
+  Listening,
+  NotIntersecting,
   Intersecting,
   NearIntersecting,
   Visible,
@@ -17,6 +19,8 @@ const LOAD_AHEAD_COUNT = 2;
 })
 export class LazyLoadService {
   isDevMode = isDevMode();
+  isSimpleMode: boolean = true; // if true, emit only Intersecting and later states that will cause loading
+                                // if false, emit Registered, Listening states as well
 
   private _loadAheadCount = LOAD_AHEAD_COUNT;
   get loadAheadCount() { return this._loadAheadCount; }
@@ -41,6 +45,22 @@ export class LazyLoadService {
     this.intersection$.next(params);
   }
 
+  isCompatibleBrowser: boolean;
+
+  private hasCompatibleBrowser(): boolean {
+    const hasIntersectionObserver = 'IntersectionObserver' in window;
+    const userAgent = window.navigator.userAgent;
+    const matches = userAgent.match(/Edge\/(\d*)\./i);
+
+    const isEdge = !!matches && matches.length > 1;
+    const isEdgeVersion16OrBetter = isEdge && (!!matches && parseInt(matches[1], 10) > 15);
+
+    const isCompatibleBrowser = hasIntersectionObserver && (!isEdge || isEdgeVersion16OrBetter);
+    if (this.isDevMode) console.log(`hasCompatibleBrowser`, hasIntersectionObserver, userAgent, isEdge, isEdgeVersion16OrBetter, isCompatibleBrowser);
+
+    return isCompatibleBrowser;
+  }
+
   registerAfter(msec: number) {
     if (msec > 0) {
       this.delayMsec = msec;
@@ -55,6 +75,7 @@ export class LazyLoadService {
   }
 
   constructor() {
-    if (this.isDevMode) console.log(`'LazyLoadService' loadAheadCount`, this._loadAheadCount);
+    this.isCompatibleBrowser = this.hasCompatibleBrowser();
+    if (this.isDevMode) console.log(`'LazyLoadService' loadAheadCount`, this._loadAheadCount, this.isCompatibleBrowser);
   }
 }

@@ -58,7 +58,10 @@ export class NoteComponent {
   }
 
   doLoad(state: IntersectionState, index) {
-    this.toLoad = true;
+    this.noteService.updateCount(state);
+    if (state >= IntersectionState.Intersecting) {
+      this.toLoad = true;
+    }
   }
 
 
