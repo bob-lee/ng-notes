@@ -90,7 +90,9 @@ export class GroupComponent implements OnInit, OnDestroy {
 
       this.init = true;
 
+      this.lazyLoadService.isSimpleMode = false; // debug
       this.lazyLoadService.registerAfter(1500);
+      this.noteService.updateCount(null);
     }
   }
 
