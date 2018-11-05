@@ -15,5 +15,8 @@
 <note-modal #modal></note-modal>
 
 <div *ngIf="noteService.debug" class="debug-info">
-  {{noteService.countIntersecting}} {{noteService.countNearIntersecting}} {{noteService.countVisible}} {{noteService.countPrerender}} / {{noteService.countRegistered}} {{noteService.countListening}}
+  {{noteService.countIntersecting}} {{noteService.countNearIntersecting}}
+  {{noteService.countVisible}} {{noteService.countPrerender}} /
+  {{noteService.countRegistered}} {{noteService.countListening}}
+  {{noteService.doAnimation}}
 </div>

@@ -24,3 +24,14 @@ workbox.routing.registerRoute(matchCb,
     ],
   })
 );
+
+// webfont-cache
+const webFontHandler = workbox.strategies.cacheFirst({
+  cacheName: 'webfonts',
+  plugins: [
+    new workbox.expiration.Plugin({maxEntries: 20}),
+    new workbox.cacheableResponse.Plugin({statuses: [0, 200]}),
+  ],
+});
+workbox.routing.registerRoute(/https:\/\/fonts.googleapis.com\/.*/, webFontHandler);
+workbox.routing.registerRoute(/https:\/\/fonts.gstatic.com\/.*/, webFontHandler);

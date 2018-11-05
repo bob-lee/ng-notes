@@ -27,6 +27,8 @@ const GOOGLE_CONFIG: GoogleApiConfig = {
   appId: '586189256171',
   clientId: '586189256171-82i5f88n6geumca00fk4ksm7kqan9dmm.apps.googleusercontent.com'
 }
+const SAVE_FAILED_BUT_PERSISTED = 'Changes failed to save to the server but persisted local, will retry to save again at next page refresh.';
+const SAVE_TAKES_LONG = `Save takes long or maybe it's offline.`;
 
 @Component({
   selector: 'note-modal',
@@ -105,6 +107,19 @@ export class NoteModalComponent implements OnInit {
 
   private goBack() {
     this.hide();
+  }
+
+  tookLong({ event, done }) {
+    const ref = this.noteService.openSnackBar(SAVE_TAKES_LONG, 'Stop waiting');
+    const dismiss = ref.afterDismissed().subscribe(_ => { // keep waiting
+      console.log('tookLong dismissed', event);
+    });
+    ref.onAction().subscribe(_ => {
+      dismiss.unsubscribe();
+      this.hide();
+      done();
+      console.log('User actioned to stop');
+    })
   }
 
   async save({ event, done }) {
