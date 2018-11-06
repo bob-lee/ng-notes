@@ -27,8 +27,7 @@ const GOOGLE_CONFIG: GoogleApiConfig = {
   appId: '586189256171',
   clientId: '586189256171-82i5f88n6geumca00fk4ksm7kqan9dmm.apps.googleusercontent.com'
 }
-const SAVE_FAILED_BUT_PERSISTED = 'Changes failed to save to the server but persisted local, will retry to save again at next page refresh.';
-const SAVE_TAKES_LONG = `Save takes long or maybe it's offline.`;
+const SAVE_TAKES_LONG = `Save is taking long or maybe it's offline.`;
 
 @Component({
   selector: 'note-modal',

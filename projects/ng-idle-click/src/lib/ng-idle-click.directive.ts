@@ -83,7 +83,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
       }
       this.playDefaultAnimation();
     }
-    if (this.busyService.isDevMode) console.log('animationDone()', !!this.toAnimate, !!this.player);
+    //if (this.busyService.isDevMode) console.log('animationDone()', !!this.toAnimate, !!this.player);
   }
 
   playDefaultAnimation() {
@@ -98,7 +98,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
         ]))
       ]);
       this.player = factory.create(this.el.nativeElement);
-      if (this.busyService.isDevMode) console.log('create@playDefaultAnimation');
+      if (this.busyService.isDevMode) console.log('playDefaultAnimation');
     }
 
     this.player.onDone(this.animationDone);

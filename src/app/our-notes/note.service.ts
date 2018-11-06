@@ -539,6 +539,8 @@ export class NoteService implements CanActivate, OnDestroy {
   public openSnackBar(message: string, action: string, duration = 3000): MatSnackBarRef<SimpleSnackBar> {
     return this.snackBar.open(message, action, {
       duration: duration,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom'
     });
   }
   public openSnackBarTemplate(template: TemplateRef<any>, duration = 3000): MatSnackBarRef<EmbeddedViewRef<any>> {
