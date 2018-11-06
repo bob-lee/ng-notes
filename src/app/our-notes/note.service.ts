@@ -325,8 +325,6 @@ export class NoteService implements CanActivate, OnDestroy {
     const note = noteToSave || this.theNote;
 
     note.group = this._groupName;
-    // console.log('note', note);
-    this.doAnimation = true;
 
     if (this.todo === Todo.Add) { // add
 
@@ -504,6 +502,7 @@ export class NoteService implements CanActivate, OnDestroy {
     }
 
     this.getGroupNotes(group);
+    setTimeout(_ => this.doAnimation = true, 2000);
   }
 
   setTheNote(note?: any) { // to be called by user of FormModalComponent
@@ -534,12 +533,14 @@ export class NoteService implements CanActivate, OnDestroy {
   private async update(note): Promise<void> {
     const key = note.$key;
     delete note.$key;
-    await this.collection.doc(key).update(note);
+    return this.collection.doc(key).update(note);
   }
 
   public openSnackBar(message: string, action: string, duration = 3000): MatSnackBarRef<SimpleSnackBar> {
     return this.snackBar.open(message, action, {
       duration: duration,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom'
     });
   }
   public openSnackBarTemplate(template: TemplateRef<any>, duration = 3000): MatSnackBarRef<EmbeddedViewRef<any>> {

@@ -9,12 +9,14 @@ import { NgIdleClickService } from './ng-idle-click.service';
 
 const DELAY = 1000;
 const DEFAULT_ANIMATION_PERIOD = '1s';
+const NOTICE_EVERY = 15;
 
 @Directive({ selector: '[idleClick]' })
 export class NgIdleClickDirective implements OnInit, OnDestroy {
 
   private player: AnimationPlayer;
   private timer;
+  private countAnimate = 0;
   private _toAnimate: boolean;
   get toAnimate() { return this._toAnimate; }
   set toAnimate(value) {
@@ -24,6 +26,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
 
   @Input() idleClickLoader = '';
   @Output() idleClick: EventEmitter<any> = new EventEmitter();
+  @Output() tookLong: EventEmitter<any> = new EventEmitter();
   @HostListener('click', ['$event'])
   onClick(e) {
     if (this.busyService.busy) { // do nothing
@@ -61,6 +64,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
 
   done = () => {
     this.busyService.reset();
+    this.countAnimate = 0;
     this.toAnimate = false;
     if (this.idleClickLoader)
       this.renderer.removeClass(this.el.nativeElement, this.idleClickLoader);
@@ -73,11 +77,13 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
   };
 
   animationDone = () => {
-    if (this.busyService.isDevMode) console.log('animationDone()', !!this.toAnimate, !!this.player);
-
     if (this.toAnimate) { // continue
+      if (this.countAnimate++ % NOTICE_EVERY === (NOTICE_EVERY - 1)) {
+        this.tookLong.emit({ event: this.countAnimate, done: this.done });
+      }
       this.playDefaultAnimation();
     }
+    //if (this.busyService.isDevMode) console.log('animationDone()', !!this.toAnimate, !!this.player);
   }
 
   playDefaultAnimation() {
@@ -92,7 +98,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
         ]))
       ]);
       this.player = factory.create(this.el.nativeElement);
-      if (this.busyService.isDevMode) console.log('create@playDefaultAnimation');
+      if (this.busyService.isDevMode) console.log('playDefaultAnimation');
     }
 
     this.player.onDone(this.animationDone);
