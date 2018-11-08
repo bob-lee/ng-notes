@@ -12,3 +12,8 @@
 <scrolltop [bottom]="'55px'" [background]="'yellow'" [elementId]="'child-xyz'"></scrolltop>
 <button class="fab" (idleClick)="add($event)" [ngClass]="{'show': noteService.loggedin && inside}" aria-label="Add">+</button>
 <bl-footer [visible]="noteService.loggedin"></bl-footer>
+<!--
+this.openSnackBar('Test me!', 'Dismiss', 600000);
+(idleClick)="add($event)"
+(click)="noteService.openSnackBar('Test me!', 'Dismiss', 600000)"
+ -->
