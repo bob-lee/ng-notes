@@ -1,6 +1,6 @@
 {
   "name": "ng-animate-value",
-  "version": "0.0.9",
+  "version": "0.1.2",
   "description": "A directive / component to animate value changes on a named property with default or custom styles",
   "repository": {
     "type": "git",

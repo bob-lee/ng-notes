@@ -27,9 +27,9 @@ export class AnimateValueDirective implements OnDestroy {
       this.player.destroy();
     }
 
-    const factory = this.builder.build([
-      this.getMetadata(this.left)
-    ]);
+    const factory = this.builder.build(
+      this.getMetadata(this.left, DEFAULT_ANIMATION_PERIOD, 40, 'px')
+    );
     this.player = factory.create(this.el.nativeElement);
 
     this.player.play();
@@ -38,21 +38,29 @@ export class AnimateValueDirective implements OnDestroy {
   private getMetadata(left: boolean,
     timing: string = DEFAULT_ANIMATION_PERIOD,
     distanceX: number= 50,
-    distanceUnit: string = 'px'): AnimationMetadata {
+    distanceUnit: string = 'px'): AnimationMetadata[] {
 
     const x = distanceX * (left ? 1 : -1);
-    const transformBegin = `translateX(${x}${distanceUnit})`;
-    const transformEnd = `translateX(${x * -1}${distanceUnit})`;
+    // const transformBegin = `translateX(${x}${distanceUnit})`; // doesn't work on IE11.. why?
+    // const transformEnd = `translateX(${x * -1}${distanceUnit})`;
+    const transformBegin = `translateX(${x}%)`;
+    const transformEnd = `translateX(${x * -1}%)`;
 
-    return group([
-      query('.enter', [
+    return [
+      query('.enter',
         style({ opacity: 0, transform: transformBegin }),
-        animate(timing, style({ opacity: 1, transform: 'translateX(0%)' }))
-      ], { optional: true }),
-      query('.leave', [
+        { optional: true }),
+      query('.leave',
         style({ opacity: 1, transform: 'translateX(0%)' }),
-        animate(timing, style({ opacity: 0, transform: transformEnd }))
-      ], { optional: true })
-    ]);
+        { optional: true }),
+      group([
+        query('.enter',
+          animate(timing, style({ opacity: 1, transform: 'translateX(0%)' })),
+          { optional: true }),
+        query('.leave',
+          animate(timing, style({ opacity: 0, transform: transformEnd })),
+          { optional: true })
+      ])
+    ];
   }
 }
