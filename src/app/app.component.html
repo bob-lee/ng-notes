@@ -3,11 +3,11 @@
   <router-outlet #o="outlet"></router-outlet>
 </div> -->
 
-<div class="parent">
+<main class="parent">
   <div class="child" id="child-xyz" [@routerTransition]="getState(o)" >
     <router-outlet #o="outlet"></router-outlet>
   </div>
-</div>
+</main>
 
 <scrolltop [bottom]="'55px'" [background]="'yellow'" [elementId]="'child-xyz'"></scrolltop>
 <button class="fab" (idleClick)="add($event)" [ngClass]="{'show': noteService.loggedin && inside}" aria-label="Add">+</button>

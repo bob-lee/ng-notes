@@ -8,7 +8,7 @@
     *ngFor="let note of noteService.items$ | async; let i = index; trackBy: trackByFn"
     [ngClass]="{ 'modified' : note.$type === 'modified' && noteService.listState === 'modified' }"
     (lazyLoad)="myNote.doLoad($event,i)" [url]="note.imageURL" [index]="i" #myNote
-    [attr.tabindex]="i">
+    >
   </my-note>
 </div>
 
@@ -20,3 +20,6 @@
   {{noteService.countRegistered}} {{noteService.countListening}}
   {{noteService.doAnimation}}
 </div>
+<!--
+[attr.tabindex]="i">
+ -->

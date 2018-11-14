@@ -49,7 +49,7 @@ export class GroupComponent implements OnInit, OnDestroy {
     this.noteService.todo = Todo.List;
     this.isTouchDevice = window.matchMedia('(pointer:coarse)').matches;
 
-    let subscription = this.noteService.announcedLastSaved
+    /*let subscription = this.noteService.announcedLastSaved
       .subscribe(saved => {
         try {
           const savedEl = document.querySelector(`div.item[tabindex="${saved.index}"]`);
@@ -61,9 +61,9 @@ export class GroupComponent implements OnInit, OnDestroy {
           console.warn(e);
         }
       });
-    this.subscription.add(subscription);
+    this.subscription.add(subscription);*/
 
-    subscription = this.noteService.announcedOrder
+    let subscription = this.noteService.announcedOrder
       .subscribe(params => this.serveOrder(params));
     this.subscription.add(subscription);
 

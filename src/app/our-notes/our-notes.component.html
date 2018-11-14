@@ -9,7 +9,8 @@
 
     <div class="user" (idleClick)="logoutSnackbar($event)">
       <div class="photo" [attr.data-initial]="noteService.userNameInitials" [ngClass]="{'no-photo': !toShow}">
-        <img id="userPhoto" [src]="photoUrl" *ngIf="toShow" (error)="imageError($event)">
+        <img id="userPhoto" alt="photo of logged in user"
+          [src]="photoUrl" *ngIf="toShow" (error)="imageError($event)">
       </div>
     </div>
   </div>
