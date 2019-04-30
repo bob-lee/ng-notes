@@ -1,13 +1,20 @@
-import { Component, Input, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { NgScrolltopService } from './ng-scrolltop.service';
+
+const setElementStyle = (elem: HTMLElement, name: string, value: string) => {
+  if (elem && name) {
+    elem.style[name] = value || '';
+  }
+}
 
 @Component({
   selector: 'scrolltop',
   template: `
 <div class="scroll-top" blScrolltop
   [ngClass]="{'show-icon': service.showIcon}">
-  <mat-icon>skip_next</mat-icon>
+  <svg xmlns="http://www.w3.org/2000/svg" [attr.width]="sizeInner" [attr.height]="sizeInner" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
 </div>
+
 <div class="scroll-top dev" *ngIf="service.isDevMode">
   {{service.info}}
 </div>
@@ -47,29 +54,39 @@ import { NgScrolltopService } from './ng-scrolltop.service';
 })
 export class NgScrolltopComponent implements OnInit, OnDestroy {
   private icon: HTMLElement;
+  private svg: HTMLElement;
   private _bottom: string;
   private _background: string;
   private _elementId: string;
+  private _fill: string;
+  private _size: string = '48px';
 
   @Input()
   set bottom(value: string) {
     this._bottom = value;
-    if (this.icon) {
-      this.icon.style.bottom = value;
-    }
+    setElementStyle(this.icon, 'bottom', value);
   }
-
   @Input()
   set background(value: string) {
     this._background = value;
-    if (this.icon) {
-      this.icon.style.background = value;
-    }
+    setElementStyle(this.icon, 'background', value);
   }
   @Input()
   set elementId(value: string) {
     this._elementId = value;
     this.service.init(value);
+  }
+  @Input() 
+  set size(value: string) {
+    this._size = value;
+    setElementStyle(this.icon, 'width', value);
+    setElementStyle(this.icon, 'height', value);
+  }
+  @Input() sizeInner: string = '24';
+  @Input() 
+  set fill(value: string) {
+    this._fill = value;
+    setElementStyle(this.svg, 'fill', value);
   }
 
   constructor(public service: NgScrolltopService) { }
@@ -79,13 +96,13 @@ export class NgScrolltopComponent implements OnInit, OnDestroy {
     if (!this.service._init) this.service.init(this._elementId);
 
     this.icon = document.querySelector('div.scroll-top:not(.dev)') as HTMLElement;
+    this.svg = document.querySelector('div.scroll-top:not(.dev) svg') as HTMLElement;
     if (this.icon) {
-      if (this._bottom) {
-        this.icon.style.bottom = this._bottom;
-      }
-      if (this._background) {
-        this.icon.style.background = this._background;
-      }
+      setElementStyle(this.icon, 'bottom', this._bottom);
+      setElementStyle(this.icon, 'background', this._background);
+      setElementStyle(this.icon, 'width', this._size);
+      setElementStyle(this.icon, 'height', this._size);
+      setElementStyle(this.svg, 'fill', this._fill);
     } else {
       if (this.service.isDevMode) console.warn(`NgScrolltopComponent failed to find icon element, so any inputs will be ignored`);
     }

@@ -15,7 +15,16 @@
 
 ## Optional inputs
 
-By default, `scrolltop` icon will show in left bottom of the screen with background color of `#333` and you can adjust its position and color by providing optional inputs like `[bottom]="'60px'" [background]="'#999'"`.
+`scrolltop` icon will show in left bottom of the screen and have some default attributes' values that can be adjusted by providing optional inputs like:
+```html
+<scrolltop 
+  [bottom]="'55px'" 
+  [background]="'green'" 
+  [size]="'60px'" 
+  [sizeInner]="'36'" 
+  [fill]="'white'">
+</scrolltop>
+```
 
 By default, the library will work with `window` object but if your page has a scrolling element, you can pass over the `id` of that element like `[elementId]="'my-scrolling-div'"` to let the library work with the element not `window`.
 
