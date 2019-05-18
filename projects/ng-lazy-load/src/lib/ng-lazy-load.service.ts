@@ -22,6 +22,8 @@ export class LazyLoadService {
   isSimpleMode: boolean = true; // if true, emit only Intersecting and later states that will cause loading
                                 // if false, emit Registered, Listening states as well
 
+  setDevMode() { this.isDevMode = true; }
+  
   private _loadAheadCount = LOAD_AHEAD_COUNT;
   get loadAheadCount() { return this._loadAheadCount; }
   set loadAheadCount(value: number) {

@@ -1,6 +1,6 @@
 {
   "name": "ng-idle-click",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "description": "A directive to prevent multiple clicks / submits",
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
   "author": "Bob Lee <bob.bumsuk.lee@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
-    "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+    "@angular/common": ">=6.x",
+    "@angular/core": ">=6.x"
   }
 }
