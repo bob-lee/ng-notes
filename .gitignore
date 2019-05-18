@@ -41,7 +41,8 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Bob private
+# Bob
 /functions/service-account-credentials.json
 .firebase/*
 firebase-debug.log
+yarn-error.log*

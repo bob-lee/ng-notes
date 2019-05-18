@@ -28,7 +28,8 @@
             ],
             "scripts": [
               "src/intersection-observer.js"
-            ]
+            ],
+            "es5BrowserSupport": true
           },
           "configurations": {
             "production": {
