@@ -43,3 +43,5 @@ Thumbs.db
 
 # Bob private
 /functions/service-account-credentials.json
+.firebase/*
+firebase-debug.log
