@@ -30,6 +30,16 @@
   }
 }
 
+.float-right {
+  float: right!important;
+}
+
+h2 {
+  font-size: 2em;
+  margin-top: .1em;
+  margin-bottom: .3em;
+}
+
 button[mat-flat-button] {
   margin-left: 4px;
 }

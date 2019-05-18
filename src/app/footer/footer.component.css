@@ -43,7 +43,7 @@
 
 .bl-icon svg {
   display: inline-block;
-  margin-bottom: 0.67em;
+  /*margin-bottom: 0.67em;*/
   fill:#fff;
 }
 
@@ -63,12 +63,12 @@
   display: flex;
 }
 .mat-icon-box mat-icon {
-  margin-top: -.27em;
+  margin-top: -.05em;
 }
 
 .bl-icon-count {
   position: absolute;
-  top: -3%;
+  top: 2%;
   left: 37%;
   z-index: 1;
   opacity: 0.7;
