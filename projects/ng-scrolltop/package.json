@@ -1,6 +1,6 @@
 {
   "name": "ng-scrolltop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A component that monitors current Y position in a long page or element then if scrolled down enough, shows up a clickable, unobtrusive icon that scrolls to top smoothly",
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
   "author": "Bob Lee <bob.bumsuk.lee@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
-    "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+    "@angular/common": ">=6.x",
+    "@angular/core": ">=6.x"
   }
 }

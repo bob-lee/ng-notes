@@ -1,0 +1,36 @@
+[debug] [2019-05-16T21:41:20.171Z] ----------------------------------------------------------------------
+[debug] [2019-05-16T21:41:20.174Z] Command:       C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\firebase-tools\lib\bin\firebase.js serve
+[debug] [2019-05-16T21:41:20.174Z] CLI Version:   6.9.2
+[debug] [2019-05-16T21:41:20.174Z] Platform:      win32
+[debug] [2019-05-16T21:41:20.174Z] Node Version:  v8.15.1
+[debug] [2019-05-16T21:41:20.177Z] Time:          Fri May 17 2019 09:41:20 GMT+1200 (New Zealand Standard Time)
+[debug] [2019-05-16T21:41:20.177Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-05-16T21:41:20.190Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-05-16T21:41:20.190Z] > authorizing via signed-in user
+[debug] [2019-05-16T21:41:20.190Z] [iam] checking project ng-notes-abb75 for permissions ["firebase.projects.get"]
+[debug] [2019-05-16T21:41:20.192Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/ng-notes-abb75:testIamPermissions  
+
+[debug] [2019-05-16T21:41:21.791Z] <<< HTTP RESPONSE 200
+[debug] [2019-05-16T21:41:21.795Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/ng-notes-abb75  
+ 
+[debug] [2019-05-16T21:41:23.189Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from 'C:\Users\Bob\Work\ng-notes'...
+[info] 
+[warn] !  Your functions directory does not specify a Node version.
+   - Learn more at https://firebase.google.com/docs/functions/manage-functions#set_runtime_options
+[debug] [2019-05-16T21:41:23.205Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/586189256171/clients/_:getWebAppConfig  
+ 
+[debug] [2019-05-16T21:41:23.206Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/586189256171:getServerAppConfig  
+ 
+[debug] [2019-05-16T21:41:23.994Z] <<< HTTP RESPONSE 200
+[info] +  functions: Emulator started at http://localhost:5001
+[debug] [2019-05-16T21:41:24.106Z] <<< HTTP RESPONSE 200
+[info] i  functions: Watching "C:\Users\Bob\Work\ng-notes\functions" for Cloud Functions...
+[info] i  hosting: Serving hosting files from: dist/ng-notes
+[info] +  hosting: Local server: http://localhost:5000
+[debug] [2019-05-16T21:41:24.765Z] Functions runtime initialized.
+[debug] [2019-05-16T21:41:24.765Z] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"protect_env":true,"admin_stubs":true}
+[warn] !  The Cloud Functions emulator requires the module "firebase-admin" to be version >7.0.0 so your version is too old. You can probably fix this by running "npm install firebase-admin@latest" in your functions directory.
+[info] i  functions: Your functions could not be parsed due to an issue with your node_modules (see above)
