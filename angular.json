@@ -22,13 +22,13 @@
               "src/manifest.json"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css",
               "node_modules/prismjs/themes/prism-okaidia.css"
             ],
             "scripts": [
               "src/intersection-observer.js"
-            ]
+            ],
+            "es5BrowserSupport": true
           },
           "configurations": {
             "production": {

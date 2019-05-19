@@ -2,9 +2,9 @@ import { Injectable, OnDestroy, EmbeddedViewRef, TemplateRef } from '@angular/co
 import { CanActivate, Router } from '@angular/router';
 
 import * as firebase from 'firebase/app';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
-import { AngularFireAuth } from 'angularfire2/auth';
-import { AngularFireStorage } from 'angularfire2/storage';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireStorage } from '@angular/fire/storage';
 
 import { combineLatest as observableCombineLatest, Observable, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { first, map, switchMap } from 'rxjs/operators';
@@ -149,7 +149,7 @@ export class NoteService implements CanActivate, OnDestroy {
       }
     });
 
-    afs.firestore.settings({ timestampsInSnapshots: true });
+    //afs.firestore.settings({ timestampsInSnapshots: true });
 
     // observables for firestore
 
