@@ -9,6 +9,9 @@
     "mkdirp": "^0.5.1",
     "mkdirp-promise": "^5.0.1"
   },
+  "engines": {
+    "node": "8"
+  },
   "private": true,
   "devDependencies": {
     "firebase-functions-test": "^0.1.6"
