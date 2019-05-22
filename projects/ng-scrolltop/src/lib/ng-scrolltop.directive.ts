@@ -22,7 +22,7 @@ export class NgScrolltopDirective {
     this.startTime = null;
     this.ngZone.runOutsideAngular(() => { window.requestAnimationFrame(this.scrollABit); });
 
-    if (this.service.isDevMode) console.log('NgScrolltopDirective click');
+    this.service.log('NgScrolltopDirective click');
   }
 
   easing = (x) => {

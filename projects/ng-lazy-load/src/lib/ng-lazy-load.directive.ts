@@ -34,11 +34,11 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
     if (this._init) {
       if (!this._url && value) {
         this.doRegister();
-        if (this._service.isDevMode) console.log('case 2.');
+        this._service.log('case 2.');
       } else if (this._url && !value) {
-        if (this._service.isDevMode) console.log('case 3.');
+        this._service.log('case 3.');
       } else if (this._url && this._url !== value) {
-        if (this._service.isDevMode) console.log('case 4.');
+        this._service.log('case 4.');
       }
     }
 
@@ -58,7 +58,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
 
   public ngAfterViewInit() {
     if (!this._url) {
-      if (this._service.isDevMode) console.log('lazyLoad never');
+      this._service.log('lazyLoad never');
     } else if (this.manual) { // register later
       const sub = this._service.announcedOrder.pipe(first()).subscribe(_ => this.doRegister());
       this._subscription.add(sub);
@@ -76,7 +76,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
           this.toLoad = true;
           const state = IntersectionState.NearIntersecting;
           this.lazyLoad.emit(state);
-          if (this._service.isDevMode) console.log(`loading [${this.index}] (${IntersectionState[state]} ${index})`);
+          this._service.log(`loading [${this.index}] (${IntersectionState[state]} ${index})`);
         }
       });
       this._subscription.add(sub);
@@ -96,17 +96,17 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
         if (this._intersectionObserver && this._element.nativeElement) {
           this._intersectionObserver.observe(<Element>(this._element.nativeElement));
           if (!this._service.isSimpleMode) this.lazyLoad.emit(IntersectionState.Registered);
-          if (this._service.isDevMode) console.log('lazyLoad register');
+          this._service.log('lazyLoad register');
         }
       } else {
         this.addScrollListeners();
         if (this._service.isSimpleMode) this.lazyLoad.emit(IntersectionState.Listening);
-        if (this._service.isDevMode) console.log('lazyLoad listener');
+        this._service.log('lazyLoad listener');
       }
     } else {
       if (this.preRender) {
         this.load(IntersectionState.Prerender);
-        if (this._service.isDevMode) console.log('lazyLoad prerender');
+        this._service.log('lazyLoad prerender');
       }
     }
   }
@@ -152,7 +152,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
 
     this.toLoad = true;
     this.lazyLoad.emit(state);
-    if (this._service.isDevMode) console.log(`loading [${this.index}] (${IntersectionState[state]})`);
+    this._service.log(`loading [${this.index}] (${IntersectionState[state]})`);
 
     if (this.index !== -1) { // if [index] given, announce as well
       this._service.announceIntersection({ index: this.index, state });

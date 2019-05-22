@@ -1,6 +1,6 @@
 {
   "name": "ng-idle-click",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A directive to prevent multiple clicks / submits",
   "repository": {
     "type": "git",

@@ -23,12 +23,13 @@ export class LazyLoadService {
                                 // if false, emit Registered, Listening states as well
 
   setDevMode() { this.isDevMode = true; }
+  log = (s?: any, ...optional: any[]) => s && this.isDevMode && console.log(s, optional);
   
   private _loadAheadCount = LOAD_AHEAD_COUNT;
   get loadAheadCount() { return this._loadAheadCount; }
   set loadAheadCount(value: number) {
     this._loadAheadCount = value;
-    if (this.isDevMode) console.log(`loadAheadCount set to (${value})`);
+    this.log(`loadAheadCount set to (${value})`);
   }
 
   delayMsec = 0;
@@ -58,7 +59,7 @@ export class LazyLoadService {
     const isEdgeVersion16OrBetter = isEdge && (!!matches && parseInt(matches[1], 10) > 15);
 
     const isCompatibleBrowser = hasIntersectionObserver && (!isEdge || isEdgeVersion16OrBetter);
-    if (this.isDevMode) console.log(`hasCompatibleBrowser`, hasIntersectionObserver, userAgent, isEdge, isEdgeVersion16OrBetter, isCompatibleBrowser);
+    this.log(`hasCompatibleBrowser`, hasIntersectionObserver, userAgent, isEdge, isEdgeVersion16OrBetter, isCompatibleBrowser);
 
     return isCompatibleBrowser;
   }
@@ -78,6 +79,6 @@ export class LazyLoadService {
 
   constructor() {
     this.isCompatibleBrowser = this.hasCompatibleBrowser();
-    if (this.isDevMode) console.log(`'LazyLoadService' loadAheadCount`, this._loadAheadCount, this.isCompatibleBrowser);
+    this.log(`'LazyLoadService' loadAheadCount`, this._loadAheadCount, this.isCompatibleBrowser);
   }
 }

@@ -20,6 +20,9 @@ export class NgScrolltopService {
   get info(): number { return Math.ceil(this.lastY); }
   get showIcon(): boolean { return this.isWindow && this.lastY > DEFAULT_SCROLLED_PX; }
 
+  setDevMode() { this.isDevMode = true; }
+  log = (s?: any, ...optional: any[]) => s && this.isDevMode && console.log(s, optional);
+
   constructor() { }
 
   init(elementId: string) {
@@ -34,7 +37,7 @@ export class NgScrolltopService {
       this._host = this._elementToScroll || window;
       this._host.addEventListener('scroll', this.handleScroll);
 
-      if (this.isDevMode) console.log(`'NgScrolltopService' to use ${this._elementToScroll ? 'element' : 'window'}`, elementId || '');
+      this.log(`'NgScrolltopService' to use ${this._elementToScroll ? 'element' : 'window'}`, elementId || '');
     }
 
     this._init = true;

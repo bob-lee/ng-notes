@@ -1,6 +1,6 @@
 {
   "name": "ng-input-file",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A component that wraps input[type=file] element styled with Material, enables user to choose file from local device or Google drive",
   "repository": {
     "type": "git",

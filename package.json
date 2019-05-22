@@ -14,7 +14,7 @@
     "build": "npm run clean && npm run build-prod && npm run tsc && node dist/build/build.js",
     "serve": "npm run build && firebase serve",
     "deploy": "npm run build && firebase deploy --only hosting",
-    "publish": "ng build ng-animate-value --prod && cd dist\\ng-animate-value && npm publish",
+    "publish": "ng build ng-idle-click --prod && cd dist\\ng-idle-click && npm publish",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

@@ -28,8 +28,11 @@ export class GoogleDriveService implements OnDestroy {
   googleApiUrl = GOOGLE_API_URL;
   googleApiLoaded = false;
 
+  setDevMode() { this.isDevMode = true; }
+  log = (s?: any, ...optional: any[]) => s && this.isDevMode && console.log(s, optional);
+
   constructor(private http: HttpClient) {
-    if (this.isDevMode) console.warn(`'google-drive.service'`);
+    this.log(`'google-drive.service'`);
 
     this.onAuthApiLoad = this.onAuthApiLoad.bind(this);
     this.onPickerApiLoad = this.onPickerApiLoad.bind(this);
@@ -95,14 +98,14 @@ export class GoogleDriveService implements OnDestroy {
     if (authResult && !authResult.error) {
       this.oauthToken = authResult.access_token;
       this.createPicker();
-      if (this.isDevMode) console.log('handleAuthResult', authResult);
+      this.log('handleAuthResult', authResult);
     }
   }
 
   private createPicker() {
     if (this.pickerApiLoaded && this.oauthToken) {
       var origin = window.location.protocol + '//' + window.location.host;
-      if (this.isDevMode) console.log(`createPicker origin '${origin}'`);
+      this.log(`createPicker origin '${origin}'`);
 
       var view = new google.picker.View(google.picker.ViewId.DOCS);
       view.setMimeTypes('image/png,image/jpeg,image/jpg');
@@ -126,7 +129,7 @@ export class GoogleDriveService implements OnDestroy {
       const doc = data.docs[0];
       const fileId = doc.id;
       const accessToken = gapi.auth.getToken().access_token;
-      if (this.isDevMode) console.log('The user selected', fileId, accessToken, doc);
+      this.log('The user selected', fileId, accessToken, doc);
 
       let file: File;
       await this.getFile(fileId, accessToken).pipe(take(1))

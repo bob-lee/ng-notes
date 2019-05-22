@@ -72,7 +72,7 @@ export class NgInputFileComponent implements OnInit {
       this.dropbox.addEventListener('dragover', this.dragover, false);
       this.dropbox.addEventListener('drop', this.drop, false);
     }
-    if (this.service.isDevMode) console.warn('NgInputFileComponent', this.dropbox);
+    this.service.log('NgInputFileComponent', this.dropbox);
   }
 
   private dragenter(e) {
@@ -100,7 +100,7 @@ export class NgInputFileComponent implements OnInit {
 
     const file = files.item(0);
 
-    if (this.service.isDevMode) console.log(`fileDropped '${file.name}'`, file);
+    this.service.log(`fileDropped '${file.name}'`, file);
 
     if (this.filename === file.name) return;
 
@@ -127,7 +127,7 @@ export class NgInputFileComponent implements OnInit {
   }
 
   googleFileChanged(file) {
-    if (this.service.isDevMode) console.log(`googleFileChanged '${file.name}'`, file);
+    this.service.log(`googleFileChanged '${file.name}'`, file);
 
     if (this.googleFile &&
       this.googleFile.name === file.name &&

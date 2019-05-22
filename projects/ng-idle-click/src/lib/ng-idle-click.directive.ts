@@ -30,10 +30,10 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
   @HostListener('click', ['$event'])
   onClick(e) {
     if (this.busyService.busy) { // do nothing
-      if (this.busyService.isDevMode) console.warn('busy');
+      this.busyService.log('busy');
       return;
     } else { // serve
-      if (this.busyService.isDevMode) console.warn('click');
+      this.busyService.log('click');
       this.busyService.set();
       this.toAnimate = false;
       this.timer = setTimeout(_ => {
@@ -54,7 +54,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
     private builder: AnimationBuilder) { }
 
   ngOnInit() {
-    if (this.busyService.isDevMode) console.log(`NgIdleClickDirective(${this.idleClickLoader})`);
+    this.busyService.log(`NgIdleClickDirective(${this.idleClickLoader})`);
   }
 
   ngOnDestroy() {
@@ -73,7 +73,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    if (this.busyService.isDevMode) console.warn('done');
+    this.busyService.log('done');
   };
 
   animationDone = () => {
@@ -83,7 +83,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
       }
       this.playDefaultAnimation();
     }
-    //if (this.busyService.isDevMode) console.log('animationDone()', !!this.toAnimate, !!this.player);
+    //this.busyService.log('animationDone()', !!this.toAnimate, !!this.player);
   }
 
   playDefaultAnimation() {
@@ -98,7 +98,7 @@ export class NgIdleClickDirective implements OnInit, OnDestroy {
         ]))
       ]);
       this.player = factory.create(this.el.nativeElement);
-      if (this.busyService.isDevMode) console.log('playDefaultAnimation');
+      this.busyService.log('playDefaultAnimation');
     }
 
     this.player.onDone(this.animationDone);

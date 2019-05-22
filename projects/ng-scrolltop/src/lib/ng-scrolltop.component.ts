@@ -93,7 +93,7 @@ export class NgScrolltopComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    if (!this.service._init) this.service.init(this._elementId);
+    this.service.init(this._elementId);
 
     this.icon = document.querySelector('div.scroll-top:not(.dev)') as HTMLElement;
     this.svg = document.querySelector('div.scroll-top:not(.dev) svg') as HTMLElement;
@@ -104,10 +104,10 @@ export class NgScrolltopComponent implements OnInit, OnDestroy {
       setElementStyle(this.icon, 'height', this._size);
       setElementStyle(this.svg, 'fill', this._fill);
     } else {
-      if (this.service.isDevMode) console.warn(`NgScrolltopComponent failed to find icon element, so any inputs will be ignored`);
+      this.service.log(`NgScrolltopComponent failed to find icon element, so any inputs will be ignored`);
     }
 
-    if (this.service.isDevMode) console.log(`NgScrolltopComponent(${this.service.isWindow}, ${this._bottom}, ${this._background}, ${this._elementId})`, this.icon && this.icon.style);
+    this.service.log(`NgScrolltopComponent(${this.service.isWindow}, ${this._bottom}, ${this._background}, ${this._elementId})`, this.icon && this.icon.style);
   }
 
   ngOnDestroy() {
