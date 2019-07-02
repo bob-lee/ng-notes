@@ -1,5 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Directive, ElementRef, EventEmitter, Inject, Input, NgZone, OnDestroy, Output, PLATFORM_ID } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, EventEmitter, Input, NgZone, OnDestroy, Output } from '@angular/core';
 import { fromEvent, Subscription } from 'rxjs';
 import { debounceTime, first } from 'rxjs/operators';
 import { LazyLoadService, IntersectionState } from './ng-lazy-load.service';
@@ -52,8 +51,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
 
   constructor(private _service: LazyLoadService,
     private _element: ElementRef,
-    private _zone: NgZone,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private _zone: NgZone
   ) { }
 
   public ngAfterViewInit() {
@@ -90,7 +88,7 @@ export class LazyLoadDirective implements AfterViewInit, OnDestroy {
   }
 
   private doRegister() {
-    if (isPlatformBrowser(this.platformId)) {
+    if (this._service.isBrowser) {
       if (this._service.isCompatibleBrowser) {
         this.registerIntersectionObserver();
         if (this._intersectionObserver && this._element.nativeElement) {

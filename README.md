@@ -22,7 +22,7 @@ ng serve
 // to run tests
 ng test
 // to build for production
-npm run build
+yarn build
 // to test on localhost:5000 with production build
-npm run serve
+yarn serve
 ```

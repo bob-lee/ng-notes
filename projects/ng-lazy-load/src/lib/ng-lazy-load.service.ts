@@ -1,4 +1,5 @@
-import { Injectable, isDevMode } from '@angular/core';
+import { Inject, Injectable, isDevMode, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Subject, Observable } from 'rxjs';
 
 export enum IntersectionState {
@@ -18,6 +19,7 @@ const LOAD_AHEAD_COUNT = 2;
   providedIn: 'root'
 })
 export class LazyLoadService {
+  isBrowser: boolean;
   isDevMode = isDevMode();
   isSimpleMode: boolean = true; // if true, emit only Intersecting and later states that will cause loading
                                 // if false, emit Registered, Listening states as well
@@ -77,8 +79,9 @@ export class LazyLoadService {
     this.announceOrder('register');
   }
 
-  constructor() {
-    this.isCompatibleBrowser = this.hasCompatibleBrowser();
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+    this.isCompatibleBrowser = this.isBrowser && this.hasCompatibleBrowser();
     this.log(`'LazyLoadService' loadAheadCount`, this._loadAheadCount, this.isCompatibleBrowser);
   }
 }
