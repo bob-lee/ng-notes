@@ -41,7 +41,7 @@
     "global": "^4.3.2",
     "hammerjs": "^2.0.8",
     "ngx-md": "^6.0.9",
-    "prismjs": "1.13.0",
+    "prismjs": "1.24.0",
     "rxjs": "^6.5.2",
     "rxjs-tslint": "^0.1.4",
     "uglify-js": "^3.3.24",
